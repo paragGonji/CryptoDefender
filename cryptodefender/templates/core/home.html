@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CryptoDefender</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+
+<!-- 🔷 Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">CryptoDefender</a>
+
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav ms-auto">
+
+                <!-- Detect -->
+                <li class="nav-item">
+                    <a class="nav-link" href="/detect/">Detect</a>
+                </li>
+
+                <!-- Prevent (Locked) -->
+                <li class="nav-item">
+                    <a class="nav-link disabled" href="#">Prevent 🔒</a>
+                </li>
+
+                <!-- Login -->
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'login' %}">Login</a>
+                </li>
+
+                <!-- Signup -->
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'signup' %}">Signup</a>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- 🔷 Content -->
+<div class="container text-center mt-5">
+    <h1>Welcome to CryptoDefender</h1>
+    <p>Detect Crypto/Data Mining Activity in Your System</p>
+
+
+     <!-- ✅ FIXED POST FORM -->
+    <form action="{% url 'detect' %}" method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary btn-lg mt-3">
+            Start Detection
+        </button>
+    </form>
+</div>
+    {% comment %} <a href="/detect/" class="btn btn-primary btn-lg mt-3">
+        Start Detection
+    </a>
+</div> {% endcomment %}
+
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CryptoDefender</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+
+<!-- 🔷 Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">CryptoDefender</a>
+
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav ms-auto">
+
+                <!-- Detect -->
+                <li class="nav-item">
+                    <a class="nav-link" href="/detect/">Detect</a>
+                </li>
+
+                <!-- Prevent (UNLOCKED ✅) -->
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Prevent 🔓</a>
+                </li>
+
+                <!-- Logout -->
+                <li class="nav-item">
+                    <a class="nav-link text-danger" href="{% url 'logout' %}">Logout</a>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- 🔷 Content -->
+<div class="container text-center mt-5">
+    <h1>Welcome {{ request.user.username }}</h1>
+    <p>You are now logged in 🎉</p>
+
+    <h1>hi test</h1>
+</div>
+
+</body>
+</html>
