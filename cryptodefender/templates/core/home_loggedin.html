@@ -19,9 +19,9 @@
                     <a class="nav-link" href="/detect/">Detect</a>
                 </li>
 
-                <!-- Prevent (UNLOCKED ✅) -->
+                <!-- Prevent (locked) -->
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Prevent 🔓</a>
+                    <a class="nav-link disabled" href="#">Prevent 🔒</a>
                 </li>
 
                 <!-- Logout -->
@@ -39,7 +39,24 @@
     <h1>Welcome {{ request.user.username }}</h1>
     <p>You are now logged in 🎉</p>
 
-    <h1>hi test</h1>
+    <hr>
+
+    <h3>🔍 System Monitoring (Task Manager Data)</h3>
+
+    <div class="card p-4 mt-4 shadow">
+        <h5>CPU Usage: {{ cpu }}%</h5>
+        <h5>RAM Usage: {{ ram }}%</h5>
+        <h5>Disk Usage: {{ disk }}%</h5>
+
+        <hr>
+
+        {% if "Detected" in status %}
+            <h2 class="text-danger">{{ status }}</h2>
+        {% else %}
+            <h2 class="text-success">{{ status }}</h2>
+        {% endif %}
+    </div>
+
 </div>
 
 </body>

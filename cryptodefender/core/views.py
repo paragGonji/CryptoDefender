@@ -115,19 +115,47 @@ def login_view(request):
         username = request.POST['username']
         password = request.POST['password']
 
-        user = authenticate(username=username, password=password)
+        user = authenticate(request, username=username, password=password)
 
-        if user:
+        if user is not None:
             login(request, user)
-            return redirect('home')
+            return redirect('home_loggedin')   # ✅ go to logged-in dashboard
+        else:
+            return render(request, 'core/login.html', {
+                'error': 'Invalid username or password'
+            })
 
-    return render(request, 'core/home_loggedin.html')
+    return render(request, 'core/login.html')   # ✅ ALWAYS show login page
 
 
+
+# 🔍 Mining Detection Function
+def detect_mining():
+    cpu = psutil.cpu_percent(interval=1)
+    ram = psutil.virtual_memory().percent
+    disk = psutil.disk_usage('/').percent
+
+    if cpu > 70 and ram > 80:
+        status = "⚠️ Crypto Mining Detected!"
+    else:
+        status = "✅ System Safe"
+
+    return status, cpu, ram, disk
+
+
+# 🏠 Home (Logged In)
 @login_required
 def home_loggedin(request):
-    return render(request, 'core/home_loggedin.html')
+    status, cpu, ram, disk = detect_mining()
+
+    return render(request, 'core/home_loggedin.html', {
+        'status': status,
+        'cpu': cpu,
+        'ram': ram,
+        'disk': disk
+    })
 
 def logout_view(request):
     logout(request)
-    return redirect('home')
+    request.session.flush()
+    return redirect('home')   # ✅ go to login page (better UX)
