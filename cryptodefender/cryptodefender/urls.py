@@ -17,7 +17,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from core import views
-
+from deep_research import views as dr_views
+from protection import views as pr_views
+from prevent_guide import views as pg_views
+from payment import views as pay_views
 urlpatterns = [
     path('admin/', admin.site.urls),
 
@@ -31,4 +34,10 @@ urlpatterns = [
 
     path('home_loggedin/', views.home_loggedin, name='home_loggedin'),
     path('logout/', views.logout_view, name='logout'),
+
+      # 🔍 New Apps Routes
+    path('deep-research/', dr_views.deep_research, name='deep_research'),
+    path('protection/', pr_views.protection, name='protection'),
+    path('prevent-guide/', pg_views.prevent_guide, name='prevent_guide'),
+    path('payment/', pay_views.payment, name='payment'),
 ]
