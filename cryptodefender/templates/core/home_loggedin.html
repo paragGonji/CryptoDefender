@@ -3,33 +3,108 @@
 <head>
     <title>CryptoDefender</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
+    <style>
+        /* 🔘 Clear button bottom-right */
+        .clear-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+        }
+    </style>
 </head>
 <body>
 
 <!-- 🔷 Navbar -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+{% comment %} <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="#">CryptoDefender</a>
 
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav ms-auto">
 
-                <!-- Detect -->
                 <li class="nav-item">
-                    <a class="nav-link" href="/detect/">Detect</a>
+                    <a class="nav-link" href="#">Detect</a>
                 </li>
 
-                <!-- Prevent (locked) -->
                 <li class="nav-item">
                     <a class="nav-link disabled" href="#">Prevent 🔒</a>
                 </li>
 
-                <!-- Logout -->
                 <li class="nav-item">
                     <a class="nav-link text-danger" href="{% url 'logout' %}">Logout</a>
                 </li>
 
             </ul>
+        </div>
+    </div>
+</nav> {% endcomment %}
+<!-- 🔷 Advanced Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+
+        <!-- Logo -->
+        <a class="navbar-brand fw-bold" href="#">🛡 CryptoDefender</a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+
+            <!-- LEFT SIDE -->
+            <ul class="navbar-nav me-auto">
+
+                <!-- 🔍 Deep Research -->
+                <li class="nav-item">
+                    <a class="nav-link" href="#">🔍 Deep Research</a>
+                </li>
+
+                <!-- 🛡 Protection (locked initially) -->
+                <li class="nav-item">
+                    <a class="nav-link disabled" href="#">🛡 Protection 🔒</a>
+                </li>
+
+                <!-- 📘 Prevention Guide -->
+                <li class="nav-item">
+                    <a class="nav-link" href="#">📘 How to Prevent</a>
+                </li>
+
+            </ul>
+
+            <!-- RIGHT SIDE -->
+            <ul class="navbar-nav ms-auto align-items-center">
+
+                <!-- 💎 Subscribe Button -->
+                <li class="nav-item me-3">
+                    <a class="btn btn-warning fw-bold" href="#">
+                        💎 Subscribe ₹49
+                    </a>
+                </li>
+
+                <!-- 👤 Profile Dropdown -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        👤 {{ request.user.username }}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+
+                        <li><a class="dropdown-item" href="#">Profile</a></li>
+                        <li><a class="dropdown-item" href="#">Settings</a></li>
+
+                        <li><hr class="dropdown-divider"></li>
+
+                        <li>
+                            <a class="dropdown-item text-danger" href="{% url 'logout' %}">
+                                Logout
+                            </a>
+                        </li>
+
+                    </ul>
+                </li>
+
+            </ul>
+
         </div>
     </div>
 </nav>
@@ -41,23 +116,48 @@
 
     <hr>
 
-    <h3>🔍 System Monitoring (Task Manager Data)</h3>
+    <h3>🔍 Crypto Mining Detection</h3>
 
-    <div class="card p-4 mt-4 shadow">
+    <!-- 🔘 Detect Button -->
+    <form method="POST">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary btn-lg mt-3">
+            Run Detection
+        </button>
+    </form>
+
+    <!-- 📊 Results -->
+    {% if cpu %}
+    <div id="resultCard" class="card p-4 mt-4 shadow">
         <h5>CPU Usage: {{ cpu }}%</h5>
         <h5>RAM Usage: {{ ram }}%</h5>
         <h5>Disk Usage: {{ disk }}%</h5>
+        <h5>Upload Speed: {{ upload }} KB/s</h5>
+        <h5>Download Speed: {{ download }} KB/s</h5>
 
         <hr>
 
-        {% if "Detected" in status %}
-            <h2 class="text-danger">{{ status }}</h2>
+        {% if "Detected" in result %}
+            <h2 class="text-danger">{{ result }}</h2>
         {% else %}
-            <h2 class="text-success">{{ status }}</h2>
+            <h2 class="text-success">{{ result }}</h2>
         {% endif %}
     </div>
 
+    <!-- 🔘 Clear Button -->
+    <button onclick="clearData()" class="btn btn-danger clear-btn">
+        Clear
+    </button>
+    {% endif %}
+
 </div>
+
+<!-- 🧠 JS to hide results -->
+<script>
+    function clearData() {
+        document.getElementById("resultCard").style.display = "none";
+    }
+</script>
 
 </body>
 </html>

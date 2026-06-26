@@ -146,14 +146,39 @@ def detect_mining():
 # 🏠 Home (Logged In)
 @login_required
 def home_loggedin(request):
-    status, cpu, ram, disk = detect_mining()
+    context = {}
 
-    return render(request, 'core/home_loggedin.html', {
-        'status': status,
-        'cpu': cpu,
-        'ram': ram,
-        'disk': disk
-    })
+    if request.method == "POST":
+
+        cpu = psutil.cpu_percent(interval=1)
+        ram = psutil.virtual_memory().percent
+        disk = psutil.disk_usage('C:\\').percent  # Windows
+
+        # Network usage
+        net1 = psutil.net_io_counters()
+        time.sleep(1)
+        net2 = psutil.net_io_counters()
+
+        upload_speed = (net2.bytes_sent - net1.bytes_sent) / 1024
+        download_speed = (net2.bytes_recv - net1.bytes_recv) / 1024
+
+        # Detection logic (same as your function)
+        if cpu > 30 and ram > 90 and disk > 70 and download_speed > 500:
+            result = "⚠️ Mining / Suspicious Activity Detected"
+        else:
+            result = "✅ System Safe"
+
+        context = {
+            'cpu': cpu,
+            'ram': ram,
+            'disk': disk,
+            'upload': round(upload_speed, 2),
+            'download': round(download_speed, 2),
+            'result': result
+        }
+
+    return render(request, 'core/home_loggedin.html', context)
+
 
 def logout_view(request):
     logout(request)
