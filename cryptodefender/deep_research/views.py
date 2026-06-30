@@ -1,5 +1,3 @@
-
-# Create your views here.
 from django.shortcuts import render
 
 def deep_research(request):
