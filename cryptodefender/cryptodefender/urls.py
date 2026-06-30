@@ -31,11 +31,16 @@ urlpatterns = [
     path('signup/', views.signup_view, name='signup'),
     path('verify-signup-otp/', views.verify_signup_otp, name='verify_signup_otp'),
     path('login/', views.login_view, name='login'),
+    
+    path('api/scan-result/', views.receive_scan, name='receive_scan'),
+
+
 
     path('home_loggedin/', views.home_loggedin, name='home_loggedin'),
     path('logout/', views.logout_view, name='logout'),
 
       # 🔍 New Apps Routes
+
     path('deep-research/', dr_views.deep_research, name='deep_research'),
     path('protection/', pr_views.protection, name='protection'),
     path('prevent-guide/', pg_views.prevent_guide, name='prevent_guide'),

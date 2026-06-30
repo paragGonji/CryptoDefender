@@ -8,6 +8,12 @@ from django.core.mail import send_mail
 from django.contrib.auth.decorators import login_required
 
 
+from django.http import JsonResponse
+import json
+from django.views.decorators.csrf import csrf_exempt
+from .models import ScanResult
+
+
 def home(request):
     return render(request, 'core/home.html')
 
@@ -184,3 +190,22 @@ def logout_view(request):
     logout(request)
     request.session.flush()
     return redirect('home')   # ✅ go to login page (better UX)
+
+
+#api
+
+
+@csrf_exempt
+def receive_scan(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        result_list = data.get("result", [])
+
+        # Convert list to string
+        result_text = "\n".join(result_list)
+
+        ScanResult.objects.create(result=result_text)
+
+        return JsonResponse({"status": "saved"})
+
+    return JsonResponse({"error": "invalid"}, status=400)
