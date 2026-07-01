@@ -41,6 +41,7 @@ urlpatterns = [
       # 🔍 New Apps Routes
 
     path('deep-research/', dr_views.deep_research, name='deep_research'),
+
     path('protection/', pr_views.protection, name='protection'),
     path('prevent-guide/', pg_views.prevent_guide, name='prevent_guide'),
     path('payment/', pay_views.payment, name='payment'),

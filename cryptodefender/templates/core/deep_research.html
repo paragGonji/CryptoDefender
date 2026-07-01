@@ -112,55 +112,57 @@
     </div>
 
     <!-- 🔥 RESULT SECTION -->
-    <div class="mt-4 text-center">
+    <div id="resultSection" class="mt-4 text-center">
 
-        {% if result %}
+        {% if not result %}
 
-            <!-- 🚨 MINER FOUND -->
-            {% if result.type == "miner_found" %}
-                <div class="result-box status-danger">
-                    <h4>⚠️ Suspicious Activity Detected</h4>
-
-                    <p><b>🚨 Miner Found:</b></p>
-                    <ul>
-                        {% for m in result.miners %}
-                            <li>{{ m }}</li>
-                        {% endfor %}
-                    </ul>
-
-                    <hr>
-
-                    <p><b>🔥 Top 5 CPU Processes:</b></p>
-                    <ul>
-                        {% for p in result.top5 %}
-                            <li>{{ p }}</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-
-            <!-- ✅ SAFE -->
-            {% else %}
-                <div class="result-box status-safe">
-                    <h4>✅ System Safe</h4>
-
-                    <p><b>🔥 Top 5 CPU Usage Processes:</b></p>
-                    <ul>
-                        {% for p in result.top5 %}
-                            <li>{{ p }}</li>
-                        {% endfor %}
-                    </ul>
-
-                    <p class="mt-2">
-                        High CPU usage detected, but no mining software found.
-                    </p>
-                </div>
-            {% endif %}
-
-        {% else %}
+            <!-- ⏳ WAITING -->
             <div class="result-box status-warning">
                 ⏳ Waiting for scan...<br>
-                👉 Download and run the file to detect mining
+                👉 Download and run the scanner tool
             </div>
+
+        {% elif result.type == "miner_found" %}
+
+            <!-- ⚠️ MINER FOUND -->
+            <div class="result-box status-danger">
+                <h4>⚠️ Suspicious Activity Detected</h4>
+
+                <p><b>🚨 Miner Found:</b></p>
+                <ul>
+                    {% for m in result.miners %}
+                        <li>{{ m }}</li>
+                    {% endfor %}
+                </ul>
+
+                <hr>
+
+                <p><b>🔥 Top 5 CPU Processes:</b></p>
+                <ul>
+                    {% for p in result.top5 %}
+                        <li>{{ p }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+        {% else %}
+
+            <!-- ✅ SAFE -->
+            <div class="result-box status-safe">
+                <h4>✅ System Safe</h4>
+
+                <p><b>🔥 Top 5 CPU Usage Processes:</b></p>
+                <ul>
+                    {% for p in result.top5 %}
+                        <li>{{ p }}</li>
+                    {% endfor %}
+                </ul>
+
+                <p class="mt-2">
+                    High CPU usage detected, but no mining software found.
+                </p>
+            </div>
+
         {% endif %}
 
     </div>
@@ -182,6 +184,7 @@ function selectOS(os) {
         btn.href = "/static/tools/linux_scanner.sh";
     }
 }
+
 
 // 🔄 AUTO REFRESH EVERY 5 SEC
 setTimeout(function(){

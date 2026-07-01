@@ -19,33 +19,57 @@ latest_result = {
 # 🧠 Detection Function
 def detect_mining_process():
     suspicious_names = ["xmrig", "minerd", "cpuminer"]
-    safe_processes = ["explorer.exe", "chrome.exe", "python.exe"]
 
     suspicious_found = []
+    cpu_cores = psutil.cpu_count(logical=True)
 
-    for proc in psutil.process_iter(['name', 'cpu_percent']):
+    # 🔥 PRIME CPU USAGE (VERY IMPORTANT)
+    for p in psutil.process_iter():
         try:
-            name = (proc.info['name'] or "").lower()
-            cpu = proc.info['cpu_percent']
-
-            # 🔴 Known miners
-            if any(miner in name for miner in suspicious_names):
-                suspicious_found.append(f"⚠️ Known Miner Detected: {name}")
-
-            # 🔴 High CPU usage
-            elif cpu and cpu > 50:
-                suspicious_found.append(f"⚠️ High CPU Usage: {name} ({cpu}%)")
-
-            # 🔴 Unknown EXE
-            elif name.endswith(".exe") and name not in safe_processes:
-                suspicious_found.append(f"⚠️ Unknown EXE: {name}")
-
+            p.cpu_percent(None)
         except:
             pass
 
-    if suspicious_found:
-        return suspicious_found
-    return ["✅ System Safe"]
+    # small delay for real measurement
+    import time
+    time.sleep(0.5)
+
+    processes = []
+
+    for proc in psutil.process_iter(['name']):
+        try:
+            name = (proc.info['name'] or "").lower()
+
+            cpu = proc.cpu_percent(None)
+            cpu_normalized = round(cpu / cpu_cores, 1)
+
+            if not name:
+                continue
+
+            processes.append((name, cpu_normalized))
+
+            # detect suspicious only (optional logic)
+            if any(m in name for m in suspicious_names):
+                suspicious_found.append(f"⚠️ Miner: {name}")
+
+        except:
+            continue
+
+    # sort top 5
+    top = sorted(processes, key=lambda x: x[1], reverse=True)[:5]
+
+    result = []
+    for name, cpu in top:
+        result.append(f"{name} ({cpu}%)")
+
+    if not result:
+        result = ["No active processes found"]
+
+    return {
+        "status": "✅ System Safe",
+        "details": result
+    }
+
 
 
 # 🔷 Your existing view upgraded
@@ -130,13 +154,13 @@ def analyze_processes(processes):
 
 
 
-
 def deep_research(request):
     latest = ScanResult.objects.last()
 
+    # default waiting state
     parsed_result = None
 
-    if latest:
+    if latest and latest.result:
         try:
             parsed_result = json.loads(latest.result)
         except:
@@ -145,4 +169,5 @@ def deep_research(request):
     return render(request, 'core/deep_research.html', {
         'result': parsed_result
     })
+
 
