@@ -25,6 +25,21 @@
             border-radius: 10px;
             padding: 20px;
         }
+
+        .status-safe {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-danger {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
     </style>
 </head>
 
@@ -101,20 +116,48 @@
 
         {% if result %}
 
-            {% if "SAFE" in result %}
-                <div class="alert alert-success result-box">
-                    <h4>✅ Your System is SAFE</h4>
-                    <p>No crypto mining detected</p>
+            <!-- 🚨 MINER FOUND -->
+            {% if result.type == "miner_found" %}
+                <div class="result-box status-danger">
+                    <h4>⚠️ Suspicious Activity Detected</h4>
+
+                    <p><b>🚨 Miner Found:</b></p>
+                    <ul>
+                        {% for m in result.miners %}
+                            <li>{{ m }}</li>
+                        {% endfor %}
+                    </ul>
+
+                    <hr>
+
+                    <p><b>🔥 Top 5 CPU Processes:</b></p>
+                    <ul>
+                        {% for p in result.top5 %}
+                            <li>{{ p }}</li>
+                        {% endfor %}
+                    </ul>
                 </div>
+
+            <!-- ✅ SAFE -->
             {% else %}
-                <div class="alert alert-danger result-box">
-                    <h4>⚠️ Mining Activity Detected!</h4>
-                    <pre>{{ result }}</pre>
+                <div class="result-box status-safe">
+                    <h4>✅ System Safe</h4>
+
+                    <p><b>🔥 Top 5 CPU Usage Processes:</b></p>
+                    <ul>
+                        {% for p in result.top5 %}
+                            <li>{{ p }}</li>
+                        {% endfor %}
+                    </ul>
+
+                    <p class="mt-2">
+                        High CPU usage detected, but no mining software found.
+                    </p>
                 </div>
             {% endif %}
 
         {% else %}
-            <div class="alert alert-warning result-box">
+            <div class="result-box status-warning">
                 ⏳ Waiting for scan...<br>
                 👉 Download and run the file to detect mining
             </div>

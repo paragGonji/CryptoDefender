@@ -35,7 +35,6 @@ urlpatterns = [
     path('api/scan-result/', views.receive_scan, name='receive_scan'),
 
 
-
     path('home_loggedin/', views.home_loggedin, name='home_loggedin'),
     path('logout/', views.logout_view, name='logout'),
 

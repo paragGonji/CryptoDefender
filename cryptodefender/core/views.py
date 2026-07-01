@@ -192,19 +192,84 @@ def logout_view(request):
     return redirect('home')   # ✅ go to login page (better UX)
 
 
-#api
 
+
+
+
+
+
+def analyze_processes(processes):
+    suspicious_names = ["xmrig", "minerd", "cpuminer"]
+
+    # ❌ Processes to IGNORE
+    ignore_list = [
+        "system idle process",
+        "system",
+        "system interrupts",
+        "desktopextension.exe",
+        "windows_scanner.exe"
+    ]
+
+    # 🔽 Sort by CPU usage
+    sorted_processes = sorted(
+        processes,
+        key=lambda x: x.get("cpu", 0),
+        reverse=True
+    )
+
+    top5 = []
+    detected_miners = []
+
+    for p in sorted_processes:
+        name = (p.get("name") or "").lower()
+        cpu = p.get("cpu", 0)
+
+        # ❌ IGNORE unwanted processes
+        if any(ignore in name for ignore in ignore_list):
+            continue
+
+        # ✅ Add to list
+        top5.append(f"{name} ({cpu:.1f}%)")
+
+        # 🔴 Detect miners
+        if any(m in name for m in suspicious_names):
+            detected_miners.append(name)
+
+        # Stop at 5
+        if len(top5) == 5:
+            break
+
+    # 🚨 RESULT
+    if detected_miners:
+        return {
+            "status": "⚠️ Suspicious Activity Detected",
+            "type": "miner_found",
+            "miners": detected_miners,
+            "top5": top5
+        }
+    else:
+        return {
+            "status": "✅ System Safe",
+            "type": "high_usage",
+            "top5": top5
+        }
+
+
+#api
 
 @csrf_exempt
 def receive_scan(request):
     if request.method == "POST":
         data = json.loads(request.body)
-        result_list = data.get("result", [])
 
-        # Convert list to string
-        result_text = "\n".join(result_list)
+        processes = data.get("processes", [])
 
-        ScanResult.objects.create(result=result_text)
+        result_data = analyze_processes(processes)
+
+        # ✅ Save FULL JSON (not string text)
+        ScanResult.objects.create(
+            result=json.dumps(result_data)
+        )
 
         return JsonResponse({"status": "saved"})
 
