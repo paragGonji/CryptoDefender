@@ -5,7 +5,8 @@ import json
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render
-
+from django.utils import timezone
+from datetime import timedelta
 
 # Global storage
 latest_result = {
@@ -157,17 +158,39 @@ def analyze_processes(processes):
 def deep_research(request):
     latest = ScanResult.objects.last()
 
-    # default waiting state
     parsed_result = None
 
-    if latest and latest.result:
-        try:
-            parsed_result = json.loads(latest.result)
-        except:
-            parsed_result = None
+    if latest:
+        # ✅ DELETE if older than 5 minutes
+        if timezone.now() - latest.created_at > timedelta(minutes=1):
+            latest.delete()
+        else:
+            try:
+                parsed_result = json.loads(latest.result)
+            except:
+                parsed_result = None
 
     return render(request, 'core/deep_research.html', {
         'result': parsed_result
     })
+
+
+
+
+# def deep_research(request):
+#     latest = ScanResult.objects.last()
+
+#     # default waiting state
+#     parsed_result = None
+
+#     if latest and latest.result:
+#         try:
+#             parsed_result = json.loads(latest.result)
+#         except:
+#             parsed_result = None
+
+#     return render(request, 'core/deep_research.html', {
+#         'result': parsed_result
+#     })
 
 
