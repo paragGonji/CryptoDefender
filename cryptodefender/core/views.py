@@ -1,3 +1,5 @@
+from urllib import request
+
 from django.shortcuts import render, redirect
 import psutil
 import time
@@ -274,3 +276,12 @@ def receive_scan(request):
         return JsonResponse({"status": "saved"})
 
     return JsonResponse({"error": "invalid"}, status=400)
+
+
+
+
+
+@login_required
+def profile_view(request):
+
+    return render(request, 'core/profile.html')

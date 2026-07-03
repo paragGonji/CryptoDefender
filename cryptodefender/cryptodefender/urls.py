@@ -31,7 +31,10 @@ urlpatterns = [
     path('signup/', views.signup_view, name='signup'),
     path('verify-signup-otp/', views.verify_signup_otp, name='verify_signup_otp'),
     path('login/', views.login_view, name='login'),
-    
+    path('profile/', views.profile_view, name='profile'),
+
+
+
     path('api/scan-result/', views.receive_scan, name='receive_scan'),
 
 
