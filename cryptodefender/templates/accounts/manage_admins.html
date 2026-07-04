@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>Manage Admins</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+
+<nav class="navbar navbar-dark bg-dark p-3">
+    <span class="navbar-brand">Admin Panel</span>
+    <div>
+        <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-light">Global</a>
+        <a href="{% url 'manage_admins' %}" class="btn btn-warning">Admin</a>
+        <a href="{% url 'logout' %}" class="btn btn-danger">Logout</a>
+    </div>
+</nav>
+
+<div class="container mt-4">
+
+<h3>Manage Admin Access</h3>
+
+<table class="table table-bordered">
+<tr>
+<th>Username</th>
+<th>Action</th>
+</tr>
+
+{% for user in users %}
+
+<tr>
+<td>{{ user.username }}</td>
+<td>
+<form method="post">
+{% csrf_token %}
+<input type="hidden" name="user_id" value="{{ user.id }}">
+
+<button name="action" value="add" class="btn btn-success btn-sm">Add</button> <button name="action" value="remove" class="btn btn-danger btn-sm">Remove</button>
+
+</form>
+</td>
+</tr>
+{% endfor %}
+
+</table>
+
+</div>
+
+</body>
+</html>

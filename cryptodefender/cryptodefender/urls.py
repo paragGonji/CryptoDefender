@@ -21,6 +21,12 @@ from deep_research import views as dr_views
 from protection import views as pr_views
 from prevent_guide import views as pg_views
 from payment import views as pay_views
+
+from accounts import views as acc_views
+
+
+
+
 urlpatterns = [
     path('admin/', admin.site.urls),
 
@@ -48,4 +54,11 @@ urlpatterns = [
     path('protection/', pr_views.protection, name='protection'),
     path('prevent-guide/', pg_views.prevent_guide, name='prevent_guide'),
     path('payment/', pay_views.payment, name='payment'),
+
+
+    # 🔥 ADMIN PANEL (CUSTOM)
+    path('admin-login/', acc_views.admin_login, name='admin_login'), 
+    path('admin-dashboard/', acc_views.admin_dashboard, name='admin_dashboard'), 
+    path('manage-admins/', acc_views.manage_admins, name='manage_admins'), 
+    path('admin-logout/', acc_views.admin_logout, name='admin_logout'),
 ]
