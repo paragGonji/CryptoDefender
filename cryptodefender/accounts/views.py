@@ -34,51 +34,119 @@ def admin_login(request):
     return render(request, 'accounts/admin_login.html')
 
 
-# 📊 GLOBAL PAGE (USER LIST + SEARCH)
+
+
+
+
 @login_required
 def admin_dashboard(request):
     if not is_admin(request.user):
-        return redirect('home')
+        logout(request)
+        return redirect('admin_login')
 
-    query = request.GET.get('q')
+    # 🔥 HANDLE ACTIONS
+    if request.method == "POST":
+        action = request.POST.get("action")
 
-    if query:
-        users = User.objects.filter(username__icontains=query)
-    else:
-        users = User.objects.all()
+        if action == "remove":
+            user_id = request.POST.get("user_id")
+
+            if user_id and int(user_id) != request.user.id:
+                with connection.cursor() as cursor:
+                    cursor.execute(
+                        "DELETE FROM admin_access WHERE user_id = %s",
+                        [user_id]
+                    )
+
+        elif action == "delete_user":
+            user_id = request.POST.get("user_id")
+
+            if user_id and int(user_id) != request.user.id:
+                try:
+                    user_to_delete = User.objects.get(id=user_id)
+                    
+                    # First remove from admin_access if they're an admin
+                    with connection.cursor() as cursor:
+                        cursor.execute(
+                            "DELETE FROM admin_access WHERE user_id = %s",
+                            [user_id]
+                        )
+                    
+                    # Then delete the user
+                    user_to_delete.delete()
+                    
+                except User.DoesNotExist:
+                    pass  # User doesn't exist
+
+        return redirect('admin_dashboard')
+
+    # 🔽 GET ALL USERS
+    users = User.objects.all()
+
+    # 🔽 GET ADMIN IDS
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT user_id FROM admin_access")
+        admin_ids = [row[0] for row in cursor.fetchall()]
 
     return render(request, 'accounts/admin_dashboard.html', {
-        'users': users
+        'users': users,
+        'admin_ids': admin_ids
     })
+
+
+
 
 
 # 👑 ADMIN MANAGEMENT PAGE
 @login_required
 def manage_admins(request):
     if not is_admin(request.user):
-        return redirect('home')
-
-    users = User.objects.all()
+        logout(request)
+        return redirect('admin_login')
 
     if request.method == "POST":
-        user_id = request.POST.get("user_id")
         action = request.POST.get("action")
 
-        with connection.cursor() as cursor:
-            if action == "add":
-                cursor.execute(
-                    "INSERT INTO admin_access (user_id) VALUES (%s) ON CONFLICT DO NOTHING",
-                    [user_id]
-                )
-            elif action == "remove":
-                cursor.execute(
-                    "DELETE FROM admin_access WHERE user_id = %s",
-                    [user_id]
-                )
+        if action == "create_admin":
+            username = request.POST.get("username")
+            password = request.POST.get("password")
+
+            if username and password:
+                user, created = User.objects.get_or_create(username=username)
+                user.set_password(password)
+                user.save()
+
+                with connection.cursor() as cursor:
+                    cursor.execute(
+                        "INSERT INTO admin_access (user_id) VALUES (%s) ON CONFLICT DO NOTHING",
+                        [user.id]
+                    )
+
+        elif action == "remove":
+            user_id = request.POST.get("user_id")
+
+            if user_id and int(user_id) != request.user.id:
+                with connection.cursor() as cursor:
+                    cursor.execute(
+                        "DELETE FROM admin_access WHERE user_id = %s",
+                        [user_id]
+                    )
+
+        # 🔥 IMPORTANT LINE
+        return redirect('manage_admins')
+
+    # 🔽 ALWAYS LOAD FRESH DATA AFTER REDIRECT
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT user_id FROM admin_access")
+        admin_ids = [row[0] for row in cursor.fetchall()]
+
+    users = User.objects.filter(id__in=admin_ids)
 
     return render(request, 'accounts/manage_admins.html', {
         'users': users
     })
+
+
 
 
 # 🚪 LOGOUT (optional if not already)

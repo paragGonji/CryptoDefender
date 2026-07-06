@@ -20,25 +20,59 @@
 
 <h3>Manage Admin Access</h3>
 
+<!-- 🔥 ADD ADMIN FORM -->
+
+<div class="card mb-4">
+    <div class="card-header">Add New Admin</div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="create_admin">
+
+
+        <div class="mb-2">
+            <input type="text" name="username" class="form-control" placeholder="Enter username" required>
+        </div>
+
+        <div class="mb-2">
+            <input type="password" name="password" class="form-control" placeholder="Enter password" required>
+        </div>
+
+        <button type="submit" class="btn btn-success">
+            Create Admin
+        </button>
+    </form>
+</div>
+
+
+</div>
+
+<!-- 👥 ADMIN LIST ONLY -->
+
 <table class="table table-bordered">
 <tr>
-<th>Username</th>
-<th>Action</th>
+    <th>Username</th>
+    <th>Action</th>
 </tr>
 
 {% for user in users %}
 
 <tr>
-<td>{{ user.username }}</td>
-<td>
-<form method="post">
-{% csrf_token %}
-<input type="hidden" name="user_id" value="{{ user.id }}">
+    <td>{{ user.username }}</td>
+    <td>
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="user_id" value="{{ user.id }}">
+            <input type="hidden" name="action" value="remove">
 
-<button name="action" value="add" class="btn btn-success btn-sm">Add</button> <button name="action" value="remove" class="btn btn-danger btn-sm">Remove</button>
 
-</form>
+        <button type="submit" class="btn btn-danger btn-sm">
+            Remove
+        </button>
+    </form>
 </td>
+
+
 </tr>
 {% endfor %}
 

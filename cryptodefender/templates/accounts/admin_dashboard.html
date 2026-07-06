@@ -1,8 +1,7 @@
 <!DOCTYPE html>
-
 <html>
 <head>
-    <title>Admin Dashboard</title>
+    <title>Manage Admins</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 </head>
 <body>
@@ -18,23 +17,55 @@
 
 <div class="container mt-4">
 
-<h3>User Details</h3>
+<h3>Manage Admin Access</h3>
 
-<form method="get">
-    <input type="text" name="q" placeholder="Search username..." class="form-control mb-3">
-</form>
-
+<!-- 👥 USER LIST -->
 <table class="table table-bordered">
 <tr>
-<th>Username</th>
-<th>Date Joined</th>
+    <th>Username</th>
+    <th>Role</th>
+    <th>Action</th>
 </tr>
 
 {% for user in users %}
-
 <tr>
-<td>{{ user.username }}</td>
-<td>{{ user.date_joined }}</td>
+    <td>{{ user.username }}</td>
+    <td>
+        {% if user.id in admin_ids %}
+            <span class="badge bg-success">Admin</span>
+        {% else %}
+            <span class="badge bg-secondary">User</span>
+        {% endif %}
+    </td>
+    <td>
+        {% if user.id != request.user.id %}
+            {% if user.id in admin_ids %}
+                <!-- Remove Admin Access -->
+                <form method="POST" style="display: inline;" onsubmit="return confirm('Remove admin access for {{ user.username }}?');">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="remove">
+                    <input type="hidden" name="user_id" value="{{ user.id }}">
+                    <button type="submit" class="btn btn-danger btn-sm">Remove Admin</button>
+                </form>
+            {% else %}
+                <!-- Remove User (Delete Account) -->
+                <form method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete user {{ user.username }}? This action cannot be undone!');">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="delete_user">
+                    <input type="hidden" name="user_id" value="{{ user.id }}">
+                    <button type="submit" class="btn btn-danger btn-sm">Delete User</button>
+                </form>
+            {% endif %}
+        {% else %}
+            <span class="text-muted">You (Cannot remove yourself)</span>
+        {% endif %}
+    </td>
+</tr>
+{% empty %}
+<tr>
+    <td colspan="3" class="text-center text-muted">
+        No users found
+    </td>
 </tr>
 {% endfor %}
 
