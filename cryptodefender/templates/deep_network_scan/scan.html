@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Deep Network Scan - CryptoDefender</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+        .status-open {
+            background-color: #dc3545;
+            color: white;
+        }
+        .status-closed {
+            background-color: #28a745;
+            color: white;
+        }
+        .severity-high {
+            background-color: #dc3545;
+            color: white;
+        }
+        .severity-medium {
+            background-color: #ffc107;
+            color: black;
+        }
+        .severity-low {
+            background-color: #17a2b8;
+            color: white;
+        }
+        .scan-card {
+            transition: transform 0.2s;
+        }
+        .scan-card:hover {
+            transform: translateY(-5px);
+        }
+        .loading-spinner {
+            display: none;
+        }
+        #scanResults {
+            display: none;
+        }
+        .network-table {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold" href="{% url 'home_loggedin' %}">
+            🛡 CryptoDefender
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'deep_research' %}">🔍 Deep Research</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="{% url 'deep_network_scan' %}">🌐 Deep Network Scan</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-success" href="{% url 'protection' %}">🛡 Protection</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'prevent_guide' %}">📘 How to Prevent</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        👤 {{ request.user.username }}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item text-danger" href="{% url 'logout' %}">Logout</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Content -->
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="display-4">
+                <i class="fas fa-network-wired text-primary"></i> Deep Network Scan
+            </h1>
+            <p class="lead">Comprehensive network security analysis and monitoring tool</p>
+            <hr>
+        </div>
+    </div>
+
+    <!-- Scan Button -->
+    <div class="row mt-3">
+        <div class="col-12 text-center">
+            <form method="POST" id="scanForm">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary btn-lg" id="scanBtn">
+                    <i class="fas fa-play"></i> Start Network Scan
+                </button>
+                
+                <!-- Loading Spinner -->
+                <div class="loading-spinner mt-3" id="loadingSpinner">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Scanning network... Please wait...</p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Error Message -->
+    {% if error_message %}
+    <div class="row mt-3">
+        <div class="col-12">
+            <div class="alert alert-danger" role="alert">
+                <i class="fas fa-exclamation-triangle"></i> {{ error_message }}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Results -->
+    {% if scan_results %}
+    <div id="scanResults" style="display: block;">
+        
+        <!-- Timestamp -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="alert alert-info">
+                    <i class="fas fa-clock"></i> Scan completed at: {{ scan_results.timestamp }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Network Interfaces -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card scan-card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h5><i class="fas fa-plug"></i> Network Interfaces</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Interface</th>
+                                        <th>IPv4</th>
+                                        <th>IPv6</th>
+                                        <th>MAC Address</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for interface, details in scan_results.interfaces.items %}
+                                    <tr>
+                                        <td><strong>{{ interface }}</strong></td>
+                                        <td>
+                                            {% for ip in details.ipv4 %}
+                                                {{ ip }}{% if not forloop.last %}, {% endif %}
+                                            {% empty %}
+                                                N/A
+                                            {% endfor %}
+                                        </td>
+                                        <td>
+                                            {% for ip in details.ipv6 %}
+                                                {{ ip|truncatechars:20 }}{% if not forloop.last %}, {% endif %}
+                                            {% empty %}
+                                                N/A
+                                            {% endfor %}
+                                        </td>
+                                        <td>{{ details.mac|default:"N/A" }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Network Statistics -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card scan-card shadow">
+                    <div class="card-header bg-info text-white">
+                        <h5><i class="fas fa-chart-bar"></i> Network Statistics</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="stat-item">
+                                    <h6>Bytes Sent</h6>
+                                    <p class="h4">{{ scan_results.network_stats.bytes_sent }}</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="stat-item">
+                                    <h6>Bytes Received</h6>
+                                    <p class="h4">{{ scan_results.network_stats.bytes_recv }}</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="stat-item">
+                                    <h6>Packets Sent/Received</h6>
+                                    <p>{{ scan_results.network_stats.packets_sent }} / {{ scan_results.network_stats.packets_recv }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-4">
+                                <div class="stat-item">
+                                    <h6>Errors In/Out</h6>
+                                    <p>{{ scan_results.network_stats.errin }} / {{ scan_results.network_stats.errout }}</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="stat-item">
+                                    <h6>Drops In/Out</h6>
+                                    <p>{{ scan_results.network_stats.dropin }} / {{ scan_results.network_stats.dropout }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Open Ports -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card scan-card shadow">
+                    <div class="card-header {% if scan_results.open_ports %}bg-danger{% else %}bg-success{% endif %} text-white">
+                        <h5><i class="fas fa-door-open"></i> Open Ports</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if scan_results.open_ports %}
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Port</th>
+                                            <th>Service</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for port in scan_results.open_ports %}
+                                        <tr>
+                                            <td><strong>{{ port.port }}</strong></td>
+                                            <td>{{ port.service }}</td>
+                                            <td><span class="status-badge status-open">OPEN</span></td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <p class="text-success"><i class="fas fa-check-circle"></i> No common ports are open</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Connections -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card scan-card shadow">
+                    <div class="card-header bg-warning">
+                        <h5><i class="fas fa-link"></i> Active Connections</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if scan_results.connections %}
+                            <div class="network-table">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Protocol</th>
+                                            <th>Local Address</th>
+                                            <th>Foreign Address</th>
+                                            <th>State</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for conn in scan_results.connections %}
+                                        <tr>
+                                            <td>{{ conn.protocol }}</td>
+                                            <td>{{ conn.local_address }}</td>
+                                            <td>{{ conn.foreign_address }}</td>
+                                            <td><span class="badge bg-secondary">{{ conn.state }}</span></td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <small class="text-muted">Showing first 20 connections</small>
+                        {% else %}
+                            <p>No active connections found</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Network Devices -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card scan-card shadow">
+                    <div class="card-header bg-success text-white">
+                        <h5><i class="fas fa-server"></i> Network Devices Found</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if scan_results.network_devices %}
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>IP Address</th>
+                                            <th>Hostname</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for device in scan_results.network_devices %}
+                                        <tr>
+                                            <td>{{ device.ip }}</td>
+                                            <td>{{ device.hostname }}</td>
+                                            <td><span class="badge bg-success">Active</span></td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <p class="text-muted">No devices found on local network</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DNS Information -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card scan-card shadow">
+                    <div class="card-header bg-secondary text-white">
+                        <h5><i class="fas fa-dns"></i> DNS Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <h6>Hostname</h6>
+                                <p><strong>{{ scan_results.dns_info.hostname }}</strong></p>
+                            </div>
+                            <div class="col-md-4">
+                                <h6>IP Address</h6>
+                                <p><strong>{{ scan_results.dns_info.ip_address }}</strong></p>
+                            </div>
+                            <div class="col-md-4">
+                                <h6>DNS Servers</h6>
+                                {% for server in scan_results.dns_info.dns_servers %}
+                                    <p><span class="badge bg-info">{{ server }}</span></p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Security Issues -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card scan-card shadow {% if scan_results.security_issues %}border-danger{% endif %}">
+                    <div class="card-header {% if scan_results.security_issues %}bg-danger{% else %}bg-success{% endif %} text-white">
+                        <h5><i class="fas fa-shield-alt"></i> Security Assessment</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if scan_results.security_issues %}
+                            {% for issue in scan_results.security_issues %}
+                            <div class="alert alert-{% if issue.severity == 'HIGH' %}danger{% elif issue.severity == 'MEDIUM' %}warning{% else %}info{% endif %}">
+                                <h6>
+                                    <span class="badge severity-{{ issue.severity|lower }}">{{ issue.severity }}</span>
+                                    {{ issue.issue }}
+                                </h6>
+                                <p class="mt-2"><strong>Recommendation:</strong> {{ issue.recommendation }}</p>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="alert alert-success">
+                                <i class="fas fa-check-circle"></i> No security issues detected in your network configuration.
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Export Button -->
+        <div class="row mt-4 mb-5">
+            <div class="col-12 text-center">
+                <button class="btn btn-secondary" onclick="window.print()">
+                    <i class="fas fa-print"></i> Print Report
+                </button>
+            </div>
+        </div>
+
+    </div>
+    {% endif %}
+</div>
+
+<!-- Footer -->
+<footer class="bg-dark text-white text-center py-3 mt-5">
+    <div class="container">
+        <p class="mb-0">🛡 CryptoDefender - Deep Network Scan &copy; 2026</p>
+    </div>
+</footer>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var scanBtn = document.getElementById('scanBtn');
+        var spinner = document.getElementById('loadingSpinner');
+        var results = document.getElementById('scanResults');
+        
+        // Handle form submission
+        document.getElementById('scanForm').addEventListener('submit', function() {
+            scanBtn.disabled = true;
+            scanBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Scanning...';
+            spinner.style.display = 'block';
+            return true;
+        });
+        
+        {% if scan_results %}
+            results.style.display = 'block';
+            scanBtn.disabled = false;
+            scanBtn.innerHTML = '<i class="fas fa-play"></i> Start Network Scan';
+            spinner.style.display = 'none';
+        {% endif %}
+        
+        {% if error_message %}
+            scanBtn.disabled = false;
+            scanBtn.innerHTML = '<i class="fas fa-play"></i> Start Network Scan';
+            spinner.style.display = 'none';
+        {% endif %}
+    });
+    
+    // Reset button if scan takes too long (safety net)
+    setTimeout(function() {
+        var scanBtn = document.getElementById('scanBtn');
+        var spinner = document.getElementById('loadingSpinner');
+        if (scanBtn.disabled) {
+            scanBtn.disabled = false;
+            scanBtn.innerHTML = '<i class="fas fa-play"></i> Start Network Scan';
+            spinner.style.display = 'none';
+        }
+    }, 60000);
+</script>
+
+</body>
+</html>

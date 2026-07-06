@@ -15,7 +15,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path , include
 from core import views
 from deep_research import views as dr_views
 from protection import views as pr_views
@@ -24,7 +24,7 @@ from payment import views as pay_views
 
 from accounts import views as acc_views
 
-
+from deep_network_scan import views as dns_views 
 
 
 urlpatterns = [
@@ -61,4 +61,11 @@ urlpatterns = [
     path('admin-dashboard/', acc_views.admin_dashboard, name='admin_dashboard'), 
     path('manage-admins/', acc_views.manage_admins, name='manage_admins'), 
     path('admin-logout/', acc_views.admin_logout, name='admin_logout'),
+
+
+    # 🌐 Deep Network Scan
+    path('deep-network-scan/', dns_views.network_scan_view, name='deep_network_scan'),
+    path('deep-network-scan/api/scan/', dns_views.api_scan, name='deep_network_scan_api'),
+
+
 ]

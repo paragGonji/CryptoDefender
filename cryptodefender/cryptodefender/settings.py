@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'protection',
     'prevent_guide',
     'payment',
+    'deep_network_scan', 
 ]
 
 MIDDLEWARE = [

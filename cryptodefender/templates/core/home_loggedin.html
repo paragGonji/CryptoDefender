@@ -15,33 +15,6 @@
 </head>
 <body>
 
-<!-- 🔷 Navbar -->
-{% comment %} <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="#">CryptoDefender</a>
-
-        <div class="collapse navbar-collapse">
-            <ul class="navbar-nav ms-auto">
-
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Detect</a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link disabled" href="#">Prevent 🔒</a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link text-danger" href="{% url 'logout' %}">Logout</a>
-                </li>
-
-            </ul>
-        </div>
-    </div>
-</nav> {% endcomment %}
-
-
-
 <!-- 🔷 Advanced Navbar -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
@@ -67,19 +40,18 @@
                     </a>
                 </li>
 
-                <!-- 🛡 Protection (LOCK / UNLOCK) -->
+                <!-- 🌐 Deep Network Scan (NEW) -->
                 <li class="nav-item">
-                    {% if request.user.is_authenticated and request.user.is_staff %}
-                        <!-- 🔓 UNLOCKED -->
-                        <a class="nav-link text-success" href="{% url 'protection' %}">
-                            🛡 Protection
-                        </a>
-                    {% else %}
-                        <!-- 🔒 LOCKED -->
-                        <a class="nav-link disabled">
-                            🛡 Protection 🔒
-                        </a>
-                    {% endif %}
+                    <a class="nav-link" href="{% url 'deep_network_scan' %}">
+                        🌐 Deep Network Scan
+                    </a>
+                </li>
+
+                <!-- 🛡 Protection (UNLOCKED) -->
+                <li class="nav-item">
+                    <a class="nav-link text-success" href="{% url 'protection' %}">
+                        🛡 Protection
+                    </a>
                 </li>
 
                 <!-- 📘 Prevention Guide -->
@@ -94,47 +66,31 @@
             <!-- RIGHT SIDE -->
             <ul class="navbar-nav ms-auto align-items-center">
 
-                <!-- 💎 Subscribe Button -->
-                <li class="nav-item me-3">
-                    <a class="btn btn-warning fw-bold" href="{% url 'payment' %}">
-                        💎 Subscribe ₹49
-                    </a>
-                </li>
-
                 <!-- 👤 Profile + Logout -->
+                <li class="nav-item dropdown d-flex align-items-center">
+                    <!-- 👤 Username → goes to profile -->
+                    <a class="nav-link" href="{% url 'profile' %}">
+                        👤 {{ request.user.username }}
+                    </a>
 
-<li class="nav-item dropdown d-flex align-items-center">
+                    <!-- ⬇️ Small dropdown button -->
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"></a>
 
-```
-<!-- 👤 Username → goes to profile -->
-<a class="nav-link" href="{% url 'profile' %}">
-    👤 {{ request.user.username }}
-</a>
-
-<!-- ⬇️ Small dropdown button -->
-<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"></a>
-
-<!-- Dropdown menu -->
-<ul class="dropdown-menu dropdown-menu-end">
-    <li>
-        <a class="dropdown-item text-danger" href="{% url 'logout' %}">
-            Logout
-        </a>
-    </li>
-</ul>
-```
-
-</li>
-
+                    <!-- Dropdown menu -->
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a class="dropdown-item text-danger" href="{% url 'logout' %}">
+                                Logout
+                            </a>
+                        </li>
+                    </ul>
+                </li>
 
             </ul>
 
         </div>
     </div>
 </nav>
-
-
-
 
 <!-- 🔷 Content -->
 <div class="container text-center mt-5">
@@ -180,8 +136,6 @@
 </div>
 
 <!-- 🧠 JS to hide results -->
-<!-- 🧠 JS to hide results -->
-
 <script>
     function clearData() {
         document.getElementById("resultCard").style.display = "none";
@@ -189,9 +143,7 @@
 </script>
 
 <!-- ✅ Bootstrap JS (REQUIRED for dropdown) -->
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
 
 </body>
 </html>
