@@ -1,84 +1,127 @@
 <!DOCTYPE html>
-
 <html>
 <head>
     <title>Manage Admins</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
 </head>
 <body>
 
 <nav class="navbar navbar-dark bg-dark p-3">
     <span class="navbar-brand">Admin Panel</span>
     <div>
-        <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-light">Global</a>
-        <a href="{% url 'manage_admins' %}" class="btn btn-warning">Admin</a>
+        <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-light">Users</a>
+        <a href="{% url 'manage_admins' %}" class="btn btn-warning">Admins</a>
         <a href="{% url 'logout' %}" class="btn btn-danger">Logout</a>
     </div>
 </nav>
 
 <div class="container mt-4">
 
-<h3>Manage Admin Access</h3>
+<!-- Display Messages -->
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            <i class="bi bi-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}x-circle{% else %}info-circle{% endif %}"></i>
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+{% endif %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>Manage Admin Access</h3>
+    <span class="badge bg-warning">Total Admins: {{ users|length }}</span>
+</div>
 
 <!-- 🔥 ADD ADMIN FORM -->
-
 <div class="card mb-4">
-    <div class="card-header">Add New Admin</div>
+    <div class="card-header bg-success text-white">
+        <i class="bi bi-person-plus"></i> Add New Admin
+    </div>
     <div class="card-body">
         <form method="post">
             {% csrf_token %}
             <input type="hidden" name="action" value="create_admin">
 
-
-        <div class="mb-2">
-            <input type="text" name="username" class="form-control" placeholder="Enter username" required>
-        </div>
-
-        <div class="mb-2">
-            <input type="password" name="password" class="form-control" placeholder="Enter password" required>
-        </div>
-
-        <button type="submit" class="btn btn-success">
-            Create Admin
-        </button>
-    </form>
-</div>
-
-
+            <div class="row">
+                <div class="col-md-5 mb-2">
+                    <input type="text" name="username" class="form-control" placeholder="Enter username" required>
+                </div>
+                <div class="col-md-5 mb-2">
+                    <input type="password" name="password" class="form-control" placeholder="Enter password" required>
+                </div>
+                <div class="col-md-2 mb-2">
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="bi bi-plus-circle"></i> Create
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
 
 <!-- 👥 ADMIN LIST ONLY -->
-
-<table class="table table-bordered">
-<tr>
-    <th>Username</th>
-    <th>Action</th>
-</tr>
-
-{% for user in users %}
-
-<tr>
-    <td>{{ user.username }}</td>
-    <td>
-        <form method="post">
-            {% csrf_token %}
-            <input type="hidden" name="user_id" value="{{ user.id }}">
-            <input type="hidden" name="action" value="remove">
-
-
-        <button type="submit" class="btn btn-danger btn-sm">
-            Remove
-        </button>
-    </form>
-</td>
-
-
-</tr>
-{% endfor %}
-
-</table>
+<div class="table-responsive">
+    <table class="table table-bordered table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>#</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Date Joined</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td><strong>{{ user.username }}</strong></td>
+                <td>{{ user.email|default:"Not provided" }}</td>
+                <td>{{ user.date_joined|date:"M d, Y" }}</td>
+                <td>
+                    {% if user.id != request.user.id %}
+                        <!-- Remove Admin Privileges Only -->
+                        <form method="post" style="display: inline;" 
+                              onsubmit="return confirm('Remove admin privileges from {{ user.username }}? They will become a regular user.');">
+                            {% csrf_token %}
+                            <input type="hidden" name="user_id" value="{{ user.id }}">
+                            <input type="hidden" name="action" value="remove_admin">
+                            <button type="submit" class="btn btn-warning btn-sm">
+                                <i class="bi bi-person-x"></i> Remove Admin
+                            </button>
+                        </form>
+                        
+                        <!-- Delete User Completely -->
+                        <form method="post" style="display: inline;" 
+                              onsubmit="return confirm('Are you sure you want to DELETE {{ user.username }}? This will permanently remove the user and all their data!');">
+                            {% csrf_token %}
+                            <input type="hidden" name="user_id" value="{{ user.id }}">
+                            <input type="hidden" name="action" value="delete_admin_user">
+                            <button type="submit" class="btn btn-danger btn-sm">
+                                <i class="bi bi-trash"></i> Delete
+                            </button>
+                        </form>
+                    {% else %}
+                        <span class="badge bg-info">You (Cannot modify)</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="text-center text-muted py-4">
+                    <i class="bi bi-person-x" style="font-size: 2rem; display: block; margin-bottom: 10px;"></i>
+                    No admins found
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
