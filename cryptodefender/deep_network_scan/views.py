@@ -6,6 +6,8 @@ import subprocess
 import platform
 import re
 from datetime import datetime
+import os
+import json
 
 def network_scan_view(request):
     """Main view for Deep Network Scan"""
@@ -43,9 +45,118 @@ def perform_network_scan():
     results['open_ports'] = scan_common_ports()
     results['dns_info'] = get_dns_info()
     results['security_issues'] = check_security_issues()
+    results['crypto_mining_detection'] = detect_crypto_mining()
     results['timestamp'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
     return results
+
+def detect_crypto_mining():
+    """
+    Detect crypto mining activity through:
+    1. Known mining pool connections
+    2. Suspicious outbound connections
+    3. Known mining port usage
+    """
+    detection_results = {
+        'mining_pool_connections': [],
+        'suspicious_ports': [],
+        'has_mining_activity': False
+    }
+    
+    # Known mining pools
+    mining_pools = [
+        'pool.minexmr.com', 'minexmr.com',
+        'cryptonight', 'stratum+tcp',
+        'pool.supportxmr.com', 'supportxmr.com',
+        'xmrpool.eu', 'minexmr.org',
+        'pool.hashvault.pro', 'hashvault.pro',
+        'moneroocean.stream', 'moneroocean',
+        'pool.moneroocean.stream',
+        'us-west.minexmr.com', 'us-east.minexmr.com',
+        'eu.minexmr.com', 'asia.minexmr.com',
+        'pool.ethereum', 'ethpool.org',
+        'ethermine.org', 'us1.ethermine.org',
+        'eu1.ethermine.org', 'asia1.ethermine.org',
+        'f2pool.com', 'antpool.com', 'viabtc.com',
+        'btc.com', 'slushpool.com', 'braiins.com',
+        'zecpool.org', 'zcash.flypool.org',
+        'miningpoolhub.com', 'nicehash.com',
+        'stratum.slushpool.com', 'stratum.f2pool.com',
+        'stratum.antpool.com', 'stratum.viabtc.com'
+    ]
+    
+    # Known mining ports
+    mining_ports = [3333, 4444, 5555, 6666, 7777, 8888, 9999, 
+                    14444, 14433, 15555, 18888, 19999, 21111,
+                    22222, 33333, 44444, 55555, 66666, 77777,
+                    88888, 99999, 13333, 16666, 17777]
+    
+    try:
+        # Get active connections
+        if platform.system() == 'Windows':
+            output = subprocess.check_output(['netstat', '-an'], text=True)
+        else:
+            output = subprocess.check_output(['netstat', '-tun'], text=True)
+        
+        lines = output.split('\n')
+        
+        # Analyze each connection
+        for line in lines:
+            parts = line.split()
+            if len(parts) >= 4:
+                local_addr = parts[1] if len(parts) > 1 else ''
+                foreign_addr = parts[2] if len(parts) > 2 else ''
+                state = parts[3] if len(parts) > 3 else ''
+                
+                # Check for ESTABLISHED outbound connections
+                if 'ESTABLISHED' in state:
+                    # Check if connection is to a mining pool
+                    for pool in mining_pools:
+                        if pool.lower() in foreign_addr.lower():
+                            detection_results['mining_pool_connections'].append({
+                                'pool': pool,
+                                'address': foreign_addr,
+                                'local': local_addr,
+                                'state': state
+                            })
+                            detection_results['has_mining_activity'] = True
+                    
+                    # Check for suspicious ports (outbound)
+                    if ':' in foreign_addr:
+                        port = foreign_addr.split(':')[-1]
+                        try:
+                            port_num = int(port)
+                            if port_num in mining_ports:
+                                detection_results['suspicious_ports'].append({
+                                    'port': port_num,
+                                    'address': foreign_addr,
+                                    'local': local_addr
+                                })
+                                detection_results['has_mining_activity'] = True
+                        except:
+                            pass
+        
+        # Check for known miner processes
+        known_miners = ['xmrig', 'miner', 'cgminer', 'bfgminer', 'ccminer', 
+                        'ethminer', 'claymore', 'phoenixminer', 'nbminer',
+                        't-rex', 'teamredminer', 'lolminer', 'gminer']
+        
+        try:
+            for proc in psutil.process_iter(['pid', 'name']):
+                try:
+                    proc_name = proc.info['name'].lower()
+                    for miner in known_miners:
+                        if miner in proc_name:
+                            detection_results['has_mining_activity'] = True
+                except:
+                    pass
+        except:
+            pass
+        
+    except Exception as e:
+        print(f"Error in crypto mining detection: {e}")
+    
+    return detection_results
 
 def get_network_interfaces():
     """Get all network interfaces and their IP addresses"""

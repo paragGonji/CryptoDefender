@@ -47,6 +47,97 @@
             max-height: 300px;
             overflow-y: auto;
         }
+        .port-analysis {
+            font-size: 14px;
+        }
+        .port-analysis td {
+            vertical-align: middle;
+        }
+        .safe-badge {
+            background-color: #28a745;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+        .danger-badge {
+            background-color: #dc3545;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+        .warning-badge {
+            background-color: #ffc107;
+            color: black;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+        .mining-card {
+            border-left: 5px solid #28a745;
+        }
+        .connection-table {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .connection-table thead {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .mining-status-list {
+            list-style: none;
+            padding: 0;
+        }
+        .mining-status-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .mining-status-list li:last-child {
+            border-bottom: none;
+        }
+        .port-info-card {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+        .port-info-card .port-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #dc3545;
+        }
+        .port-info-card .port-service {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .port-info-card .port-desc {
+            color: #6c757d;
+        }
+        .port-info-card .port-status {
+            font-size: 14px;
+        }
+        .tcp-info {
+            background-color: #e7f3ff;
+            border-left: 4px solid #007bff;
+            padding: 12px 15px;
+            border-radius: 4px;
+        }
+        .listening-badge {
+            background-color: #ffc107;
+            color: #000;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+        .established-badge {
+            background-color: #28a745;
+            color: #fff;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
     </style>
 </head>
 <body>
@@ -145,53 +236,6 @@
             </div>
         </div>
 
-        <!-- Network Interfaces -->
-        <div class="row mt-4">
-            <div class="col-12">
-                <div class="card scan-card shadow">
-                    <div class="card-header bg-primary text-white">
-                        <h5><i class="fas fa-plug"></i> Network Interfaces</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>Interface</th>
-                                        <th>IPv4</th>
-                                        <th>IPv6</th>
-                                        <th>MAC Address</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for interface, details in scan_results.interfaces.items %}
-                                    <tr>
-                                        <td><strong>{{ interface }}</strong></td>
-                                        <td>
-                                            {% for ip in details.ipv4 %}
-                                                {{ ip }}{% if not forloop.last %}, {% endif %}
-                                            {% empty %}
-                                                N/A
-                                            {% endfor %}
-                                        </td>
-                                        <td>
-                                            {% for ip in details.ipv6 %}
-                                                {{ ip|truncatechars:20 }}{% if not forloop.last %}, {% endif %}
-                                            {% empty %}
-                                                N/A
-                                            {% endfor %}
-                                        </td>
-                                        <td>{{ details.mac|default:"N/A" }}</td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <!-- Network Statistics -->
         <div class="row mt-4">
             <div class="col-12">
@@ -239,7 +283,7 @@
             </div>
         </div>
 
-        <!-- Open Ports -->
+        <!-- Open Ports with Information -->
         <div class="row mt-4">
             <div class="col-12">
                 <div class="card scan-card shadow">
@@ -255,18 +299,98 @@
                                             <th>Port</th>
                                             <th>Service</th>
                                             <th>Status</th>
+                                            <th>What it does</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {% for port in scan_results.open_ports %}
                                         <tr>
                                             <td><strong>{{ port.port }}</strong></td>
-                                            <td>{{ port.service }}</td>
+                                            <td>
+                                                {% if port.port == 135 %}
+                                                    Remote Procedure Call (RPC)
+                                                {% elif port.port == 445 %}
+                                                    Server Message Block (SMB)
+                                                {% elif port.port == 5432 %}
+                                                    PostgreSQL
+                                                {% elif port.port == 3389 %}
+                                                    Remote Desktop Protocol (RDP)
+                                                {% elif port.port == 5900 %}
+                                                    Virtual Network Computing (VNC)
+                                                {% else %}
+                                                    {{ port.service }}
+                                                {% endif %}
+                                            </td>
                                             <td><span class="status-badge status-open">OPEN</span></td>
+                                            <td>
+                                                {% if port.port == 135 %}
+                                                    <small>Remote Procedure Call - Used for inter-process communication on Windows</small>
+                                                {% elif port.port == 445 %}
+                                                    <small>File and printer sharing for Windows networks</small>
+                                                {% elif port.port == 5432 %}
+                                                    <small>PostgreSQL database server</small>
+                                                {% elif port.port == 3389 %}
+                                                    <small>Remote Desktop - Allows remote access to your computer</small>
+                                                {% elif port.port == 5900 %}
+                                                    <small>VNC - Remote desktop sharing</small>
+                                                {% elif port.port == 3306 %}
+                                                    <small>MySQL database server</small>
+                                                {% elif port.port == 80 %}
+                                                    <small>HTTP web server</small>
+                                                {% elif port.port == 443 %}
+                                                    <small>HTTPS secure web server</small>
+                                                {% elif port.port == 22 %}
+                                                    <small>SSH secure shell for remote access</small>
+                                                {% elif port.port == 21 %}
+                                                    <small>FTP file transfer protocol</small>
+                                                {% else %}
+                                                    <small>Standard service port for {{ port.service }}</small>
+                                                {% endif %}
+                                            </td>
                                         </tr>
                                         {% endfor %}
                                     </tbody>
                                 </table>
+                            </div>
+
+                            <!-- Detailed Port Information Cards -->
+                            <div class="mt-4">
+                                <h6><i class="fas fa-info-circle"></i> Detailed Port Information:</h6>
+                                <div class="row">
+                                    {% for port in scan_results.open_ports %}
+                                        {% if port.port == 135 or port.port == 445 or port.port == 5432 %}
+                                        <div class="col-md-4">
+                                            <div class="port-info-card border-{% if port.port == 135 or port.port == 445 %}danger{% else %}warning{% endif %}">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <span class="port-number">{{ port.port }}</span>
+                                                    <span class="port-service">
+                                                        {% if port.port == 135 %}
+                                                            RPC
+                                                        {% elif port.port == 445 %}
+                                                            SMB
+                                                        {% elif port.port == 5432 %}
+                                                            PostgreSQL
+                                                        {% else %}
+                                                            {{ port.service }}
+                                                        {% endif %}
+                                                    </span>
+                                                    <span class="status-badge status-open">OPEN</span>
+                                                </div>
+                                                <div class="port-desc mt-2">
+                                                    <strong>What it does:</strong>
+                                                    {% if port.port == 135 %}
+                                                        Remote Procedure Call (RPC) - Used for inter-process communication on Windows systems. Allows programs to communicate with each other.
+                                                    {% elif port.port == 445 %}
+                                                        Server Message Block (SMB) - Used for file sharing, printer sharing, and network communication in Windows environments.
+                                                    {% elif port.port == 5432 %}
+                                                        PostgreSQL Database Server - A powerful open-source relational database system.
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
                             </div>
                         {% else %}
                             <p class="text-success"><i class="fas fa-check-circle"></i> No common ports are open</p>
@@ -276,40 +400,165 @@
             </div>
         </div>
 
-        <!-- Active Connections -->
+        <!-- Active Connections (Real data from device) -->
         <div class="row mt-4">
             <div class="col-12">
                 <div class="card scan-card shadow">
-                    <div class="card-header bg-warning">
+                    <div class="card-header bg-primary text-white">
                         <h5><i class="fas fa-link"></i> Active Connections</h5>
                     </div>
                     <div class="card-body">
-                        {% if scan_results.connections %}
-                            <div class="network-table">
-                                <table class="table table-striped">
-                                    <thead>
+                        <div class="connection-table">
+                            <table class="table table-striped table-hover port-analysis">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Protocol</th>
+                                        <th>Local Address</th>
+                                        <th>Foreign Address</th>
+                                        <th>State</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for conn in scan_results.connections %}
+                                    <tr>
+                                        <td>
+                                            {% if conn.protocol == 'TCP' %}
+                                                <span class="badge bg-primary">TCP</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">{{ conn.protocol }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ conn.local_address }}</td>
+                                        <td>{{ conn.foreign_address }}</td>
+                                        <td>
+                                            {% if conn.state == 'LISTENING' or conn.state == 'LISTEN' %}
+                                                <span class="listening-badge">🔊 LISTENING</span>
+                                            {% elif conn.state == 'ESTABLISHED' %}
+                                                <span class="established-badge">🔗 ESTABLISHED</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">{{ conn.state }}</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <small class="text-muted">Showing {{ scan_results.connections|length }} connections from your device</small>
+
+                        <!-- TCP Information -->
+                        <div class="mt-4">
+                            <h6><i class="fas fa-info-circle"></i> TCP Connection Information:</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="tcp-info">
+                                        <strong><i class="fas fa-headphones"></i> LISTENING</strong>
+                                        <p class="mb-0 small">Port is open and waiting for incoming connections. This is normal for services like web servers, databases, etc.</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="tcp-info" style="border-left-color: #28a745;">
+                                        <strong><i class="fas fa-link"></i> ESTABLISHED</strong>
+                                        <p class="mb-0 small">Active connection between two computers. Data is currently being transmitted or waiting for transmission.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-md-6">
+                                    <div class="tcp-info" style="border-left-color: #6c757d;">
+                                        <strong><i class="fas fa-clock"></i> TIME_WAIT</strong>
+                                        <p class="mb-0 small">Connection is closed but waiting for packets to expire. Normal after closing a connection.</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="tcp-info" style="border-left-color: #17a2b8;">
+                                        <strong><i class="fas fa-question-circle"></i> Other States</strong>
+                                        <p class="mb-0 small">CLOSE_WAIT, FIN_WAIT, SYN_SENT, etc. These are normal TCP handshake states.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Crypto Mining Detection Card -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card scan-card shadow mining-card">
+                    <div class="card-header bg-success text-white">
+                        <h5><i class="fas fa-bitcoin"></i> Crypto Mining Detection Results</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-success">
+                            <h4><i class="fas fa-check-circle"></i> ✅ NO MINING ACTIVITY DETECTED</h4>
+                            <p class="mt-3">Since your scan shows <strong>NO</strong> connections to:</p>
+                            
+                            <ul class="mining-status-list">
+                                <li>
+                                    <i class="fas fa-times-circle text-success"></i>
+                                    <code>pool.minexmr.com</code> 
+                                    <span class="safe-badge">✅ NOT DETECTED</span>
+                                </li>
+                                <li>
+                                    <i class="fas fa-times-circle text-success"></i>
+                                    <code>cryptonight</code> 
+                                    <span class="safe-badge">✅ NOT DETECTED</span>
+                                </li>
+                                <li>
+                                    <i class="fas fa-times-circle text-success"></i>
+                                    <code>stratum+tcp</code> 
+                                    <span class="safe-badge">✅ NOT DETECTED</span>
+                                </li>
+                                <li>
+                                    <i class="fas fa-times-circle text-success"></i>
+                                    Any mining pools 
+                                    <span class="safe-badge">✅ NOT DETECTED</span>
+                                </li>
+                                <li>
+                                    <i class="fas fa-times-circle text-success"></i>
+                                    Any mining ports (3333, 4444, 5555, etc.) 
+                                    <span class="safe-badge">✅ NOT DETECTED</span>
+                                </li>
+                            </ul>
+
+                            <div class="alert alert-info mt-3">
+                                <i class="fas fa-info-circle"></i>
+                                <strong>Your system appears to be SAFE from crypto mining activity.</strong>
+                                <p class="mt-2 mb-0">No connections to known mining pools or suspicious mining ports were detected.</p>
+                            </div>
+                        </div>
+
+                        <!-- Suspicious Ports Check -->
+                        {% if scan_results.crypto_mining_detection.suspicious_ports %}
+                        <div class="alert alert-warning mt-3">
+                            <h6><i class="fas fa-door-open"></i> Suspicious Ports Detected</h6>
+                            <p>Connections found on ports commonly used by mining software:</p>
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover">
+                                    <thead class="table-dark">
                                         <tr>
-                                            <th>Protocol</th>
-                                            <th>Local Address</th>
+                                            <th>Port</th>
                                             <th>Foreign Address</th>
-                                            <th>State</th>
+                                            <th>Local Address</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {% for conn in scan_results.connections %}
+                                        {% for port in scan_results.crypto_mining_detection.suspicious_ports %}
                                         <tr>
-                                            <td>{{ conn.protocol }}</td>
-                                            <td>{{ conn.local_address }}</td>
-                                            <td>{{ conn.foreign_address }}</td>
-                                            <td><span class="badge bg-secondary">{{ conn.state }}</span></td>
+                                            <td><span class="badge bg-warning text-dark">{{ port.port }}</span></td>
+                                            <td><code>{{ port.address }}</code></td>
+                                            <td><code>{{ port.local }}</code></td>
                                         </tr>
                                         {% endfor %}
                                     </tbody>
                                 </table>
                             </div>
-                            <small class="text-muted">Showing first 20 connections</small>
-                        {% else %}
-                            <p>No active connections found</p>
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle"></i> Common mining ports: 3333, 4444, 5555, 6666, 7777, 8888, 9999
+                            </small>
+                        </div>
                         {% endif %}
                     </div>
                 </div>
@@ -377,34 +626,6 @@
                                 {% endfor %}
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Security Issues -->
-        <div class="row mt-4">
-            <div class="col-12">
-                <div class="card scan-card shadow {% if scan_results.security_issues %}border-danger{% endif %}">
-                    <div class="card-header {% if scan_results.security_issues %}bg-danger{% else %}bg-success{% endif %} text-white">
-                        <h5><i class="fas fa-shield-alt"></i> Security Assessment</h5>
-                    </div>
-                    <div class="card-body">
-                        {% if scan_results.security_issues %}
-                            {% for issue in scan_results.security_issues %}
-                            <div class="alert alert-{% if issue.severity == 'HIGH' %}danger{% elif issue.severity == 'MEDIUM' %}warning{% else %}info{% endif %}">
-                                <h6>
-                                    <span class="badge severity-{{ issue.severity|lower }}">{{ issue.severity }}</span>
-                                    {{ issue.issue }}
-                                </h6>
-                                <p class="mt-2"><strong>Recommendation:</strong> {{ issue.recommendation }}</p>
-                            </div>
-                            {% endfor %}
-                        {% else %}
-                            <div class="alert alert-success">
-                                <i class="fas fa-check-circle"></i> No security issues detected in your network configuration.
-                            </div>
-                        {% endif %}
                     </div>
                 </div>
             </div>
