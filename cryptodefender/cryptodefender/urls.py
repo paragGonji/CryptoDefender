@@ -27,6 +27,10 @@ from accounts import views as acc_views
 from deep_network_scan import views as dns_views 
 
 
+
+
+
+
 urlpatterns = [
     path('admin/', admin.site.urls),
 
@@ -52,7 +56,7 @@ urlpatterns = [
     path('deep-research/', dr_views.deep_research, name='deep_research'),
 
     path('protection/', pr_views.protection, name='protection'),
-    path('prevent-guide/', pg_views.prevent_guide, name='prevent_guide'),
+
     path('payment/', pay_views.payment, name='payment'),
 
 
@@ -67,5 +71,8 @@ urlpatterns = [
     path('deep-network-scan/', dns_views.network_scan_view, name='deep_network_scan'),
     path('deep-network-scan/api/scan/', dns_views.api_scan, name='deep_network_scan_api'),
 
-
+    path('prevent-guide/', pg_views.prevent_guide, name='prevent_guide'),
+    path('api/cleanup-mining/', pg_views.cleanup_mining, name='cleanup_mining'),
 ]
+
+

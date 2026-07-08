@@ -55,7 +55,7 @@ def detect_crypto_mining():
     Detect crypto mining activity through:
     1. Known mining pool connections
     2. Suspicious outbound connections
-    3. Known mining port usage
+    3. Known mining port usage (LISTENING and ESTABLISHED)
     """
     detection_results = {
         'mining_pool_connections': [],
@@ -108,6 +108,26 @@ def detect_crypto_mining():
                 foreign_addr = parts[2] if len(parts) > 2 else ''
                 state = parts[3] if len(parts) > 3 else ''
                 
+                # Check for suspicious ports in LISTENING state
+                if 'LISTENING' in state or 'LISTEN' in state:
+                    if ':' in local_addr:
+                        # Extract port from local address
+                        local_port = local_addr.split(':')[-1]
+                        try:
+                            port_num = int(local_port)
+                            if port_num in mining_ports:
+                                detection_results['suspicious_ports'].append({
+                                    'port': port_num,
+                                    'address': local_addr,
+                                    'local': local_addr,
+                                    'state': state,
+                                    'type': 'LISTENING (Open port)'
+                                })
+                                detection_results['has_mining_activity'] = True
+                                print(f"🔍 Found LISTENING mining port: {port_num}")
+                        except:
+                            pass
+                
                 # Check for ESTABLISHED outbound connections
                 if 'ESTABLISHED' in state:
                     # Check if connection is to a mining pool
@@ -120,6 +140,7 @@ def detect_crypto_mining():
                                 'state': state
                             })
                             detection_results['has_mining_activity'] = True
+                            print(f"🔍 Found mining pool connection: {pool}")
                     
                     # Check for suspicious ports (outbound)
                     if ':' in foreign_addr:
@@ -130,9 +151,12 @@ def detect_crypto_mining():
                                 detection_results['suspicious_ports'].append({
                                     'port': port_num,
                                     'address': foreign_addr,
-                                    'local': local_addr
+                                    'local': local_addr,
+                                    'state': state,
+                                    'type': 'ESTABLISHED (Outbound)'
                                 })
                                 detection_results['has_mining_activity'] = True
+                                print(f"🔍 Found ESTABLISHED mining port: {port_num}")
                         except:
                             pass
         
@@ -148,10 +172,16 @@ def detect_crypto_mining():
                     for miner in known_miners:
                         if miner in proc_name:
                             detection_results['has_mining_activity'] = True
+                            print(f"🔍 Found mining process: {proc_name}")
                 except:
                     pass
         except:
             pass
+        
+        # Add debug info
+        print(f"📊 Detection results: {detection_results['has_mining_activity']}")
+        print(f"   Suspicious ports found: {len(detection_results['suspicious_ports'])}")
+        print(f"   Mining pool connections: {len(detection_results['mining_pool_connections'])}")
         
     except Exception as e:
         print(f"Error in crypto mining detection: {e}")
@@ -325,7 +355,15 @@ def scan_common_ports():
         3389: 'RDP',
         5432: 'PostgreSQL',
         5900: 'VNC',
-        8080: 'HTTP-Alt'
+        8080: 'HTTP-Alt',
+        # Add mining ports
+        3333: 'Mining Port (Monero/XMRig)',
+        4444: 'Mining Port (Stratum)',
+        5555: 'Mining Port (CryptoNight)',
+        6666: 'Mining Port (Stratum)',
+        7777: 'Mining Port (CryptoNight)',
+        8888: 'Mining Port (Stratum)',
+        9999: 'Mining Port (Mining Pool)',
     }
     
     open_ports = []
@@ -340,8 +378,9 @@ def scan_common_ports():
                     'service': service,
                     'status': 'OPEN'
                 })
-        except:
-            pass
+                print(f"✅ Port {port} ({service}) is OPEN")
+        except Exception as e:
+            print(f"❌ Error checking port {port}: {e}")
         finally:
             sock.close()
     

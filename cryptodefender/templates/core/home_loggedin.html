@@ -11,6 +11,47 @@
             bottom: 20px;
             right: 20px;
         }
+        
+        /* Style for blocked/disabled link */
+        .nav-link.disabled-link {
+            color: #6c757d !important;
+            cursor: not-allowed;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        
+        .nav-link.disabled-link:hover {
+            color: #6c757d !important;
+        }
+        
+        /* Tooltip for blocked link */
+        .blocked-tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .blocked-tooltip .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            font-size: 12px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .blocked-tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
@@ -47,18 +88,12 @@
                     </a>
                 </li>
 
-                <!-- 🛡 Protection (UNLOCKED) -->
-                <li class="nav-item">
-                    <a class="nav-link text-success" href="{% url 'protection' %}">
-                        🛡 Protection
-                    </a>
-                </li>
-
-                <!-- 📘 Prevention Guide -->
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'prevent_guide' %}">
-                        📘 How to Prevent
-                    </a>
+                <!-- 📘 Prevention (BLOCKED) -->
+                <li class="nav-item blocked-tooltip">
+                    <span class="nav-link disabled-link" style="display: inline-block;">
+                        📘 Prevention 🔒
+                    </span>
+                    <span class="tooltip-text">⚠️ Access to Prevention is blocked</span>
                 </li>
 
             </ul>
@@ -96,6 +131,14 @@
 <div class="container text-center mt-5">
     <h1>Welcome {{ request.user.username }}</h1>
     <p>You are now logged in 🎉</p>
+    
+    <!-- Show blocked message if user tries to access prevention -->
+    {% if request.GET.blocked == 'true' %}
+    <div class="alert alert-warning alert-dismissible fade show mt-3" role="alert">
+        <strong>⚠️ Access Denied!</strong> The Prevention page is currently blocked.
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endif %}
 
     <hr>
 
@@ -135,11 +178,30 @@
 
 </div>
 
-<!-- 🧠 JS to hide results -->
+<!-- 🧠 JS to hide results and block Prevention access -->
 <script>
     function clearData() {
         document.getElementById("resultCard").style.display = "none";
     }
+    
+    // Additional JavaScript to block Prevention access
+    document.addEventListener('DOMContentLoaded', function() {
+        // If someone tries to access prevention page via URL, redirect back
+        if (window.location.href.includes('prevent_guide') || window.location.href.includes('prevention')) {
+            window.location.href = window.location.pathname + '?blocked=true';
+        }
+        
+        // Prevent right-click on Prevention link
+        var blockedLinks = document.querySelectorAll('.disabled-link');
+        blockedLinks.forEach(function(link) {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                alert('⚠️ Access to Prevention is blocked!');
+                return false;
+            });
+        });
+    });
 </script>
 
 <!-- ✅ Bootstrap JS (REQUIRED for dropdown) -->

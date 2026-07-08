@@ -91,7 +91,7 @@
             padding: 0;
         }
         .mining-status-list li {
-            padding: 8px 0;
+            padding: 10px 0;
             border-bottom: 1px solid #eee;
         }
         .mining-status-list li:last-child {
@@ -138,6 +138,137 @@
             border-radius: 12px;
             font-size: 12px;
         }
+        .mining-check-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .mining-check-item:last-child {
+            border-bottom: none;
+        }
+        .mining-check-item .mining-name {
+            font-weight: 500;
+        }
+        .mining-check-item .mining-ports {
+            color: #6c757d;
+            font-size: 13px;
+        }
+        .mining-check-item .mining-status {
+            font-size: 13px;
+        }
+        .mining-port {
+            background-color: #fff3cd !important;
+            border-left: 4px solid #ffc107;
+        }
+        .mining-port td:first-child {
+            font-weight: bold;
+            color: #dc3545;
+        }
+        .mining-badge {
+            background-color: #dc3545;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            margin-left: 5px;
+        }
+        .mining-card-danger {
+            border-left: 5px solid #dc3545;
+        }
+        .prevention-btn {
+            animation: pulse 2s infinite;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+            transition: all 0.3s ease;
+        }
+        .prevention-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(220, 53, 69, 0.5);
+        }
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 15px rgba(220, 53, 69, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+            }
+        }
+        .prevention-section {
+            background: linear-gradient(135deg, #fff5f5 0%, #ffe8e8 100%);
+            border-radius: 15px;
+            padding: 30px;
+            border: 2px solid #dc3545;
+            margin-top: 30px;
+        }
+        .prevention-section .icon {
+            font-size: 3rem;
+            color: #dc3545;
+        }
+        .prevention-section h3 {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        /* Style for blocked/disabled link */
+        .nav-link.disabled-link {
+            color: #6c757d !important;
+            cursor: not-allowed;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .nav-link.disabled-link:hover {
+            color: #6c757d !important;
+        }
+
+        /* Tooltip for blocked link */
+        .blocked-tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .blocked-tooltip .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            font-size: 12px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .blocked-tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .nav-link.unlocked {
+            color: #ffc107 !important;
+            cursor: pointer;
+            pointer-events: auto;
+            opacity: 1;
+        }
+
+        .nav-link.unlocked:hover {
+            color: #ffc107 !important;
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -159,20 +290,34 @@
                 <li class="nav-item">
                     <a class="nav-link active" href="{% url 'deep_network_scan' %}">🌐 Deep Network Scan</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link text-success" href="{% url 'protection' %}">🛡 Protection</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'prevent_guide' %}">📘 How to Prevent</a>
+                <!-- How to Prevent - Blocked by default, only unlocked when mining detected -->
+                <li class="nav-item blocked-tooltip" id="preventNavItem">
+                    {% if scan_results and scan_results.crypto_mining_detection.has_mining_activity %}
+                        <a class="nav-link unlocked" href="{% url 'prevent_guide' %}">
+                            📘 How to Prevent
+                        </a>
+                    {% else %}
+                        <span class="nav-link disabled-link" style="display: inline-block;">
+                            📘 How to Prevent 🔒
+                        </span>
+                        <span class="tooltip-text">⚠️ Access to Prevention is blocked - Run scan first</span>
+                    {% endif %}
                 </li>
             </ul>
-            <ul class="navbar-nav ms-auto">
+              <!-- RIGHT SIDE - FIXED PROFILE LINK -->
+            <ul class="navbar-nav ms-auto align-items-center">
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         👤 {{ request.user.username }}
                     </a>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item text-danger" href="{% url 'logout' %}">Logout</a></li>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                        <li><a class="dropdown-item" href="{% url 'profile' %}">
+                            <i class="fas fa-user-circle"></i> Profile
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="{% url 'logout' %}">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a></li>
                     </ul>
                 </li>
             </ul>
@@ -304,8 +449,13 @@
                                     </thead>
                                     <tbody>
                                         {% for port in scan_results.open_ports %}
-                                        <tr>
-                                            <td><strong>{{ port.port }}</strong></td>
+                                        <tr class="{% if port.port == 3333 or port.port == 4444 or port.port == 5555 or port.port == 6666 or port.port == 7777 or port.port == 8888 or port.port == 9999 %}mining-port{% endif %}">
+                                            <td>
+                                                <strong>{{ port.port }}</strong>
+                                                {% if port.port == 3333 or port.port == 4444 or port.port == 5555 or port.port == 6666 or port.port == 7777 or port.port == 8888 or port.port == 9999 %}
+                                                    <span class="mining-badge">⚠️ MINING</span>
+                                                {% endif %}
+                                            </td>
                                             <td>
                                                 {% if port.port == 135 %}
                                                     Remote Procedure Call (RPC)
@@ -317,13 +467,35 @@
                                                     Remote Desktop Protocol (RDP)
                                                 {% elif port.port == 5900 %}
                                                     Virtual Network Computing (VNC)
+                                                {% elif port.port == 3333 %}
+                                                    Mining Port (Monero/XMRig)
+                                                {% elif port.port == 4444 %}
+                                                    Mining Port (Stratum)
+                                                {% elif port.port == 5555 %}
+                                                    Mining Port (CryptoNight)
+                                                {% elif port.port == 7777 %}
+                                                    Mining Port (CryptoNight)
+                                                {% elif port.port == 8888 %}
+                                                    Mining Port (Stratum)
                                                 {% else %}
                                                     {{ port.service }}
                                                 {% endif %}
                                             </td>
                                             <td><span class="status-badge status-open">OPEN</span></td>
                                             <td>
-                                                {% if port.port == 135 %}
+                                                {% if port.port == 3333 %}
+                                                    <small>⚠️ <strong>Common mining port</strong> - Used by Monero (XMR) miners like XMRig</small>
+                                                {% elif port.port == 4444 %}
+                                                    <small>⚠️ <strong>Common mining port</strong> - Used by Stratum mining protocol</small>
+                                                {% elif port.port == 5555 %}
+                                                    <small>⚠️ <strong>Common mining port</strong> - Used by CryptoNight mining</small>
+                                                {% elif port.port == 7777 %}
+                                                    <small>⚠️ <strong>Common mining port</strong> - Used by multiple mining pools</small>
+                                                {% elif port.port == 8888 %}
+                                                    <small>⚠️ <strong>Common mining port</strong> - Used by Stratum mining protocol</small>
+                                                {% elif port.port == 9999 %}
+                                                    <small>⚠️ <strong>Common mining port</strong> - Used by mining pools</small>
+                                                {% elif port.port == 135 %}
                                                     <small>Remote Procedure Call - Used for inter-process communication on Windows</small>
                                                 {% elif port.port == 445 %}
                                                     <small>File and printer sharing for Windows networks</small>
@@ -358,9 +530,9 @@
                                 <h6><i class="fas fa-info-circle"></i> Detailed Port Information:</h6>
                                 <div class="row">
                                     {% for port in scan_results.open_ports %}
-                                        {% if port.port == 135 or port.port == 445 or port.port == 5432 %}
+                                        {% if port.port == 135 or port.port == 445 or port.port == 5432 or port.port == 3333 or port.port == 4444 or port.port == 5555 %}
                                         <div class="col-md-4">
-                                            <div class="port-info-card border-{% if port.port == 135 or port.port == 445 %}danger{% else %}warning{% endif %}">
+                                            <div class="port-info-card border-{% if port.port == 3333 or port.port == 4444 or port.port == 5555 %}danger{% elif port.port == 135 or port.port == 445 %}danger{% else %}warning{% endif %}">
                                                 <div class="d-flex justify-content-between align-items-center">
                                                     <span class="port-number">{{ port.port }}</span>
                                                     <span class="port-service">
@@ -370,6 +542,12 @@
                                                             SMB
                                                         {% elif port.port == 5432 %}
                                                             PostgreSQL
+                                                        {% elif port.port == 3333 %}
+                                                            ⚠️ Mining Port
+                                                        {% elif port.port == 4444 %}
+                                                            ⚠️ Mining Port
+                                                        {% elif port.port == 5555 %}
+                                                            ⚠️ Mining Port
                                                         {% else %}
                                                             {{ port.service }}
                                                         {% endif %}
@@ -384,6 +562,12 @@
                                                         Server Message Block (SMB) - Used for file sharing, printer sharing, and network communication in Windows environments.
                                                     {% elif port.port == 5432 %}
                                                         PostgreSQL Database Server - A powerful open-source relational database system.
+                                                    {% elif port.port == 3333 %}
+                                                        ⚠️ This is a common crypto mining port. If you didn't install mining software, this could indicate unauthorized mining activity.
+                                                    {% elif port.port == 4444 %}
+                                                        ⚠️ This is a common crypto mining port. Used by Stratum mining protocol.
+                                                    {% elif port.port == 5555 %}
+                                                        ⚠️ This is a common crypto mining port. Used by CryptoNight miners.
                                                     {% endif %}
                                                 </div>
                                             </div>
@@ -486,49 +670,155 @@
         <!-- Crypto Mining Detection Card -->
         <div class="row mt-4">
             <div class="col-12">
-                <div class="card scan-card shadow mining-card">
-                    <div class="card-header bg-success text-white">
+                <div class="card scan-card shadow {% if scan_results.crypto_mining_detection.has_mining_activity %}mining-card-danger{% else %}mining-card{% endif %}">
+                    <div class="card-header {% if scan_results.crypto_mining_detection.has_mining_activity %}bg-danger{% else %}bg-success{% endif %} text-white">
                         <h5><i class="fas fa-bitcoin"></i> Crypto Mining Detection Results</h5>
                     </div>
                     <div class="card-body">
-                        <div class="alert alert-success">
-                            <h4><i class="fas fa-check-circle"></i> ✅ NO MINING ACTIVITY DETECTED</h4>
-                            <p class="mt-3">Since your scan shows <strong>NO</strong> connections to:</p>
-                            
-                            <ul class="mining-status-list">
-                                <li>
-                                    <i class="fas fa-times-circle text-success"></i>
-                                    <code>pool.minexmr.com</code> 
-                                    <span class="safe-badge">✅ NOT DETECTED</span>
-                                </li>
-                                <li>
-                                    <i class="fas fa-times-circle text-success"></i>
-                                    <code>cryptonight</code> 
-                                    <span class="safe-badge">✅ NOT DETECTED</span>
-                                </li>
-                                <li>
-                                    <i class="fas fa-times-circle text-success"></i>
-                                    <code>stratum+tcp</code> 
-                                    <span class="safe-badge">✅ NOT DETECTED</span>
-                                </li>
-                                <li>
-                                    <i class="fas fa-times-circle text-success"></i>
-                                    Any mining pools 
-                                    <span class="safe-badge">✅ NOT DETECTED</span>
-                                </li>
-                                <li>
-                                    <i class="fas fa-times-circle text-success"></i>
-                                    Any mining ports (3333, 4444, 5555, etc.) 
-                                    <span class="safe-badge">✅ NOT DETECTED</span>
-                                </li>
-                            </ul>
+                        {% if scan_results.crypto_mining_detection.has_mining_activity %}
+                            <div class="alert alert-danger">
+                                <h4><i class="fas fa-exclamation-triangle"></i> ⚠️ MINING ACTIVITY DETECTED!</h4>
+                                <p class="mt-3">Your system has indicators of crypto mining activity:</p>
+                                
+                                {% if scan_results.crypto_mining_detection.suspicious_ports %}
+                                    <div class="alert alert-warning mt-3">
+                                        <h6><i class="fas fa-door-open"></i> Suspicious Ports Detected:</h6>
+                                        <div class="table-responsive">
+                                            <table class="table table-striped table-hover">
+                                                <thead class="table-dark">
+                                                    <tr>
+                                                        <th>Port</th>
+                                                        <th>State</th>
+                                                        <th>Type</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for port in scan_results.crypto_mining_detection.suspicious_ports %}
+                                                    <tr>
+                                                        <td><span class="badge bg-danger">{{ port.port }}</span></td>
+                                                        <td><span class="badge bg-warning text-dark">{{ port.state }}</span></td>
+                                                        <td>{{ port.type|default:"Suspicious" }}</td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                                
+                                {% if scan_results.crypto_mining_detection.mining_pool_connections %}
+                                    <div class="alert alert-danger mt-3">
+                                        <h6><i class="fas fa-link"></i> Mining Pool Connections:</h6>
+                                        <div class="table-responsive">
+                                            <table class="table table-striped table-hover">
+                                                <thead class="table-dark">
+                                                    <tr>
+                                                        <th>Pool</th>
+                                                        <th>Address</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for conn in scan_results.crypto_mining_detection.mining_pool_connections %}
+                                                    <tr>
+                                                        <td><code>{{ conn.pool }}</code></td>
+                                                        <td>{{ conn.address }}</td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                {% endif %}
 
-                            <div class="alert alert-info mt-3">
-                                <i class="fas fa-info-circle"></i>
-                                <strong>Your system appears to be SAFE from crypto mining activity.</strong>
-                                <p class="mt-2 mb-0">No connections to known mining pools or suspicious mining ports were detected.</p>
+                                <div class="alert alert-info mt-3">
+                                    <i class="fas fa-info-circle"></i>
+                                    <strong>Recommendations:</strong>
+                                    <ul class="mt-2 mb-0">
+                                        <li>Check for unauthorized mining software</li>
+                                        <li>Close unnecessary mining ports</li>
+                                        <li>Use firewall to block mining connections</li>
+                                        <li>Run an antivirus scan</li>
+                                        <li>Check for resource usage in Task Manager</li>
+                                    </ul>
+                                </div>
                             </div>
-                        </div>
+
+                            <!-- Prevention Guide Button - Visible Only When Mining Detected -->
+                            <div class="prevention-section text-center">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="icon mb-3">
+                                            <i class="fas fa-shield-alt"></i>
+                                        </div>
+                                        <h3>⚠️ Crypto Mining Detected!</h3>
+                                        <p class="lead mb-4">
+                                            Your system shows signs of crypto mining activity. 
+                                            Take immediate action to protect your system.
+                                        </p>
+                                        <a href="{% url 'prevent_guide' %}" class="btn btn-danger btn-lg prevention-btn">
+                                            <i class="fas fa-book"></i> How to Prevent Crypto Mining
+                                            <i class="fas fa-arrow-right ms-2"></i>
+                                        </a>
+                                        <p class="mt-3 text-muted">
+                                            <small>
+                                                <i class="fas fa-info-circle"></i> 
+                                                Click the button above to learn how to protect your system from crypto mining threats.
+                                            </small>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                        {% else %}
+                            <div class="alert alert-success">
+                                <h4><i class="fas fa-check-circle"></i> ✅ NO MINING ACTIVITY DETECTED</h4>
+                                <p class="mt-3">Since your scan shows <strong>NO</strong> connections to:</p>
+                                
+                                <ul class="mining-status-list">
+                                    <li>
+                                        <div class="mining-check-item">
+                                            <span class="mining-name"><code>pool.minexmr.com</code></span>
+                                            <span class="mining-ports">commonly uses port: <strong>3333</strong></span>
+                                            <span class="safe-badge mining-status">✅ NOT DETECTED</span>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="mining-check-item">
+                                            <span class="mining-name"><code>cryptonight</code></span>
+                                            <span class="mining-ports">commonly uses port: <strong>4444</strong></span>
+                                            <span class="safe-badge mining-status">✅ NOT DETECTED</span>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="mining-check-item">
+                                            <span class="mining-name"><code>stratum+tcp</code></span>
+                                            <span class="mining-ports">commonly uses ports: <strong>3333, 4444, 5555, 7777</strong></span>
+                                            <span class="safe-badge mining-status">✅ NOT DETECTED</span>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="mining-check-item">
+                                            <span class="mining-name">Any mining pools</span>
+                                            <span class="mining-ports">commonly uses ports: <strong>3333, 4444, 5555, 6666, 7777, 8888, 9999</strong></span>
+                                            <span class="safe-badge mining-status">✅ NOT DETECTED</span>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="mining-check-item">
+                                            <span class="mining-name">Mining ports</span>
+                                            <span class="mining-ports"><strong>3333, 4444, 5555, 6666, 7777, 8888, 9999</strong></span>
+                                            <span class="safe-badge mining-status">✅ NOT DETECTED</span>
+                                        </div>
+                                    </li>
+                                </ul>
+
+                                <div class="alert alert-info mt-3">
+                                    <i class="fas fa-info-circle"></i>
+                                    <strong>Your system appears to be SAFE from crypto mining activity.</strong>
+                                    <p class="mt-2 mb-0">No connections to known mining pools or suspicious mining ports were detected.</p>
+                                </div>
+                            </div>
+                        {% endif %}
 
                         <!-- Suspicious Ports Check -->
                         {% if scan_results.crypto_mining_detection.suspicious_ports %}
@@ -542,6 +832,7 @@
                                             <th>Port</th>
                                             <th>Foreign Address</th>
                                             <th>Local Address</th>
+                                            <th>State</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -550,6 +841,7 @@
                                             <td><span class="badge bg-warning text-dark">{{ port.port }}</span></td>
                                             <td><code>{{ port.address }}</code></td>
                                             <td><code>{{ port.local }}</code></td>
+                                            <td><span class="badge bg-info">{{ port.state }}</span></td>
                                         </tr>
                                         {% endfor %}
                                     </tbody>
@@ -560,6 +852,62 @@
                             </small>
                         </div>
                         {% endif %}
+
+                        <!-- Mining Ports Reference Table -->
+                        <div class="mt-3">
+                            <h6><i class="fas fa-table"></i> Common Mining Pool & Port Reference:</h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-bordered table-striped">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>Mining Pool / Indicator</th>
+                                            <th>Common Ports Used</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><code>pool.minexmr.com</code></td>
+                                            <td>3333, 4444, 5555, 7777, 8888, 9999</td>
+                                        </tr>
+                                        <tr>
+                                            <td><code>cryptonight</code></td>
+                                            <td>4444, 7777, 8888</td>
+                                        </tr>
+                                        <tr>
+                                            <td><code>stratum+tcp</code></td>
+                                            <td>3333, 4444, 5555, 7777, 8888</td>
+                                        </tr>
+                                        <tr>
+                                            <td><code>supportxmr.com</code></td>
+                                            <td>3333, 4444, 5555, 7777, 8888, 9999</td>
+                                        </tr>
+                                        <tr>
+                                            <td><code>hashvault.pro</code></td>
+                                            <td>3333, 4444, 5555, 7777, 8888, 9999</td>
+                                        </tr>
+                                        <tr>
+                                            <td><code>ethermine.org</code></td>
+                                            <td>4444, 5555, 7777, 8888, 9999</td>
+                                        </tr>
+                                        <tr>
+                                            <td><code>antpool.com</code></td>
+                                            <td>3333, 4444, 5555, 7777, 8888, 9999</td>
+                                        </tr>
+                                        <tr>
+                                            <td><code>f2pool.com</code></td>
+                                            <td>3333, 4444, 5555, 7777, 8888</td>
+                                        </tr>
+                                        <tr>
+                                            <td><code>nicehash.com</code></td>
+                                            <td>3333, 4444, 5555, 7777, 8888</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle"></i> These are commonly used ports for mining connections.
+                            </small>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -680,6 +1028,17 @@
             scanBtn.innerHTML = '<i class="fas fa-play"></i> Start Network Scan';
             spinner.style.display = 'none';
         {% endif %}
+
+        // Block Prevention link click if disabled
+        var preventLink = document.querySelector('#preventNavItem .nav-link');
+        if (preventLink && preventLink.classList.contains('disabled-link')) {
+            preventLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                alert('⚠️ Access to Prevention is blocked! Run a network scan first to check for mining activity.');
+                return false;
+            });
+        }
     });
     
     // Reset button if scan takes too long (safety net)
