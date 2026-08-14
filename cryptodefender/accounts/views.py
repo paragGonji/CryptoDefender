@@ -5,6 +5,10 @@ from django.contrib.auth.decorators import login_required
 from django.db import connection
 from django.contrib import messages
 from django.db.models import Q
+from django.views.decorators.csrf import ensure_csrf_cookie
+
+
+
 
 # 🔐 CHECK ADMIN (PostgreSQL table)
 def is_admin(user):

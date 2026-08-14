@@ -1,27 +1,382 @@
 <!DOCTYPE html>
-
 <html>
 <head>
-    <title>Signup</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <title>CryptoDefender — Signup</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --ink:    #0d0d0d;
+            --card:   #ffffff;
+            --accent: #ff4d1c;
+            --accent2:#ffb347;
+            --muted:  #6b6b6b;
+            --border: #e2e2e2;
+            --input-bg: #f7f7f5;
+            --radius: 14px;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: #f0ede8;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* decorative blobs */
+        body::before, body::after {
+            content: '';
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: .55;
+            pointer-events: none;
+        }
+        body::before {
+            width: 560px; height: 560px;
+            background: radial-gradient(circle, #ff4d1c 0%, #ffb347 60%, transparent 100%);
+            top: -180px; right: -180px;
+            animation: drift 8s ease-in-out infinite alternate;
+        }
+        body::after {
+            width: 420px; height: 420px;
+            background: radial-gradient(circle, #a78bfa 0%, #60a5fa 60%, transparent 100%);
+            bottom: -140px; left: -120px;
+            animation: drift 10s ease-in-out infinite alternate-reverse;
+        }
+        @keyframes drift {
+            from { transform: translate(0, 0) scale(1); }
+            to   { transform: translate(30px, 20px) scale(1.06); }
+        }
+
+        .page {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            width: min(860px, 96vw);
+            min-height: 540px;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 32px 80px rgba(0,0,0,.18), 0 0 0 1px rgba(255,255,255,.6);
+            animation: rise .6s cubic-bezier(.22,.68,0,1.2) both;
+        }
+        @keyframes rise {
+            from { opacity:0; transform: translateY(36px) scale(.97); }
+            to   { opacity:1; transform: translateY(0)    scale(1);   }
+        }
+
+        .panel {
+            background: var(--ink);
+            padding: 52px 44px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+        .panel::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+        }
+        .brand-icon {
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .brand-icon svg { width: 20px; height: 20px; }
+        .brand-name {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 1.15rem;
+            color: #fff;
+            letter-spacing: -.3px;
+        }
+        .brand-name span { color: var(--accent); }
+
+        .panel-copy { position: relative; }
+        .panel-copy h1 {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 2.2rem;
+            line-height: 1.15;
+            color: #fff;
+            margin-bottom: 24px;
+        }
+        .panel-copy h1 em {
+            font-style: normal;
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .panel-copy .feature-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .panel-copy .feature-list .row {
+            display: flex;
+            align-items: flex-start;
+            gap: 13px;
+        }
+        .panel-copy .feature-list .icon-box {
+            width: 34px; height: 34px;
+            border-radius: 8px;
+            background: rgba(255,255,255,.07);
+            border: 1px solid rgba(255,255,255,.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .panel-copy .feature-list strong {
+            display: block;
+            font-family: 'Syne', sans-serif;
+            font-size: .92rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .panel-footer {
+            font-size: .78rem;
+            color: rgba(255,255,255,.25);
+            position: relative;
+        }
+
+        .form-side {
+            background: var(--card);
+            padding: 48px 44px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .form-header { margin-bottom: 32px; }
+        .form-header h2 {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 1.65rem;
+            color: var(--ink);
+            letter-spacing: -.4px;
+        }
+        .form-header p {
+            font-size: .85rem;
+            color: var(--muted);
+            margin-top: 6px;
+        }
+
+        .field { margin-bottom: 18px; }
+
+        .field label {
+            display: block;
+            font-size: .78rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: var(--muted);
+            margin-bottom: 7px;
+        }
+
+        .field input {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--input-bg);
+            border: 1.5px solid transparent;
+            border-radius: 10px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: .95rem;
+            color: var(--ink);
+            outline: none;
+            transition: border-color .2s, background .2s, box-shadow .2s;
+        }
+        .field input::placeholder { color: #a8a8a3; }
+        .field input:focus {
+            background: #fff;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(255,77,28,.1);
+        }
+
+        .errorlist {
+            list-style: none;
+            margin-top: 6px;
+        }
+        .errorlist li {
+            font-size: .78rem;
+            color: #e03e3e;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .errorlist li::before {
+            content: '●';
+            font-size: .5rem;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 13px;
+            margin-top: 6px;
+            background: var(--ink);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Syne', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: .02em;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: transform .15s, box-shadow .15s;
+        }
+        .btn-submit::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+            opacity: 0;
+            transition: opacity .25s;
+        }
+        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.18); }
+        .btn-submit:hover::before { opacity: 1; }
+        .btn-submit:active { transform: translateY(0); }
+        .btn-submit span { position: relative; z-index: 1; }
+
+        .alt-link {
+            text-align: center;
+            margin-top: 20px;
+            font-size: .83rem;
+            color: var(--muted);
+        }
+        .alt-link a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .alt-link a:hover { text-decoration: underline; }
+
+        @media (max-width: 640px) {
+            .page { grid-template-columns: 1fr; }
+            .panel { display: none; }
+            .form-side { padding: 40px 28px; }
+        }
+    </style>
 </head>
-<body class="container mt-5">
+<body>
 
-<h2>Signup</h2>
+<div class="page">
 
-<form method="post">
-    {% csrf_token %}
-    <input type="text" name="username" placeholder="Username" class="form-control mb-3" required>
-    <input type="email" name="email" placeholder="Email" class="form-control mb-3" required>
-    <input type="password" name="password" placeholder="Password" class="form-control mb-3" required>
+    <!-- Left decorative panel -->
+    <div class="panel">
+        <div class="brand">
+            <div class="brand-icon">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7l-9-5z" fill="#0d0d0d"/>
+                    <path d="M9 12l2 2 4-4" stroke="#0d0d0d" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <div class="brand-name">Crypto<span>Defender</span></div>
+        </div>
 
-```
-<button class="btn btn-success w-100">Signup</button>
-```
+        <div class="panel-copy">
+            <h1>Your shield<br>against <em>crypto<br>threats.</em></h1>
 
-</form>
+            <div class="feature-list">
+                <div class="row">
+                    <div class="icon-box">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ff4d1c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="2"/>
+                            <path d="M16.24 7.76a6 6 0 0 1 0 8.49"/>
+                            <path d="M7.76 16.24a6 6 0 0 1 0-8.49"/>
+                            <path d="M20.07 3.93a10 10 0 0 1 0 16.14"/>
+                            <path d="M3.93 20.07a10 10 0 0 1 0-16.14"/>
+                        </svg>
+                    </div>
+                    <div><strong>Detect</strong></div>
+                </div>
 
-<p class="mt-3">Already have an account? <a href="{% url 'login' %}">Login</a></p>
+                <div class="row">
+                    <div class="icon-box">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffb347" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        </svg>
+                    </div>
+                    <div><strong>Protect</strong></div>
+                </div>
+
+                <div class="row">
+                    <div class="icon-box">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+                        </svg>
+                    </div>
+                    <div><strong>Prevent</strong></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel-footer">© 2026 CryptoDefender. All rights reserved.</div>
+    </div>
+
+    <!-- Right form panel -->
+    <div class="form-side">
+        <div class="form-header">
+            <h2>Create account</h2>
+            <p>Fill in the details below to get started.</p>
+        </div>
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+
+            <div class="field">
+                <label for="id_username">Username</label>
+                <input type="text" id="id_username" name="username" placeholder="Choose a username" required>
+            </div>
+
+            <div class="field">
+                <label for="id_email">Email</label>
+                <input type="email" id="id_email" name="email" placeholder="you@example.com" required>
+            </div>
+
+            <div class="field">
+                <label for="id_password">Password</label>
+                <input type="password" id="id_password" name="password" placeholder="Create a strong password" required>
+            </div>
+
+            <button type="submit" class="btn-submit">
+                <span>Create my account →</span>
+            </button>
+        </form>
+
+        <div class="alt-link">
+            Already have an account? <a href="{% url 'login' %}">Login</a>
+        </div>
+    </div>
+
+</div>
 
 </body>
 </html>

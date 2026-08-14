@@ -8,7 +8,10 @@ import subprocess
 import platform
 import os
 import time
+from django.contrib.auth.decorators import login_required
 
+
+@login_required(login_url='login')
 def prevent_guide(request):
     """Prevention guide page view"""
     return render(request, 'core/prevent_guide.html')

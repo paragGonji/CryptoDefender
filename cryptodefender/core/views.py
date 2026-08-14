@@ -36,7 +36,7 @@ def detect(request):
         download_speed = (net2.bytes_recv - net1.bytes_recv) / 1024
 
         # 🔥 Detection logic
-        if cpu > 30 and ram > 90 and disk > 70 and download_speed > 500:
+        if cpu > 90 and ram > 90 and disk > 70 and download_speed > 500:
             result = "⚠️ Mining / Suspicious Activity Detected"
         else:
             result = "✅ System Safe"
@@ -118,23 +118,40 @@ def verify_signup_otp(request):
 
 
 # 🔹 LOGIN (normal login)
+# 🔹 LOGIN (Username OR Email)
 def login_view(request):
     if request.method == "POST":
-        username = request.POST['username']
+        username_or_email = request.POST['username']
         password = request.POST['password']
 
-        user = authenticate(request, username=username, password=password)
+        # First try username
+        user = authenticate(
+            request,
+            username=username_or_email,
+            password=password
+        )
+
+        # If username login fails, try email
+        if user is None:
+            try:
+                user_obj = User.objects.get(email=username_or_email)
+                user = authenticate(
+                    request,
+                    username=user_obj.username,
+                    password=password
+                )
+            except User.DoesNotExist:
+                user = None
 
         if user is not None:
             login(request, user)
-            return redirect('home_loggedin')   # ✅ go to logged-in dashboard
-        else:
-            return render(request, 'core/login.html', {
-                'error': 'Invalid username or password'
-            })
+            return redirect('home_loggedin')
 
-    return render(request, 'core/login.html')   # ✅ ALWAYS show login page
+        return render(request, 'core/login.html', {
+            'error': 'Invalid username or password'
+        })
 
+    return render(request, 'core/login.html')
 
 
 # 🔍 Mining Detection Function

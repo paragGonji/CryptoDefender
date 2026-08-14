@@ -2,178 +2,722 @@
 <html>
 <head>
     <title>Prevention Guide - CryptoDefender</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
+        *, *::before, *::after { box-sizing: border-box; }
+
+        :root {
+            --ink:    #0d0d0d;
+            --card:   #ffffff;
+            --accent: #ff4d1c;
+            --accent2:#ffb347;
+            --muted:  #6b6b6b;
+            --bg:     #f0ede8;
+            --safe:   #0d7c3f;
+            --danger: #c92a2a;
+        }
+
         body {
-            background-color: #f8f9fa;
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            color: var(--ink);
+            position: relative;
+            overflow-x: hidden;
+            margin: 0;
         }
-        .prevention-card {
+
+        body::before, body::after {
+            content: '';
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(90px);
+            opacity: .5;
+            pointer-events: none;
+            z-index: 0;
+        }
+        body::before {
+            width: 620px; height: 620px;
+            background: radial-gradient(circle, #ff4d1c 0%, #ffb347 60%, transparent 100%);
+            top: -220px; right: -220px;
+            animation: drift 9s ease-in-out infinite alternate;
+        }
+        body::after {
+            width: 460px; height: 460px;
+            background: radial-gradient(circle, #a78bfa 0%, #60a5fa 60%, transparent 100%);
+            bottom: -160px; left: -140px;
+            animation: drift 11s ease-in-out infinite alternate-reverse;
+        }
+        @keyframes drift {
+            from { transform: translate(0, 0) scale(1); }
+            to   { transform: translate(30px, 20px) scale(1.06); }
+        }
+
+        /* ── navbar: premium, elegant ── */
+        nav.topbar {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 36px;
+            background: linear-gradient(135deg, #0b0b1a 0%, #1a1a3e 40%, #2d1b4e 100%);
+            border-bottom: 3px solid transparent;
+            border-image: linear-gradient(90deg, #ff4d1c, #ffb347, #c084fc, #60a5fa) 1;
+            box-shadow: 0 8px 40px rgba(255, 77, 28, 0.12), inset 0 1px 0 rgba(255,255,255,0.05);
+            flex-wrap: wrap;
+            gap: 12px;
+            min-height: 80px;
+            backdrop-filter: blur(10px);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            padding: 4px 14px 4px 6px;
+            border-radius: 12px;
+            transition: all .3s ease;
+        }
+        .brand:hover { 
+            background: rgba(255,255,255,.06);
+            transform: scale(1.02);
+        }
+        .brand-icon {
+            width: 42px; height: 42px;
+            background: linear-gradient(135deg, #ff4d1c, #ffb347, #c084fc);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 4px 20px rgba(255,77,28,.4);
+            animation: glowPulse 3s ease-in-out infinite;
+            position: relative;
+        }
+        .brand-icon::after {
+            content: '';
+            position: absolute;
+            inset: -3px;
             border-radius: 15px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            margin-bottom: 25px;
-            transition: transform 0.3s;
+            background: linear-gradient(135deg, #ff4d1c, #ffb347, #c084fc);
+            opacity: 0.3;
+            filter: blur(10px);
+            z-index: -1;
+            animation: glowPulse 3s ease-in-out infinite;
         }
-        .prevention-card:hover {
-            transform: translateY(-5px);
+        @keyframes glowPulse {
+            0%, 100% { box-shadow: 0 4px 20px rgba(255,77,28,.4); }
+            50% { box-shadow: 0 4px 35px rgba(255,77,28,.7), 0 0 60px rgba(192,132,252,0.2); }
         }
+        .brand-icon i { color: #fff; font-size: 1.3rem; }
+
+        .brand-name {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 1.6rem;
+            color: #fff;
+            letter-spacing: -0.5px;
+            white-space: nowrap;
+            text-shadow: 0 0 40px rgba(255,77,28,0.15);
+        }
+        .brand-name span { 
+            background: linear-gradient(90deg, #ff4d1c, #ffb347, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            list-style: none;
+            margin: 0;
+            padding: 4px;
+            flex-wrap: wrap;
+            background: rgba(255,255,255,.04);
+            border: 1px solid rgba(255,255,255,.06);
+            border-radius: 16px;
+            backdrop-filter: blur(8px);
+        }
+        .nav-left a {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255,255,255,.8);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 600;
+            padding: 8px 22px;
+            border-radius: 12px;
+            white-space: nowrap;
+            transition: all .3s ease;
+            letter-spacing: 0.2px;
+            position: relative;
+        }
+        .nav-left a::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(255,77,28,0.15), rgba(192,132,252,0.1));
+            opacity: 0;
+            transition: opacity .3s ease;
+        }
+        .nav-left a:hover::before {
+            opacity: 1;
+        }
+        .nav-left a:hover {
+            color: #fff;
+            transform: translateY(-2px);
+        }
+        .nav-left a i { 
+            font-size: 1.1rem; 
+            color: #ffb347; 
+            transition: all .3s ease;
+            position: relative;
+            z-index: 1;
+        }
+        .nav-left a:hover i { 
+            transform: scale(1.15) rotate(-5deg);
+            color: #ff6b3d;
+        }
+        .nav-left a span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .nav-left a.active {
+            color: #fff;
+            background: rgba(255, 77, 28, 0.15);
+        }
+        .nav-left a.active::before {
+            opacity: 1;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        .profile-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #fff !important;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 600;
+            padding: 6px 22px 6px 6px;
+            border-radius: 999px;
+            background: rgba(255,255,255,.05);
+            border: 1px solid rgba(255,255,255,.06);
+            transition: all .3s ease;
+            letter-spacing: 0.2px;
+        }
+        .profile-link:hover {
+            background: rgba(255, 77, 28, 0.12);
+            border-color: rgba(255, 77, 28, 0.25);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 30px rgba(255,77,28,0.12);
+        }
+        .profile-avatar {
+            width: 34px; height: 34px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff4d1c, #ffb347, #c084fc);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 0.9rem;
+            color: #fff;
+            flex-shrink: 0;
+            box-shadow: 0 2px 16px rgba(255,77,28,.35);
+        }
+
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #ff4d1c, #e03e3e);
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 700;
+            padding: 9px 24px;
+            border-radius: 999px;
+            border: none;
+            cursor: pointer;
+            transition: all .3s ease;
+            letter-spacing: 0.4px;
+            box-shadow: 0 4px 20px rgba(224, 62, 62, 0.3);
+            white-space: nowrap;
+            position: relative;
+            overflow: hidden;
+        }
+        .logout-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, #ff6b3d, #e03e3e, #c084fc);
+            opacity: 0;
+            transition: opacity .3s ease;
+        }
+        .logout-btn:hover::before {
+            opacity: 1;
+        }
+        .logout-btn:hover {
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 8px 35px rgba(224, 62, 62, 0.45);
+        }
+        .logout-btn i, .logout-btn span {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ── Main Content ── */
+        .wrap {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 24px 70px;
+        }
+
+        .page-header {
+            animation: rise .6s cubic-bezier(.22,.68,0,1.2) both;
+        }
+        .page-header h1 {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 2.4rem;
+            letter-spacing: -0.5px;
+            margin-bottom: 4px;
+            background: linear-gradient(135deg, #1e1b4b, #4c1d95, #ff4d1c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .page-header h1 i { 
+            -webkit-text-fill-color: #ff4d1c;
+        }
+        .page-header .lead {
+            color: var(--muted);
+            font-size: 1.1rem;
+        }
+
+        @keyframes rise {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── Cards ── */
+        .card {
+            border: none;
+            border-radius: 18px;
+            box-shadow: 0 8px 32px rgba(0,0,0,.06), 0 0 0 1px rgba(0,0,0,.02);
+            transition: all .3s cubic-bezier(.22,.68,0,1.2);
+            overflow: hidden;
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(4px);
+        }
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 48px rgba(0,0,0,.10), 0 0 0 1px rgba(0,0,0,.02);
+        }
+        .card-header {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            padding: 16px 24px;
+            border: none;
+            letter-spacing: 0.3px;
+        }
+        .card-header h5 {
+            margin: 0;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .card-body {
+            padding: 24px;
+        }
+
+        .bg-gradient-danger { background: linear-gradient(135deg, #7f1d1d, #dc2626); }
+        .bg-gradient-primary { background: linear-gradient(135deg, #1e1b4b, #312e81); }
+        .bg-gradient-success { background: linear-gradient(135deg, #065f46, #059669); }
+        .bg-gradient-warning { background: linear-gradient(135deg, #78350f, #d97706); }
+        .bg-gradient-info { background: linear-gradient(135deg, #0e7490, #0891b2); }
+        .bg-gradient-secondary { background: linear-gradient(135deg, #374151, #4b5563); }
+
+        /* ── Cleanup Section ── */
         .cleanup-section {
-            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-            color: white;
-            border-radius: 15px;
-            padding: 30px;
-            margin-top: 30px;
+            background: linear-gradient(135deg, #7f1d1d, #dc2626, #991b1b);
+            border-radius: 18px;
+            padding: 34px 40px;
+            margin-top: 20px;
+            box-shadow: 0 8px 40px rgba(220, 38, 38, 0.2);
+            position: relative;
+            overflow: hidden;
         }
-        .cleanup-btn {
-            background: white;
-            color: #dc3545;
-            font-weight: bold;
-            padding: 15px 40px;
+        .cleanup-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(255,255,255,0.05), transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .cleanup-section h2 {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            color: #fff;
+        }
+        .cleanup-section p {
+            color: rgba(255,255,255,0.85);
+        }
+        .cleanup-section ul {
+            color: rgba(255,255,255,0.9);
+            list-style: none;
+            padding: 0;
+        }
+        .cleanup-section ul li {
+            padding: 4px 0;
+        }
+        .cleanup-section ul li::before {
+            content: '✅ ';
+        }
+
+        .btn-cleanup {
+            background: #fff;
+            color: #dc2626;
+            font-weight: 700;
+            padding: 16px 44px;
             border-radius: 50px;
             border: none;
-            font-size: 1.2rem;
-            transition: all 0.3s;
-            animation: pulse 2s infinite;
+            font-size: 1.15rem;
+            transition: all .3s ease;
+            box-shadow: 0 4px 24px rgba(255,255,255,0.2);
+            animation: pulseBtn 2.5s infinite;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
         }
-        .cleanup-btn:hover {
+        .btn-cleanup:hover {
             transform: scale(1.05);
-            box-shadow: 0 5px 25px rgba(255,255,255,0.3);
+            box-shadow: 0 8px 40px rgba(255,255,255,0.3);
+            background: #fff;
+            color: #dc2626;
         }
-        .cleanup-btn:disabled {
+        .btn-cleanup:disabled {
             animation: none;
-            opacity: 0.7;
+            opacity: 0.6;
             cursor: not-allowed;
+            transform: none;
         }
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(255,255,255,0.4); }
-            70% { box-shadow: 0 0 0 15px rgba(255,255,255,0); }
-            100% { box-shadow: 0 0 0 0 rgba(255,255,255,0); }
+        @keyframes pulseBtn {
+            0% { box-shadow: 0 4px 24px rgba(255,255,255,0.2); }
+            50% { box-shadow: 0 4px 40px rgba(255,255,255,0.35); }
+            100% { box-shadow: 0 4px 24px rgba(255,255,255,0.2); }
         }
+
+        /* ── Result Box ── */
+        .result-box {
+            background: #0b0b1a;
+            color: #00ff88;
+            padding: 24px;
+            border-radius: 14px;
+            font-family: 'DM Sans', monospace;
+            max-height: 450px;
+            overflow-y: auto;
+            display: none;
+            margin-top: 20px;
+            border: 1px solid rgba(0,255,136,0.1);
+            box-shadow: 0 8px 32px rgba(0,0,0,.3);
+        }
+        .result-box .success { color: #00ff88; }
+        .result-box .error { color: #ff4444; }
+        .result-box .info { color: #ffaa00; }
+        .result-box .line { padding: 4px 0; font-size: 0.9rem; }
+        .result-box::-webkit-scrollbar {
+            width: 6px;
+        }
+        .result-box::-webkit-scrollbar-track {
+            background: rgba(255,255,255,.04);
+            border-radius: 10px;
+        }
+        .result-box::-webkit-scrollbar-thumb {
+            background: #ff4d1c;
+            border-radius: 10px;
+        }
+
+        .process-killed {
+            background: #059669;
+            color: #fff;
+            padding: 2px 12px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        .port-closed {
+            background: #dc2626;
+            color: #fff;
+            padding: 2px 12px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .loading-spinner {
+            display: none;
+        }
+
+        /* ── Prevention Tips ── */
+        .prevention-card {
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,.06), 0 0 0 1px rgba(0,0,0,.02);
+            transition: all .3s ease;
+            height: 100%;
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(4px);
+        }
+        .prevention-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 48px rgba(0,0,0,.10), 0 0 0 1px rgba(0,0,0,.02);
+        }
+        .prevention-card .card-body {
+            padding: 28px 24px;
+        }
+        .prevention-card .icon-wrap {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 14px;
+            font-size: 2rem;
+        }
+        .icon-danger { 
+            background: rgba(220, 38, 38, 0.12); 
+            color: #dc2626; 
+        }
+        .icon-warning { 
+            background: rgba(217, 119, 6, 0.12); 
+            color: #d97706; 
+        }
+        .icon-info { 
+            background: rgba(8, 145, 178, 0.12); 
+            color: #0891b2; 
+        }
+        .icon-success { 
+            background: rgba(5, 150, 105, 0.12); 
+            color: #059669; 
+        }
+        .icon-primary { 
+            background: rgba(49, 46, 129, 0.12); 
+            color: #312e81; 
+        }
+        .icon-purple { 
+            background: rgba(76, 29, 149, 0.12); 
+            color: #4c1d95; 
+        }
+
+        .prevention-card h5 {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .prevention-card .card-text {
+            text-align: center;
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+        .prevention-card ul {
+            padding-left: 20px;
+            color: var(--muted);
+            font-size: 0.9rem;
+            margin-top: 8px;
+        }
+        .prevention-card ul li {
+            padding: 3px 0;
+        }
+
+        /* ── Mining List ── */
         .mining-list {
             list-style: none;
             padding: 0;
         }
         .mining-list li {
-            background: white;
-            padding: 12px 20px;
-            margin-bottom: 8px;
-            border-radius: 8px;
-            border-left: 4px solid #dc3545;
+            background: rgba(255,255,255,0.5);
+            padding: 10px 16px;
+            margin-bottom: 6px;
+            border-radius: 10px;
+            border-left: 4px solid #dc2626;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            transition: all .2s ease;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .mining-list li:hover {
+            background: rgba(255,255,255,0.9);
+            transform: translateX(4px);
         }
         .mining-list li .badge {
-            font-size: 14px;
-            padding: 5px 15px;
+            font-size: 0.7rem;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-weight: 600;
         }
-        .result-box {
-            background: #1a1a2e;
-            color: #00ff88;
-            padding: 20px;
-            border-radius: 10px;
-            font-family: 'Courier New', monospace;
-            max-height: 400px;
-            overflow-y: auto;
-            display: none;
-            margin-top: 20px;
+        .badge-bg-danger { background: #dc2626; color: #fff; }
+        .badge-bg-warning { background: #d97706; color: #fff; }
+
+        hr.divider {
+            border: none;
+            height: 2px;
+            background: linear-gradient(90deg, #ff4d1c, #c084fc, #60a5fa);
+            margin: 20px 0 28px;
+            border-radius: 2px;
         }
-        .result-box .success { color: #00ff88; }
-        .result-box .error { color: #ff4444; }
-        .result-box .info { color: #ffaa00; }
-        .result-box .line { padding: 3px 0; }
-        .process-killed {
-            background: #28a745;
-            color: white;
-            padding: 3px 10px;
+
+        .btn-back {
+            background: linear-gradient(135deg, #1e1b4b, #312e81);
+            border: none;
+            color: #fff;
+            font-weight: 600;
+            padding: 12px 36px;
             border-radius: 12px;
-            font-size: 12px;
+            transition: all .3s ease;
+            font-size: 1rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
-        .port-closed {
-            background: #dc3545;
-            color: white;
-            padding: 3px 10px;
-            border-radius: 12px;
-            font-size: 12px;
+        .btn-back:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 32px rgba(30,27,75,.3);
+            color: #fff;
         }
-        .loading-spinner {
-            display: none;
+
+        footer {
+            background: linear-gradient(135deg, #0b0b1a, #1a1a3e);
+            color: rgba(255,255,255,.5);
+            border-top: 2px solid rgba(255,77,28,0.15);
+            padding: 20px 0;
         }
-        .spinner-border-sm {
-            width: 1.5rem;
-            height: 1.5rem;
+        footer p {
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+
+        @media (max-width: 768px) {
+            .page-header h1 { font-size: 1.8rem; }
+            .cleanup-section { padding: 24px; }
+            .cleanup-section h2 { font-size: 1.4rem; }
+            .btn-cleanup { padding: 14px 28px; font-size: 1rem; }
+            .prevention-card .card-body { padding: 20px; }
+            .icon-wrap { width: 50px; height: 50px; font-size: 1.5rem; }
+        }
+        @media (max-width: 480px) {
+            .page-header h1 { font-size: 1.4rem; }
+            .cleanup-section { padding: 18px; }
+            .mining-list li { flex-direction: column; align-items: flex-start; }
         }
     </style>
 </head>
 <body>
 
 <!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand fw-bold" href="{% url 'home_loggedin' %}">
-            🛡 CryptoDefender
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'deep_research' %}">🔍 Deep Research</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'deep_network_scan' %}">🌐 Deep Network Scan</a>
-                </li>
-                {% comment %} <li class="nav-item">
-                    <a class="nav-link text-success" href="{% url 'protection' %}">🛡 Protection</a>
-                </li> {% endcomment %}
-                <li class="nav-item">
-                    <a class="nav-link active" href="{% url 'prevent_guide' %}">📘 How to Prevent</a>
-                </li>
-            </ul>
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                        👤 {{ request.user.username }}
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item text-danger" href="{% url 'logout' %}">Logout</a></li>
-                    </ul>
-                </li>
-            </ul>
-        </div>
-    </div>
+<nav class="topbar">
+    <a class="brand" href="{% url 'home_loggedin' %}">
+        <div class="brand-icon"><i class="bi bi-shield-fill-check"></i></div>
+        <div class="brand-name">Crypto<span>Defender</span></div>
+    </a>
+
+    <ul class="nav-left">
+        <li>
+            <a href="{% url 'deep_research' %}">
+                <i class="bi bi-search"></i> <span>Deep Research</span>
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'deep_network_scan' %}">
+                <i class="bi bi-hdd-network"></i> <span>Deep Network Scan</span>
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'prevent_guide' %}" class="active">
+                <i class="bi bi-shield-lock"></i> <span>Prevention</span>
+            </a>
+        </li>
+    </ul>
+
+    <ul class="nav-right">
+        <li>
+            <a class="profile-link" href="{% url 'profile' %}">
+                <span class="profile-avatar">{{ request.user.username|slice:":1"|upper }}</span>
+                {{ request.user.username }}
+            </a>
+        </li>
+        <li>
+            <a class="logout-btn" href="{% url 'logout' %}">
+                <i class="bi bi-box-arrow-right"></i> <span>Logout</span>
+            </a>
+        </li>
+    </ul>
 </nav>
 
-<div class="container mt-4">
-    <h1 class="display-4">
-        <i class="fas fa-shield-alt text-danger"></i> How to Prevent Crypto Mining
-    </h1>
-    <p class="lead">Protect your system from unauthorized crypto mining attacks</p>
-    <hr>
+<!-- Main Content -->
+<div class="wrap">
+
+    <div class="page-header">
+        <h1><i class="bi bi-shield-lock"></i> How to Prevent Crypto Mining</h1>
+        <p class="lead">Protect your system from unauthorized crypto mining attacks</p>
+        <hr class="divider">
+    </div>
 
     <!-- Quick Cleanup Section -->
     <div class="cleanup-section">
         <div class="row align-items-center">
-            <div class="col-md-8">
-                <h2><i class="fas fa-broom"></i> Quick Crypto Mining Cleanup</h2>
+            <div class="col-lg-8">
+                <h2><i class="bi bi-broom"></i> Quick Crypto Mining Cleanup</h2>
                 <p class="mb-0">Click the button below to automatically detect and terminate:</p>
                 <ul class="mt-2">
-                    <li>✅ Mining processes (xmrig, minerd, cpuminer, etc.)</li>
-                    <li>✅ Close all mining ports (3333, 4444, 5555, etc.)</li>
-                    <li>✅ Remove mining pool connections</li>
-                    <li>✅ Kill suspicious high-CPU processes</li>
+                    <li>Mining processes (xmrig, minerd, cpuminer, etc.)</li>
+                    <li>Close all mining ports (3333, 4444, 5555, etc.)</li>
+                    <li>Remove mining pool connections</li>
+                    <li>Kill suspicious high-CPU processes</li>
                 </ul>
             </div>
-            <div class="col-md-4 text-center">
-                <button class="cleanup-btn" id="cleanupBtn" onclick="runCleanup()">
-                    <i class="fas fa-broom"></i> Run Cleanup
+            <div class="col-lg-4 text-center mt-3 mt-lg-0">
+                <button class="btn-cleanup" id="cleanupBtn" onclick="runCleanup()">
+                    <i class="bi bi-broom"></i> Run Cleanup
                 </button>
                 <div class="loading-spinner mt-3" id="loadingSpinner">
                     <div class="spinner-border text-light" role="status">
                         <span class="visually-hidden">Loading...</span>
                     </div>
-                    <p class="mt-2">Scanning and cleaning...</p>
+                    <p class="mt-2" style="color: rgba(255,255,255,0.8);">Scanning and cleaning...</p>
                 </div>
             </div>
         </div>
@@ -185,18 +729,14 @@
     </div>
 
     <!-- Prevention Tips -->
-    <div class="row mt-4">
+    <div class="row mt-4 g-4">
         <div class="col-md-4">
-            <div class="card prevention-card h-100">
-                <div class="card-body">
-                    <div class="text-center mb-3">
-                        <i class="fas fa-download fa-3x text-danger"></i>
-                    </div>
-                    <h5 class="card-title">1. Download Safely</h5>
-                    <p class="card-text">
-                        Only download software from official sources. Pirated software often contains hidden miners.
-                    </p>
-                    <ul>
+            <div class="card prevention-card">
+                <div class="card-body text-center">
+                    <div class="icon-wrap icon-danger"><i class="bi bi-download"></i></div>
+                    <h5>1. Download Safely</h5>
+                    <p class="card-text">Only download software from official sources. Pirated software often contains hidden miners.</p>
+                    <ul class="text-start">
                         <li>Check digital signatures</li>
                         <li>Verify file hashes</li>
                         <li>Use official app stores</li>
@@ -205,16 +745,12 @@
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card prevention-card h-100">
-                <div class="card-body">
-                    <div class="text-center mb-3">
-                        <i class="fas fa-shield-virus fa-3x text-warning"></i>
-                    </div>
-                    <h5 class="card-title">2. Use Antivirus & Firewall</h5>
-                    <p class="card-text">
-                        Keep your antivirus updated and firewall enabled to block mining malware.
-                    </p>
-                    <ul>
+            <div class="card prevention-card">
+                <div class="card-body text-center">
+                    <div class="icon-wrap icon-warning"><i class="bi bi-shield-virus"></i></div>
+                    <h5>2. Use Antivirus &amp; Firewall</h5>
+                    <p class="card-text">Keep your antivirus updated and firewall enabled to block mining malware.</p>
+                    <ul class="text-start">
                         <li>Enable real-time protection</li>
                         <li>Configure firewall rules</li>
                         <li>Run regular scans</li>
@@ -223,16 +759,12 @@
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card prevention-card h-100">
-                <div class="card-body">
-                    <div class="text-center mb-3">
-                        <i class="fas fa-eye fa-3x text-info"></i>
-                    </div>
-                    <h5 class="card-title">3. Monitor System Resources</h5>
-                    <p class="card-text">
-                        Watch for unusual CPU/GPU usage that could indicate mining activity.
-                    </p>
-                    <ul>
+            <div class="card prevention-card">
+                <div class="card-body text-center">
+                    <div class="icon-wrap icon-info"><i class="bi bi-eye"></i></div>
+                    <h5>3. Monitor System Resources</h5>
+                    <p class="card-text">Watch for unusual CPU/GPU usage that could indicate mining activity.</p>
+                    <ul class="text-start">
                         <li>Check Task Manager regularly</li>
                         <li>Monitor network connections</li>
                         <li>Track system performance</li>
@@ -242,18 +774,14 @@
         </div>
     </div>
 
-    <div class="row mt-4">
+    <div class="row mt-4 g-4">
         <div class="col-md-4">
-            <div class="card prevention-card h-100">
-                <div class="card-body">
-                    <div class="text-center mb-3">
-                        <i class="fas fa-globe fa-3x text-success"></i>
-                    </div>
-                    <h5 class="card-title">4. Block Suspicious Websites</h5>
-                    <p class="card-text">
-                        Use ad-blockers and browser extensions to prevent drive-by mining.
-                    </p>
-                    <ul>
+            <div class="card prevention-card">
+                <div class="card-body text-center">
+                    <div class="icon-wrap icon-success"><i class="bi bi-globe2"></i></div>
+                    <h5>4. Block Suspicious Websites</h5>
+                    <p class="card-text">Use ad-blockers and browser extensions to prevent drive-by mining.</p>
+                    <ul class="text-start">
                         <li>Use uBlock Origin</li>
                         <li>Enable pop-up blockers</li>
                         <li>Avoid suspicious links</li>
@@ -262,16 +790,12 @@
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card prevention-card h-100">
-                <div class="card-body">
-                    <div class="text-center mb-3">
-                        <i class="fas fa-sync fa-3x text-primary"></i>
-                    </div>
-                    <h5 class="card-title">5. Keep System Updated</h5>
-                    <p class="card-text">
-                        Regular updates patch security vulnerabilities that miners exploit.
-                    </p>
-                    <ul>
+            <div class="card prevention-card">
+                <div class="card-body text-center">
+                    <div class="icon-wrap icon-primary"><i class="bi bi-arrow-repeat"></i></div>
+                    <h5>5. Keep System Updated</h5>
+                    <p class="card-text">Regular updates patch security vulnerabilities that miners exploit.</p>
+                    <ul class="text-start">
                         <li>Enable automatic updates</li>
                         <li>Update all software</li>
                         <li>Install security patches</li>
@@ -280,16 +804,12 @@
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card prevention-card h-100">
-                <div class="card-body">
-                    <div class="text-center mb-3">
-                        <i class="fas fa-network-wired fa-3x text-danger"></i>
-                    </div>
-                    <h5 class="card-title">6. Block Mining Ports</h5>
-                    <p class="card-text">
-                        Block common mining ports in your firewall to prevent unauthorized connections.
-                    </p>
-                    <ul>
+            <div class="card prevention-card">
+                <div class="card-body text-center">
+                    <div class="icon-wrap icon-purple"><i class="bi bi-hdd-network"></i></div>
+                    <h5>6. Block Mining Ports</h5>
+                    <p class="card-text">Block common mining ports in your firewall to prevent unauthorized connections.</p>
+                    <ul class="text-start">
                         <li>Block ports 3333, 4444, 5555</li>
                         <li>Use network monitoring</li>
                         <li>Configure router rules</li>
@@ -300,100 +820,40 @@
     </div>
 
     <!-- Known Mining Processes List -->
-    <div class="card prevention-card mt-4">
-        <div class="card-header bg-danger text-white">
-            <h5><i class="fas fa-skull"></i> Known Mining Processes & Ports</h5>
+    <div class="card mt-4">
+        <div class="card-header bg-gradient-danger text-white">
+            <h5><i class="bi bi-skull"></i> Known Mining Processes &amp; Ports</h5>
         </div>
         <div class="card-body">
             <div class="row">
                 <div class="col-md-6">
-                    <h6><i class="fas fa-microchip"></i> Mining Processes</h6>
+                    <h6 style="font-weight: 700; font-family: 'Syne', sans-serif;"><i class="bi bi-cpu"></i> Mining Processes</h6>
                     <ul class="mining-list">
-                        <li>
-                            <span><i class="fas fa-cog"></i> xmrig</span>
-                            <span class="badge bg-danger">Monero Miner</span>
-                        </li>
-                        <li>
-                            <span><i class="fas fa-cog"></i> minerd</span>
-                            <span class="badge bg-danger">CPU Miner</span>
-                        </li>
-                        <li>
-                            <span><i class="fas fa-cog"></i> cpuminer</span>
-                            <span class="badge bg-danger">CPU Miner</span>
-                        </li>
-                        <li>
-                            <span><i class="fas fa-cog"></i> cgminer</span>
-                            <span class="badge bg-danger">GPU Miner</span>
-                        </li>
-                        <li>
-                            <span><i class="fas fa-cog"></i> bfgminer</span>
-                            <span class="badge bg-danger">GPU Miner</span>
-                        </li>
-                        <li>
-                            <span><i class="fas fa-cog"></i> ethminer</span>
-                            <span class="badge bg-danger">Ethereum Miner</span>
-                        </li>
-                        <li>
-                            <span><i class="fas fa-cog"></i> claymore</span>
-                            <span class="badge bg-danger">Dual Miner</span>
-                        </li>
-                        <li>
-                            <span><i class="fas fa-cog"></i> phoenixminer</span>
-                            <span class="badge bg-danger">GPU Miner</span>
-                        </li>
-                        <li>
-                            <span><i class="fas fa-cog"></i> nbminer</span>
-                            <span class="badge bg-danger">GPU Miner</span>
-                        </li>
-                        <li>
-                            <span><i class="fas fa-cog"></i> t-rex</span>
-                            <span class="badge bg-danger">GPU Miner</span>
-                        </li>
+                        <li><span><i class="bi bi-gear"></i> xmrig</span><span class="badge badge-bg-danger">Monero Miner</span></li>
+                        <li><span><i class="bi bi-gear"></i> minerd</span><span class="badge badge-bg-danger">CPU Miner</span></li>
+                        <li><span><i class="bi bi-gear"></i> cpuminer</span><span class="badge badge-bg-danger">CPU Miner</span></li>
+                        <li><span><i class="bi bi-gear"></i> cgminer</span><span class="badge badge-bg-danger">GPU Miner</span></li>
+                        <li><span><i class="bi bi-gear"></i> bfgminer</span><span class="badge badge-bg-danger">GPU Miner</span></li>
+                        <li><span><i class="bi bi-gear"></i> ethminer</span><span class="badge badge-bg-danger">Ethereum Miner</span></li>
+                        <li><span><i class="bi bi-gear"></i> claymore</span><span class="badge badge-bg-danger">Dual Miner</span></li>
+                        <li><span><i class="bi bi-gear"></i> phoenixminer</span><span class="badge badge-bg-danger">GPU Miner</span></li>
+                        <li><span><i class="bi bi-gear"></i> nbminer</span><span class="badge badge-bg-danger">GPU Miner</span></li>
+                        <li><span><i class="bi bi-gear"></i> t-rex</span><span class="badge badge-bg-danger">GPU Miner</span></li>
                     </ul>
                 </div>
                 <div class="col-md-6">
-                    <h6><i class="fas fa-door-open"></i> Mining Ports</h6>
+                    <h6 style="font-weight: 700; font-family: 'Syne', sans-serif;"><i class="bi bi-door-open"></i> Mining Ports</h6>
                     <ul class="mining-list">
-                        <li>
-                            <span><i class="fas fa-plug"></i> Port 3333</span>
-                            <span class="badge bg-warning text-dark">Monero/Stratum</span>
-                        </li>
-                        <li>
-                            <span><i class="fas fa-plug"></i> Port 4444</span>
-                            <span class="badge bg-warning text-dark">Stratum</span>
-                        </li>
-                        <li>
-                            <span><i class="fas fa-plug"></i> Port 5555</span>
-                            <span class="badge bg-warning text-dark">CryptoNight</span>
-                        </li>
-                        <li>
-                            <span><i class="fas fa-plug"></i> Port 6666</span>
-                            <span class="badge bg-warning text-dark">Stratum</span>
-                        </li>
-                        <li>
-                            <span><i class="fas fa-plug"></i> Port 7777</span>
-                            <span class="badge bg-warning text-dark">CryptoNight</span>
-                        </li>
-                        <li>
-                            <span><i class="fas fa-plug"></i> Port 8888</span>
-                            <span class="badge bg-warning text-dark">Stratum</span>
-                        </li>
-                        <li>
-                            <span><i class="fas fa-plug"></i> Port 9999</span>
-                            <span class="badge bg-warning text-dark">Mining Pool</span>
-                        </li>
-                        <li>
-                            <span><i class="fas fa-plug"></i> Port 14444</span>
-                            <span class="badge bg-warning text-dark">Stratum</span>
-                        </li>
-                        <li>
-                            <span><i class="fas fa-plug"></i> Port 18888</span>
-                            <span class="badge bg-warning text-dark">Mining Pool</span>
-                        </li>
-                        <li>
-                            <span><i class="fas fa-plug"></i> Port 19999</span>
-                            <span class="badge bg-warning text-dark">Mining Pool</span>
-                        </li>
+                        <li><span><i class="bi bi-plug"></i> Port 3333</span><span class="badge badge-bg-warning">Monero/Stratum</span></li>
+                        <li><span><i class="bi bi-plug"></i> Port 4444</span><span class="badge badge-bg-warning">Stratum</span></li>
+                        <li><span><i class="bi bi-plug"></i> Port 5555</span><span class="badge badge-bg-warning">CryptoNight</span></li>
+                        <li><span><i class="bi bi-plug"></i> Port 6666</span><span class="badge badge-bg-warning">Stratum</span></li>
+                        <li><span><i class="bi bi-plug"></i> Port 7777</span><span class="badge badge-bg-warning">CryptoNight</span></li>
+                        <li><span><i class="bi bi-plug"></i> Port 8888</span><span class="badge badge-bg-warning">Stratum</span></li>
+                        <li><span><i class="bi bi-plug"></i> Port 9999</span><span class="badge badge-bg-warning">Mining Pool</span></li>
+                        <li><span><i class="bi bi-plug"></i> Port 14444</span><span class="badge badge-bg-warning">Stratum</span></li>
+                        <li><span><i class="bi bi-plug"></i> Port 18888</span><span class="badge badge-bg-warning">Mining Pool</span></li>
+                        <li><span><i class="bi bi-plug"></i> Port 19999</span><span class="badge badge-bg-warning">Mining Pool</span></li>
                     </ul>
                 </div>
             </div>
@@ -401,17 +861,17 @@
     </div>
 
     <!-- Back Button -->
-    <div class="row mt-4 mb-5">
+    <div class="row mt-4 mb-4">
         <div class="col-12 text-center">
-            <a href="{% url 'deep_network_scan' %}" class="btn btn-primary btn-lg">
-                <i class="fas fa-arrow-left"></i> Back to Network Scan
+            <a href="{% url 'deep_network_scan' %}" class="btn-back">
+                <i class="bi bi-arrow-left"></i> Back to Network Scan
             </a>
         </div>
     </div>
 </div>
 
 <!-- Footer -->
-<footer class="bg-dark text-white text-center py-3 mt-5">
+<footer class="text-center">
     <div class="container">
         <p class="mb-0">🛡 CryptoDefender - Prevention Guide &copy; 2026</p>
     </div>
@@ -427,17 +887,14 @@ function runCleanup() {
     var resultBox = document.getElementById('resultBox');
     var resultContent = document.getElementById('resultContent');
     
-    // Disable button and show spinner
     btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cleaning...';
+    btn.innerHTML = '<i class="bi bi-arrow-repeat spinner-border spinner-border-sm me-2"></i> Cleaning...';
     spinner.style.display = 'block';
     resultBox.style.display = 'block';
     resultContent.innerHTML = '<div class="line info">🔍 Starting cleanup scan...</div>';
     
-    // Get CSRF token
     var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
     
-    // Send cleanup request
     fetch('/api/cleanup-mining/', {
         method: 'POST',
         headers: {
@@ -449,13 +906,13 @@ function runCleanup() {
     .then(data => {
         displayResults(data);
         btn.disabled = false;
-        btn.innerHTML = '<i class="fas fa-broom"></i> Run Cleanup';
+        btn.innerHTML = '<i class="bi bi-broom"></i> Run Cleanup';
         spinner.style.display = 'none';
     })
     .catch(error => {
         resultContent.innerHTML += `<div class="line error">❌ Error: ${error.message}</div>`;
         btn.disabled = false;
-        btn.innerHTML = '<i class="fas fa-broom"></i> Run Cleanup';
+        btn.innerHTML = '<i class="bi bi-broom"></i> Run Cleanup';
         spinner.style.display = 'none';
     });
 }
@@ -464,11 +921,9 @@ function displayResults(data) {
     var resultContent = document.getElementById('resultContent');
     resultContent.innerHTML = '';
     
-    // Show summary
     resultContent.innerHTML += `<div class="line success">✅ Cleanup completed at: ${new Date().toLocaleString()}</div>`;
     resultContent.innerHTML += `<div class="line info">─────────────────────────────────</div>`;
     
-    // Show processes killed
     if (data.killed_processes && data.killed_processes.length > 0) {
         resultContent.innerHTML += `<div class="line success">✅ Killed ${data.killed_processes.length} mining processes:</div>`;
         data.killed_processes.forEach(proc => {
@@ -479,7 +934,6 @@ function displayResults(data) {
         resultContent.innerHTML += `<div class="line success">✅ No mining processes found running</div>`;
     }
     
-    // Show ports closed
     if (data.closed_ports && data.closed_ports.length > 0) {
         resultContent.innerHTML += `<div class="line success">🔒 Closed ${data.closed_ports.length} mining ports:</div>`;
         data.closed_ports.forEach(port => {
@@ -489,7 +943,6 @@ function displayResults(data) {
         resultContent.innerHTML += `<div class="line success">✅ No mining ports found open</div>`;
     }
     
-    // Show pool connections killed
     if (data.killed_connections && data.killed_connections.length > 0) {
         resultContent.innerHTML += `<div class="line success">🔗 Found ${data.killed_connections.length} mining pool connections:</div>`;
         data.killed_connections.forEach(conn => {
@@ -497,7 +950,6 @@ function displayResults(data) {
         });
     }
     
-    // Show errors if any
     if (data.errors && data.errors.length > 0) {
         resultContent.innerHTML += `<div class="line error">⚠️ Warnings:</div>`;
         data.errors.forEach(error => {

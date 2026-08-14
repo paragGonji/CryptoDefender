@@ -2,83 +2,745 @@
 <html>
 <head>
     <title>Deep Network Scan - CryptoDefender</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <style>
-        .status-badge {
-            padding: 5px 10px;
+        *, *::before, *::after { box-sizing: border-box; }
+
+        :root {
+            --ink:    #0d0d0d;
+            --card:   #ffffff;
+            --accent: #ff4d1c;
+            --accent2:#ffb347;
+            --muted:  #6b6b6b;
+            --bg:     #f0ede8;
+            --safe:   #0d7c3f;
+            --danger: #c92a2a;
+            --primary-gradient: linear-gradient(135deg, #1e1b4b, #312e81, #4c1d95);
+            --card-shadow: 0 8px 32px rgba(0,0,0,.06), 0 0 0 1px rgba(0,0,0,.02);
+            --hover-shadow: 0 12px 48px rgba(0,0,0,.10), 0 0 0 1px rgba(0,0,0,.02);
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            color: var(--ink);
+            position: relative;
+            overflow-x: hidden;
+            margin: 0;
+        }
+
+        /* Animated background blobs */
+        body::before, body::after {
+            content: '';
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(90px);
+            opacity: .5;
+            pointer-events: none;
+            z-index: 0;
+        }
+        body::before {
+            width: 620px; height: 620px;
+            background: radial-gradient(circle, #ff4d1c 0%, #ffb347 60%, transparent 100%);
+            top: -220px; right: -220px;
+            animation: drift 9s ease-in-out infinite alternate;
+        }
+        body::after {
+            width: 460px; height: 460px;
+            background: radial-gradient(circle, #a78bfa 0%, #60a5fa 60%, transparent 100%);
+            bottom: -160px; left: -140px;
+            animation: drift 11s ease-in-out infinite alternate-reverse;
+        }
+        @keyframes drift {
+            from { transform: translate(0, 0) scale(1); }
+            to   { transform: translate(30px, 20px) scale(1.06); }
+        }
+
+        /* ── navbar: premium, elegant ── */
+        nav.topbar {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 36px;
+            background: linear-gradient(135deg, #0b0b1a 0%, #1a1a3e 40%, #2d1b4e 100%);
+            border-bottom: 3px solid transparent;
+            border-image: linear-gradient(90deg, #ff4d1c, #ffb347, #c084fc, #60a5fa) 1;
+            box-shadow: 0 8px 40px rgba(255, 77, 28, 0.12), inset 0 1px 0 rgba(255,255,255,0.05);
+            flex-wrap: wrap;
+            gap: 12px;
+            min-height: 80px;
+            backdrop-filter: blur(10px);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            padding: 4px 14px 4px 6px;
+            border-radius: 12px;
+            transition: all .3s ease;
+        }
+        .brand:hover { 
+            background: rgba(255,255,255,.06);
+            transform: scale(1.02);
+        }
+        .brand-icon {
+            width: 42px; height: 42px;
+            background: linear-gradient(135deg, #ff4d1c, #ffb347, #c084fc);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 4px 20px rgba(255,77,28,.4);
+            animation: glowPulse 3s ease-in-out infinite;
+            position: relative;
+        }
+        .brand-icon::after {
+            content: '';
+            position: absolute;
+            inset: -3px;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #ff4d1c, #ffb347, #c084fc);
+            opacity: 0.3;
+            filter: blur(10px);
+            z-index: -1;
+            animation: glowPulse 3s ease-in-out infinite;
+        }
+        @keyframes glowPulse {
+            0%, 100% { box-shadow: 0 4px 20px rgba(255,77,28,.4); }
+            50% { box-shadow: 0 4px 35px rgba(255,77,28,.7), 0 0 60px rgba(192,132,252,0.2); }
+        }
+        .brand-icon i { color: #fff; font-size: 1.3rem; }
+
+        .brand-name {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 1.6rem;
+            color: #fff;
+            letter-spacing: -0.5px;
+            white-space: nowrap;
+            text-shadow: 0 0 40px rgba(255,77,28,0.15);
+        }
+        .brand-name span { 
+            background: linear-gradient(90deg, #ff4d1c, #ffb347, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            list-style: none;
+            margin: 0;
+            padding: 4px;
+            flex-wrap: wrap;
+            background: rgba(255,255,255,.04);
+            border: 1px solid rgba(255,255,255,.06);
+            border-radius: 16px;
+            backdrop-filter: blur(8px);
+        }
+        .nav-left a {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255,255,255,.8);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 600;
+            padding: 8px 22px;
+            border-radius: 12px;
+            white-space: nowrap;
+            transition: all .3s ease;
+            letter-spacing: 0.2px;
+            position: relative;
+        }
+        .nav-left a::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(255,77,28,0.15), rgba(192,132,252,0.1));
+            opacity: 0;
+            transition: opacity .3s ease;
+        }
+        .nav-left a:hover::before {
+            opacity: 1;
+        }
+        .nav-left a:hover {
+            color: #fff;
+            transform: translateY(-2px);
+        }
+        .nav-left a i { 
+            font-size: 1.1rem; 
+            color: #ffb347; 
+            transition: all .3s ease;
+            position: relative;
+            z-index: 1;
+        }
+        .nav-left a:hover i { 
+            transform: scale(1.15) rotate(-5deg);
+            color: #ff6b3d;
+        }
+        .nav-left a span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .nav-left a.active {
+            color: #fff;
+            background: rgba(255, 77, 28, 0.15);
+        }
+        .nav-left a.active::before {
+            opacity: 1;
+        }
+
+        .blocked-tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        .disabled-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255,255,255,.25) !important;
+            font-size: 0.95rem;
+            font-weight: 600;
+            padding: 8px 22px;
+            border-radius: 12px;
+            cursor: not-allowed;
+            white-space: nowrap;
+            letter-spacing: 0.2px;
+            opacity: 0.5;
+            position: relative;
+        }
+        .disabled-link i { 
+            font-size: 1.1rem; 
+            color: rgba(255, 77, 28, 0.25);
+        }
+        .blocked-tooltip .tooltip-text {
+            visibility: hidden;
+            width: 240px;
+            background: linear-gradient(135deg, #1a1a3e, #2d1b4e);
+            color: #fff;
+            text-align: center;
+            border-radius: 14px;
+            padding: 12px 16px;
+            position: absolute;
+            z-index: 5;
+            bottom: 135%;
+            left: 50%;
+            margin-left: -120px;
+            font-size: 0.8rem;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 500;
+            opacity: 0;
+            transition: all .35s cubic-bezier(.22,.68,0,1.2);
+            box-shadow: 0 12px 40px rgba(0,0,0,.5);
+            border: 1px solid rgba(255,77,28,0.15);
+            backdrop-filter: blur(12px);
+            line-height: 1.4;
+        }
+        .blocked-tooltip .tooltip-text::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -8px;
+            border-width: 8px;
+            border-style: solid;
+            border-color: #1a1a3e transparent transparent transparent;
+        }
+        .blocked-tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+            transform: translateY(-8px);
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        .profile-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #fff !important;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 600;
+            padding: 6px 22px 6px 6px;
+            border-radius: 999px;
+            background: rgba(255,255,255,.05);
+            border: 1px solid rgba(255,255,255,.06);
+            transition: all .3s ease;
+            letter-spacing: 0.2px;
+        }
+        .profile-link:hover {
+            background: rgba(255, 77, 28, 0.12);
+            border-color: rgba(255, 77, 28, 0.25);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 30px rgba(255,77,28,0.12);
+        }
+        .profile-avatar {
+            width: 34px; height: 34px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff4d1c, #ffb347, #c084fc);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 0.9rem;
+            color: #fff;
+            flex-shrink: 0;
+            box-shadow: 0 2px 16px rgba(255,77,28,.35);
+        }
+
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #ff4d1c, #e03e3e);
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 700;
+            padding: 9px 24px;
+            border-radius: 999px;
+            border: none;
+            cursor: pointer;
+            transition: all .3s ease;
+            letter-spacing: 0.4px;
+            box-shadow: 0 4px 20px rgba(224, 62, 62, 0.3);
+            white-space: nowrap;
+            position: relative;
+            overflow: hidden;
+        }
+        .logout-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, #ff6b3d, #e03e3e, #c084fc);
+            opacity: 0;
+            transition: opacity .3s ease;
+        }
+        .logout-btn:hover::before {
+            opacity: 1;
+        }
+        .logout-btn:hover {
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 8px 35px rgba(224, 62, 62, 0.45);
+        }
+        .logout-btn i, .logout-btn span {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ── Main Content ── */
+        .wrap {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 24px 70px;
+        }
+
+        .page-header {
+            animation: rise .6s cubic-bezier(.22,.68,0,1.2) both;
+        }
+        .page-header h1 {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 2.4rem;
+            letter-spacing: -0.5px;
+            margin-bottom: 4px;
+            background: linear-gradient(135deg, #1e1b4b, #4c1d95, #ff4d1c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .page-header h1 i { 
+            -webkit-text-fill-color: #ff4d1c;
+        }
+        .page-header .lead {
+            color: var(--muted);
+            font-size: 1.1rem;
+        }
+
+        @keyframes rise {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── Cards ── */
+        .card {
+            border: none;
+            border-radius: 18px;
+            box-shadow: var(--card-shadow);
+            transition: all .3s cubic-bezier(.22,.68,0,1.2);
+            overflow: hidden;
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(4px);
+        }
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--hover-shadow);
+        }
+        .card-header {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            padding: 16px 24px;
+            border: none;
+            letter-spacing: 0.3px;
+        }
+        .card-header h5 {
+            margin: 0;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .card-body {
+            padding: 24px;
+        }
+
+        /* Gradient header backgrounds */
+        .bg-gradient-primary { background: linear-gradient(135deg, #1e1b4b, #312e81); }
+        .bg-gradient-success { background: linear-gradient(135deg, #065f46, #059669); }
+        .bg-gradient-danger { background: linear-gradient(135deg, #7f1d1d, #dc2626); }
+        .bg-gradient-info { background: linear-gradient(135deg, #0e7490, #0891b2); }
+        .bg-gradient-secondary { background: linear-gradient(135deg, #374151, #4b5563); }
+        .bg-gradient-warning { background: linear-gradient(135deg, #78350f, #d97706); }
+
+        /* ── Stats ── */
+        .stat-item {
+            text-align: center;
+            padding: 12px 8px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.5);
+            transition: all .3s ease;
+        }
+        .stat-item:hover {
+            background: rgba(255,255,255,0.8);
+            transform: scale(1.02);
+        }
+        .stat-item h6 {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--muted);
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+        .stat-item .h4 {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, #1e1b4b, #4c1d95);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .stat-item p {
+            font-weight: 600;
+            color: #1e1b4b;
+        }
+
+        /* ── Badges ── */
+        .badge-status {
+            padding: 4px 14px;
             border-radius: 20px;
-            font-size: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.3px;
         }
-        .status-open {
-            background-color: #dc3545;
-            color: white;
+        .badge-open { background: #dc2626; color: #fff; }
+        .badge-closed { background: #059669; color: #fff; }
+        .badge-listening { background: #d97706; color: #fff; }
+        .badge-established { background: #059669; color: #fff; }
+
+        /* ── Ports ── */
+        .mining-port {
+            background: #fef2f2 !important;
+            border-left: 4px solid #dc2626;
         }
-        .status-closed {
-            background-color: #28a745;
-            color: white;
+        .mining-port td:first-child {
+            font-weight: 700;
+            color: #dc2626;
         }
-        .severity-high {
-            background-color: #dc3545;
-            color: white;
+        .mining-badge {
+            background: #dc2626;
+            color: #fff;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 0.6rem;
+            font-weight: 700;
+            margin-left: 6px;
+            letter-spacing: 0.3px;
+            animation: pulseBadge 2s infinite;
         }
-        .severity-medium {
-            background-color: #ffc107;
-            color: black;
+        @keyframes pulseBadge {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
         }
-        .severity-low {
-            background-color: #17a2b8;
-            color: white;
+
+        .port-info-card {
+            background: rgba(255,255,255,0.7);
+            backdrop-filter: blur(4px);
+            border-radius: 14px;
+            padding: 16px 20px;
+            margin-bottom: 10px;
+            border-left: 4px solid #6b7280;
+            transition: all .3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,.04);
         }
-        .scan-card {
-            transition: transform 0.2s;
+        .port-info-card:hover {
+            transform: translateX(4px);
+            box-shadow: 0 4px 16px rgba(0,0,0,.08);
         }
-        .scan-card:hover {
-            transform: translateY(-5px);
+        .port-info-card .port-number {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #dc2626;
         }
-        .loading-spinner {
-            display: none;
+        .port-info-card .port-service {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #1e1b4b;
         }
-        #scanResults {
-            display: none;
+        .port-info-card .port-desc {
+            color: var(--muted);
+            font-size: 0.85rem;
+            margin-top: 6px;
         }
-        .network-table {
-            max-height: 300px;
-            overflow-y: auto;
+
+        .tcp-info {
+            background: rgba(239, 246, 255, 0.7);
+            backdrop-filter: blur(4px);
+            border-left: 4px solid #3b82f6;
+            padding: 12px 18px;
+            border-radius: 10px;
+            height: 100%;
+            transition: all .3s ease;
         }
-        .port-analysis {
-            font-size: 14px;
+        .tcp-info:hover {
+            background: rgba(239, 246, 255, 0.95);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,.06);
         }
-        .port-analysis td {
-            vertical-align: middle;
+        .tcp-info strong { color: #1e40af; }
+
+        /* ── Mining Detection ── */
+        .mining-card-danger {
+            border-left: 5px solid #dc2626;
         }
+        .mining-card-safe {
+            border-left: 5px solid #059669;
+        }
+
+        .mining-check-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 14px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.5);
+            margin-bottom: 6px;
+            transition: all .3s ease;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .mining-check-item:hover {
+            background: rgba(255,255,255,0.9);
+            transform: translateX(4px);
+        }
+        .mining-check-item:last-child { margin-bottom: 0; }
+        .mining-check-item .mining-name { 
+            font-weight: 600;
+            color: #1e1b4b;
+        }
+        .mining-check-item .mining-ports { 
+            color: var(--muted); 
+            font-size: 0.8rem;
+        }
+
         .safe-badge {
-            background-color: #28a745;
-            color: white;
-            padding: 5px 15px;
+            background: #059669;
+            color: #fff;
+            padding: 2px 16px;
             border-radius: 20px;
-            font-size: 14px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.3px;
         }
         .danger-badge {
-            background-color: #dc3545;
-            color: white;
-            padding: 5px 15px;
+            background: #dc2626;
+            color: #fff;
+            padding: 2px 16px;
             border-radius: 20px;
-            font-size: 14px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.3px;
         }
-        .warning-badge {
-            background-color: #ffc107;
-            color: black;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 14px;
+
+        .alert {
+            border-radius: 14px;
+            border-width: 2px;
         }
-        .mining-card {
-            border-left: 5px solid #28a745;
+        .alert-success {
+            background: rgba(5, 150, 105, 0.08);
+            border-color: #059669;
+            color: #065f46;
         }
+        .alert-danger {
+            background: rgba(220, 38, 38, 0.08);
+            border-color: #dc2626;
+            color: #7f1d1d;
+        }
+        .alert-warning {
+            background: rgba(217, 119, 6, 0.08);
+            border-color: #d97706;
+            color: #78350f;
+        }
+        .alert-info {
+            background: rgba(8, 145, 178, 0.08);
+            border-color: #0891b2;
+            color: #0e7490;
+        }
+
+        /* ── Prevention Section ── */
+        .prevention-section {
+            background: linear-gradient(135deg, rgba(254, 242, 242, 0.9), rgba(254, 226, 226, 0.9));
+            backdrop-filter: blur(8px);
+            border-radius: 18px;
+            padding: 34px;
+            border: 2px solid #dc2626;
+            margin-top: 20px;
+            box-shadow: 0 8px 32px rgba(220, 38, 38, 0.08);
+        }
+        .prevention-section .icon {
+            font-size: 3.5rem;
+            color: #dc2626;
+            animation: pulseIcon 2s infinite;
+        }
+        @keyframes pulseIcon {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .prevention-section h3 {
+            color: #7f1d1d;
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+        }
+
+        .btn-prevention {
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+            border: none;
+            color: #fff;
+            font-weight: 700;
+            padding: 14px 44px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            transition: all .3s ease;
+            box-shadow: 0 4px 24px rgba(220,38,38,.3);
+            animation: pulseBtn 2.5s infinite;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .btn-prevention:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 40px rgba(220,38,38,.5);
+            color: #fff;
+        }
+        @keyframes pulseBtn {
+            0% { box-shadow: 0 4px 24px rgba(220,38,38,0.3); }
+            50% { box-shadow: 0 4px 40px rgba(220,38,38,0.5); }
+            100% { box-shadow: 0 4px 24px rgba(220,38,38,0.3); }
+        }
+
+        /* ── Button Scan ── */
+        .btn-scan {
+            background: linear-gradient(135deg, #1e1b4b, #312e81);
+            border: none;
+            color: #fff;
+            font-weight: 700;
+            padding: 16px 48px;
+            border-radius: 14px;
+            font-size: 1.15rem;
+            transition: all .3s ease;
+            box-shadow: 0 4px 24px rgba(30,27,75,.3);
+            letter-spacing: 0.5px;
+        }
+        .btn-scan:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 40px rgba(30,27,75,.4);
+            color: #fff;
+        }
+        .btn-scan:disabled {
+            opacity: 0.6;
+            transform: none;
+        }
+
+        .btn-print {
+            background: linear-gradient(135deg, #374151, #4b5563);
+            border: none;
+            color: #fff;
+            font-weight: 600;
+            padding: 10px 32px;
+            border-radius: 12px;
+            transition: all .3s ease;
+        }
+        .btn-print:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(55,65,81,.3);
+            color: #fff;
+        }
+
+        /* ── Tables ── */
+        .table {
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .table thead th {
+            background: #1e1b4b;
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: none;
+            padding: 12px 16px;
+        }
+        .table tbody td {
+            padding: 10px 16px;
+            vertical-align: middle;
+            border-bottom: 1px solid rgba(0,0,0,.04);
+        }
+        .table tbody tr:hover {
+            background: rgba(30,27,75,.04);
+        }
+
         .connection-table {
-            max-height: 400px;
+            max-height: 380px;
             overflow-y: auto;
         }
         .connection-table thead {
@@ -86,255 +748,110 @@
             top: 0;
             z-index: 10;
         }
-        .mining-status-list {
-            list-style: none;
-            padding: 0;
+
+        /* ── Scrollbar ── */
+        .connection-table::-webkit-scrollbar,
+        .network-table::-webkit-scrollbar {
+            width: 6px;
         }
-        .mining-status-list li {
-            padding: 10px 0;
-            border-bottom: 1px solid #eee;
+        .connection-table::-webkit-scrollbar-track,
+        .network-table::-webkit-scrollbar-track {
+            background: rgba(0,0,0,.04);
+            border-radius: 10px;
         }
-        .mining-status-list li:last-child {
-            border-bottom: none;
+        .connection-table::-webkit-scrollbar-thumb,
+        .network-table::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #1e1b4b, #4c1d95);
+            border-radius: 10px;
         }
-        .port-info-card {
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 10px;
+
+        .loading-spinner {
+            display: none;
         }
-        .port-info-card .port-number {
-            font-size: 24px;
-            font-weight: bold;
-            color: #dc3545;
+
+        /* ── Footer ── */
+        footer {
+            background: linear-gradient(135deg, #0b0b1a, #1a1a3e);
+            color: rgba(255,255,255,.5);
+            border-top: 2px solid rgba(255,77,28,0.15);
+            padding: 20px 0;
         }
-        .port-info-card .port-service {
-            font-size: 18px;
-            font-weight: 600;
-        }
-        .port-info-card .port-desc {
-            color: #6c757d;
-        }
-        .port-info-card .port-status {
-            font-size: 14px;
-        }
-        .tcp-info {
-            background-color: #e7f3ff;
-            border-left: 4px solid #007bff;
-            padding: 12px 15px;
-            border-radius: 4px;
-        }
-        .listening-badge {
-            background-color: #ffc107;
-            color: #000;
-            padding: 3px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-        }
-        .established-badge {
-            background-color: #28a745;
-            color: #fff;
-            padding: 3px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-        }
-        .mining-check-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 0;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        .mining-check-item:last-child {
-            border-bottom: none;
-        }
-        .mining-check-item .mining-name {
+        footer p {
             font-weight: 500;
-        }
-        .mining-check-item .mining-ports {
-            color: #6c757d;
-            font-size: 13px;
-        }
-        .mining-check-item .mining-status {
-            font-size: 13px;
-        }
-        .mining-port {
-            background-color: #fff3cd !important;
-            border-left: 4px solid #ffc107;
-        }
-        .mining-port td:first-child {
-            font-weight: bold;
-            color: #dc3545;
-        }
-        .mining-badge {
-            background-color: #dc3545;
-            color: white;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 11px;
-            margin-left: 5px;
-        }
-        .mining-card-danger {
-            border-left: 5px solid #dc3545;
-        }
-        .prevention-btn {
-            animation: pulse 2s infinite;
-            padding: 15px 40px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            border-radius: 50px;
-            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
-            transition: all 0.3s ease;
-        }
-        .prevention-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 6px 20px rgba(220, 53, 69, 0.5);
-        }
-        @keyframes pulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4);
-            }
-            70% {
-                box-shadow: 0 0 0 15px rgba(220, 53, 69, 0);
-            }
-            100% {
-                box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
-            }
-        }
-        .prevention-section {
-            background: linear-gradient(135deg, #fff5f5 0%, #ffe8e8 100%);
-            border-radius: 15px;
-            padding: 30px;
-            border: 2px solid #dc3545;
-            margin-top: 30px;
-        }
-        .prevention-section .icon {
-            font-size: 3rem;
-            color: #dc3545;
-        }
-        .prevention-section h3 {
-            color: #dc3545;
-            font-weight: bold;
+            letter-spacing: 0.3px;
         }
 
-        /* Style for blocked/disabled link */
-        .nav-link.disabled-link {
-            color: #6c757d !important;
-            cursor: not-allowed;
-            opacity: 0.6;
-            pointer-events: none;
+        /* ── Responsive ── */
+        @media (max-width: 768px) {
+            .page-header h1 { font-size: 1.8rem; }
+            .prevention-section { padding: 20px; }
+            .mining-check-item { flex-direction: column; align-items: flex-start; }
+            .card-body { padding: 16px; }
+            .stat-item .h4 { font-size: 1.2rem; }
         }
-
-        .nav-link.disabled-link:hover {
-            color: #6c757d !important;
-        }
-
-        /* Tooltip for blocked link */
-        .blocked-tooltip {
-            position: relative;
-            display: inline-block;
-        }
-
-        .blocked-tooltip .tooltip-text {
-            visibility: hidden;
-            width: 200px;
-            background-color: #333;
-            color: #fff;
-            text-align: center;
-            border-radius: 6px;
-            padding: 5px;
-            position: absolute;
-            z-index: 1;
-            bottom: 125%;
-            left: 50%;
-            margin-left: -100px;
-            font-size: 12px;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        .blocked-tooltip:hover .tooltip-text {
-            visibility: visible;
-            opacity: 1;
-        }
-
-        .nav-link.unlocked {
-            color: #ffc107 !important;
-            cursor: pointer;
-            pointer-events: auto;
-            opacity: 1;
-        }
-
-        .nav-link.unlocked:hover {
-            color: #ffc107 !important;
-            text-decoration: underline;
+        @media (max-width: 480px) {
+            .page-header h1 { font-size: 1.4rem; }
+            .btn-scan { padding: 14px 28px; font-size: 1rem; }
+            .btn-prevention { padding: 12px 28px; font-size: 0.95rem; }
         }
     </style>
 </head>
 <body>
 
 <!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand fw-bold" href="{% url 'home_loggedin' %}">
-            🛡 CryptoDefender
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'deep_research' %}">🔍 Deep Research</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link active" href="{% url 'deep_network_scan' %}">🌐 Deep Network Scan</a>
-                </li>
-                <!-- How to Prevent - Blocked by default, only unlocked when mining detected -->
-                <li class="nav-item blocked-tooltip" id="preventNavItem">
-                    {% if scan_results and scan_results.crypto_mining_detection.has_mining_activity %}
-                        <a class="nav-link unlocked" href="{% url 'prevent_guide' %}">
-                            📘 How to Prevent
-                        </a>
-                    {% else %}
-                        <span class="nav-link disabled-link" style="display: inline-block;">
-                            📘 How to Prevent 🔒
-                        </span>
-                        <span class="tooltip-text">⚠️ Access to Prevention is blocked - Run scan first</span>
-                    {% endif %}
-                </li>
-            </ul>
-              <!-- RIGHT SIDE - FIXED PROFILE LINK -->
-            <ul class="navbar-nav ms-auto align-items-center">
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        👤 {{ request.user.username }}
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                        <li><a class="dropdown-item" href="{% url 'profile' %}">
-                            <i class="fas fa-user-circle"></i> Profile
-                        </a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item text-danger" href="{% url 'logout' %}">
-                            <i class="fas fa-sign-out-alt"></i> Logout
-                        </a></li>
-                    </ul>
-                </li>
-            </ul>
-        </div>
-    </div>
+<nav class="topbar">
+    <a class="brand" href="{% url 'home_loggedin' %}">
+        <div class="brand-icon"><i class="bi bi-shield-fill-check"></i></div>
+        <div class="brand-name">Crypto<span>Defender</span></div>
+    </a>
+
+    <ul class="nav-left">
+        <li>
+            <a href="{% url 'deep_research' %}">
+                <i class="bi bi-search"></i> <span>Deep Research</span>
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'deep_network_scan' %}" class="active">
+                <i class="bi bi-hdd-network"></i> <span>Deep Network Scan</span>
+            </a>
+        </li>
+        <li class="blocked-tooltip" id="preventNavItem">
+            {% if scan_results and scan_results.crypto_mining_detection.has_mining_activity %}
+                <a class="nav-link unlocked" href="{% url 'prevent_guide' %}" style="color: rgba(255,255,255,.8) !important; display: flex; align-items: center; gap: 8px; padding: 8px 22px; border-radius: 12px; text-decoration: none; font-size: 0.95rem; font-weight: 600; transition: all .3s ease;">
+                    <i class="bi bi-shield-lock"></i> <span>Prevention</span>
+                </a>
+            {% else %}
+                <span class="disabled-link">
+                    <i class="bi bi-shield-lock"></i> <span>Prevention 🔒</span>
+                </span>
+                <span class="tooltip-text">⚠️ Run a scan first to check for mining activity</span>
+            {% endif %}
+        </li>
+    </ul>
+
+    <ul class="nav-right">
+        <li>
+            <a class="profile-link" href="{% url 'profile' %}">
+                <span class="profile-avatar">{{ request.user.username|slice:":1"|upper }}</span>
+                {{ request.user.username }}
+            </a>
+        </li>
+        <li>
+            <a class="logout-btn" href="{% url 'logout' %}">
+                <i class="bi bi-box-arrow-right"></i> <span>Logout</span>
+            </a>
+        </li>
+    </ul>
 </nav>
 
 <!-- Main Content -->
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-12">
-            <h1 class="display-4">
-                <i class="fas fa-network-wired text-primary"></i> Deep Network Scan
-            </h1>
-            <p class="lead">Comprehensive network security analysis and monitoring tool</p>
-            <hr>
-        </div>
+<div class="wrap">
+
+    <div class="page-header">
+        <h1><i class="bi bi-hdd-network"></i> Deep Network Scan</h1>
+        <p class="lead">Comprehensive network security analysis and monitoring tool</p>
+        <hr style="border: none; height: 2px; background: linear-gradient(90deg, #ff4d1c, #c084fc, #60a5fa); margin: 16px 0 24px; border-radius: 2px;">
     </div>
 
     <!-- Scan Button -->
@@ -342,16 +859,15 @@
         <div class="col-12 text-center">
             <form method="POST" id="scanForm">
                 {% csrf_token %}
-                <button type="submit" class="btn btn-primary btn-lg" id="scanBtn">
-                    <i class="fas fa-play"></i> Start Network Scan
+                <button type="submit" class="btn-scan" id="scanBtn">
+                    <i class="bi bi-play-fill"></i> Start Network Scan
                 </button>
                 
-                <!-- Loading Spinner -->
                 <div class="loading-spinner mt-3" id="loadingSpinner">
-                    <div class="spinner-border text-primary" role="status">
+                    <div class="spinner-border text-primary" role="status" style="color: #312e81 !important;">
                         <span class="visually-hidden">Loading...</span>
                     </div>
-                    <p class="mt-2">Scanning network... Please wait...</p>
+                    <p class="mt-2" style="color: var(--muted); font-weight: 500;">Scanning network... Please wait...</p>
                 </div>
             </form>
         </div>
@@ -361,8 +877,8 @@
     {% if error_message %}
     <div class="row mt-3">
         <div class="col-12">
-            <div class="alert alert-danger" role="alert">
-                <i class="fas fa-exclamation-triangle"></i> {{ error_message }}
+            <div class="alert alert-danger" role="alert" style="border-radius: 14px; border-width: 2px;">
+                <i class="bi bi-exclamation-triangle-fill"></i> {{ error_message }}
             </div>
         </div>
     </div>
@@ -375,8 +891,8 @@
         <!-- Timestamp -->
         <div class="row mt-4">
             <div class="col-12">
-                <div class="alert alert-info">
-                    <i class="fas fa-clock"></i> Scan completed at: {{ scan_results.timestamp }}
+                <div class="alert alert-info" style="border-radius: 14px; border-width: 2px; background: rgba(8,145,178,0.06);">
+                    <i class="bi bi-clock-history"></i> Scan completed at: <strong>{{ scan_results.timestamp }}</strong>
                 </div>
             </div>
         </div>
@@ -384,9 +900,9 @@
         <!-- Network Statistics -->
         <div class="row mt-4">
             <div class="col-12">
-                <div class="card scan-card shadow">
-                    <div class="card-header bg-info text-white">
-                        <h5><i class="fas fa-chart-bar"></i> Network Statistics</h5>
+                <div class="card">
+                    <div class="card-header bg-gradient-info text-white">
+                        <h5><i class="bi bi-bar-chart-fill"></i> Network Statistics</h5>
                     </div>
                     <div class="card-body">
                         <div class="row">
@@ -409,7 +925,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row mt-3">
+                        <div class="row mt-2">
                             <div class="col-md-4">
                                 <div class="stat-item">
                                     <h6>Errors In/Out</h6>
@@ -428,12 +944,12 @@
             </div>
         </div>
 
-        <!-- Open Ports with Information -->
+        <!-- Open Ports -->
         <div class="row mt-4">
             <div class="col-12">
-                <div class="card scan-card shadow">
-                    <div class="card-header {% if scan_results.open_ports %}bg-danger{% else %}bg-success{% endif %} text-white">
-                        <h5><i class="fas fa-door-open"></i> Open Ports</h5>
+                <div class="card">
+                    <div class="card-header {% if scan_results.open_ports %}bg-gradient-danger{% else %}bg-gradient-success{% endif %} text-white">
+                        <h5><i class="bi bi-door-open"></i> Open Ports</h5>
                     </div>
                     <div class="card-body">
                         {% if scan_results.open_ports %}
@@ -457,52 +973,33 @@
                                                 {% endif %}
                                             </td>
                                             <td>
-                                                {% if port.port == 135 %}
-                                                    Remote Procedure Call (RPC)
-                                                {% elif port.port == 445 %}
-                                                    Server Message Block (SMB)
-                                                {% elif port.port == 5432 %}
-                                                    PostgreSQL
-                                                {% elif port.port == 3389 %}
-                                                    Remote Desktop Protocol (RDP)
-                                                {% elif port.port == 5900 %}
-                                                    Virtual Network Computing (VNC)
-                                                {% elif port.port == 3333 %}
-                                                    Mining Port (Monero/XMRig)
-                                                {% elif port.port == 4444 %}
-                                                    Mining Port (Stratum)
-                                                {% elif port.port == 5555 %}
-                                                    Mining Port (CryptoNight)
-                                                {% elif port.port == 7777 %}
-                                                    Mining Port (CryptoNight)
-                                                {% elif port.port == 8888 %}
-                                                    Mining Port (Stratum)
-                                                {% else %}
-                                                    {{ port.service }}
-                                                {% endif %}
+                                                {% if port.port == 135 %}RPC
+                                                {% elif port.port == 445 %}SMB
+                                                {% elif port.port == 5432 %}PostgreSQL
+                                                {% elif port.port == 3389 %}RDP
+                                                {% elif port.port == 5900 %}VNC
+                                                {% elif port.port == 3333 %}Mining (Monero)
+                                                {% elif port.port == 4444 %}Mining (Stratum)
+                                                {% elif port.port == 5555 %}Mining (CryptoNight)
+                                                {% elif port.port == 7777 %}Mining Pool
+                                                {% elif port.port == 8888 %}Mining (Stratum)
+                                                {% elif port.port == 9999 %}Mining Pool
+                                                {% else %}{{ port.service }}{% endif %}
                                             </td>
-                                            <td><span class="status-badge status-open">OPEN</span></td>
+                                            <td><span class="badge-status badge-open">OPEN</span></td>
                                             <td>
                                                 {% if port.port == 3333 %}
-                                                    <small>⚠️ <strong>Common mining port</strong> - Used by Monero (XMR) miners like XMRig</small>
-                                                {% elif port.port == 4444 %}
-                                                    <small>⚠️ <strong>Common mining port</strong> - Used by Stratum mining protocol</small>
-                                                {% elif port.port == 5555 %}
-                                                    <small>⚠️ <strong>Common mining port</strong> - Used by CryptoNight mining</small>
-                                                {% elif port.port == 7777 %}
-                                                    <small>⚠️ <strong>Common mining port</strong> - Used by multiple mining pools</small>
-                                                {% elif port.port == 8888 %}
-                                                    <small>⚠️ <strong>Common mining port</strong> - Used by Stratum mining protocol</small>
-                                                {% elif port.port == 9999 %}
+                                                    <small>⚠️ <strong>Common mining port</strong> - Used by Monero (XMR) miners</small>
+                                                {% elif port.port == 4444 or port.port == 5555 or port.port == 7777 or port.port == 8888 or port.port == 9999 %}
                                                     <small>⚠️ <strong>Common mining port</strong> - Used by mining pools</small>
                                                 {% elif port.port == 135 %}
-                                                    <small>Remote Procedure Call - Used for inter-process communication on Windows</small>
+                                                    <small>Remote Procedure Call - Windows inter-process communication</small>
                                                 {% elif port.port == 445 %}
                                                     <small>File and printer sharing for Windows networks</small>
                                                 {% elif port.port == 5432 %}
                                                     <small>PostgreSQL database server</small>
                                                 {% elif port.port == 3389 %}
-                                                    <small>Remote Desktop - Allows remote access to your computer</small>
+                                                    <small>Remote Desktop - Remote access to your computer</small>
                                                 {% elif port.port == 5900 %}
                                                     <small>VNC - Remote desktop sharing</small>
                                                 {% elif port.port == 3306 %}
@@ -516,7 +1013,7 @@
                                                 {% elif port.port == 21 %}
                                                     <small>FTP file transfer protocol</small>
                                                 {% else %}
-                                                    <small>Standard service port for {{ port.service }}</small>
+                                                    <small>Standard service port</small>
                                                 {% endif %}
                                             </td>
                                         </tr>
@@ -525,49 +1022,35 @@
                                 </table>
                             </div>
 
-                            <!-- Detailed Port Information Cards -->
+                            <!-- Detailed Port Info Cards -->
                             <div class="mt-4">
-                                <h6><i class="fas fa-info-circle"></i> Detailed Port Information:</h6>
+                                <h6 style="font-weight: 700; font-family: 'Syne', sans-serif; color: #1e1b4b;"><i class="bi bi-info-circle"></i> Detailed Port Information:</h6>
                                 <div class="row">
                                     {% for port in scan_results.open_ports %}
-                                        {% if port.port == 135 or port.port == 445 or port.port == 5432 or port.port == 3333 or port.port == 4444 or port.port == 5555 %}
+                                        {% if port.port == 135 or port.port == 445 or port.port == 5432 or port.port == 3333 or port.port == 4444 or port.port == 5555 or port.port == 7777 or port.port == 8888 or port.port == 9999 %}
                                         <div class="col-md-4">
-                                            <div class="port-info-card border-{% if port.port == 3333 or port.port == 4444 or port.port == 5555 %}danger{% elif port.port == 135 or port.port == 445 %}danger{% else %}warning{% endif %}">
-                                                <div class="d-flex justify-content-between align-items-center">
+                                            <div class="port-info-card" style="border-left-color: {% if port.port == 3333 or port.port == 4444 or port.port == 5555 or port.port == 7777 or port.port == 8888 or port.port == 9999 %}#dc2626{% elif port.port == 135 or port.port == 445 %}#dc2626{% else %}#3b82f6{% endif %};">
+                                                <div class="d-flex justify-content-between align-items-center flex-wrap">
                                                     <span class="port-number">{{ port.port }}</span>
                                                     <span class="port-service">
-                                                        {% if port.port == 135 %}
-                                                            RPC
-                                                        {% elif port.port == 445 %}
-                                                            SMB
-                                                        {% elif port.port == 5432 %}
-                                                            PostgreSQL
-                                                        {% elif port.port == 3333 %}
+                                                        {% if port.port == 135 %}RPC
+                                                        {% elif port.port == 445 %}SMB
+                                                        {% elif port.port == 5432 %}PostgreSQL
+                                                        {% elif port.port == 3333 or port.port == 4444 or port.port == 5555 or port.port == 7777 or port.port == 8888 or port.port == 9999 %}
                                                             ⚠️ Mining Port
-                                                        {% elif port.port == 4444 %}
-                                                            ⚠️ Mining Port
-                                                        {% elif port.port == 5555 %}
-                                                            ⚠️ Mining Port
-                                                        {% else %}
-                                                            {{ port.service }}
-                                                        {% endif %}
+                                                        {% else %}{{ port.service }}{% endif %}
                                                     </span>
-                                                    <span class="status-badge status-open">OPEN</span>
+                                                    <span class="badge-status badge-open">OPEN</span>
                                                 </div>
-                                                <div class="port-desc mt-2">
-                                                    <strong>What it does:</strong>
+                                                <div class="port-desc">
                                                     {% if port.port == 135 %}
-                                                        Remote Procedure Call (RPC) - Used for inter-process communication on Windows systems. Allows programs to communicate with each other.
+                                                        RPC - Inter-process communication on Windows
                                                     {% elif port.port == 445 %}
-                                                        Server Message Block (SMB) - Used for file sharing, printer sharing, and network communication in Windows environments.
+                                                        SMB - File/print sharing for Windows
                                                     {% elif port.port == 5432 %}
-                                                        PostgreSQL Database Server - A powerful open-source relational database system.
-                                                    {% elif port.port == 3333 %}
+                                                        PostgreSQL - Open-source relational database
+                                                    {% elif port.port == 3333 or port.port == 4444 or port.port == 5555 or port.port == 7777 or port.port == 8888 or port.port == 9999 %}
                                                         ⚠️ This is a common crypto mining port. If you didn't install mining software, this could indicate unauthorized mining activity.
-                                                    {% elif port.port == 4444 %}
-                                                        ⚠️ This is a common crypto mining port. Used by Stratum mining protocol.
-                                                    {% elif port.port == 5555 %}
-                                                        ⚠️ This is a common crypto mining port. Used by CryptoNight miners.
                                                     {% endif %}
                                                 </div>
                                             </div>
@@ -577,24 +1060,24 @@
                                 </div>
                             </div>
                         {% else %}
-                            <p class="text-success"><i class="fas fa-check-circle"></i> No common ports are open</p>
+                            <p class="text-success" style="font-weight: 600;"><i class="bi bi-check-circle-fill"></i> No common ports are open</p>
                         {% endif %}
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Active Connections (Real data from device) -->
+        <!-- Active Connections -->
         <div class="row mt-4">
             <div class="col-12">
-                <div class="card scan-card shadow">
-                    <div class="card-header bg-primary text-white">
-                        <h5><i class="fas fa-link"></i> Active Connections</h5>
+                <div class="card">
+                    <div class="card-header bg-gradient-primary text-white">
+                        <h5><i class="bi bi-link-45deg"></i> Active Connections</h5>
                     </div>
                     <div class="card-body">
                         <div class="connection-table">
-                            <table class="table table-striped table-hover port-analysis">
-                                <thead class="table-dark">
+                            <table class="table table-striped table-hover">
+                                <thead>
                                     <tr>
                                         <th>Protocol</th>
                                         <th>Local Address</th>
@@ -607,7 +1090,7 @@
                                     <tr>
                                         <td>
                                             {% if conn.protocol == 'TCP' %}
-                                                <span class="badge bg-primary">TCP</span>
+                                                <span class="badge" style="background: #312e81;">TCP</span>
                                             {% else %}
                                                 <span class="badge bg-secondary">{{ conn.protocol }}</span>
                                             {% endif %}
@@ -616,9 +1099,9 @@
                                         <td>{{ conn.foreign_address }}</td>
                                         <td>
                                             {% if conn.state == 'LISTENING' or conn.state == 'LISTEN' %}
-                                                <span class="listening-badge">🔊 LISTENING</span>
+                                                <span class="badge-status badge-listening">🔊 LISTENING</span>
                                             {% elif conn.state == 'ESTABLISHED' %}
-                                                <span class="established-badge">🔗 ESTABLISHED</span>
+                                                <span class="badge-status badge-established">🔗 ESTABLISHED</span>
                                             {% else %}
                                                 <span class="badge bg-secondary">{{ conn.state }}</span>
                                             {% endif %}
@@ -628,36 +1111,21 @@
                                 </tbody>
                             </table>
                         </div>
-                        <small class="text-muted">Showing {{ scan_results.connections|length }} connections from your device</small>
+                        <small class="text-muted" style="font-weight: 500;">Showing {{ scan_results.connections|length }} connections from your device</small>
 
-                        <!-- TCP Information -->
                         <div class="mt-4">
-                            <h6><i class="fas fa-info-circle"></i> TCP Connection Information:</h6>
+                            <h6 style="font-weight: 700; font-family: 'Syne', sans-serif; color: #1e1b4b;"><i class="bi bi-info-circle"></i> TCP Connection Information:</h6>
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="tcp-info">
-                                        <strong><i class="fas fa-headphones"></i> LISTENING</strong>
-                                        <p class="mb-0 small">Port is open and waiting for incoming connections. This is normal for services like web servers, databases, etc.</p>
+                                        <strong><i class="bi bi-headphones"></i> LISTENING</strong>
+                                        <p class="mb-0 small">Port is open and waiting for incoming connections. Normal for web servers, databases, etc.</p>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="tcp-info" style="border-left-color: #28a745;">
-                                        <strong><i class="fas fa-link"></i> ESTABLISHED</strong>
-                                        <p class="mb-0 small">Active connection between two computers. Data is currently being transmitted or waiting for transmission.</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row mt-2">
-                                <div class="col-md-6">
-                                    <div class="tcp-info" style="border-left-color: #6c757d;">
-                                        <strong><i class="fas fa-clock"></i> TIME_WAIT</strong>
-                                        <p class="mb-0 small">Connection is closed but waiting for packets to expire. Normal after closing a connection.</p>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="tcp-info" style="border-left-color: #17a2b8;">
-                                        <strong><i class="fas fa-question-circle"></i> Other States</strong>
-                                        <p class="mb-0 small">CLOSE_WAIT, FIN_WAIT, SYN_SENT, etc. These are normal TCP handshake states.</p>
+                                    <div class="tcp-info" style="border-left-color: #059669;">
+                                        <strong><i class="bi bi-link"></i> ESTABLISHED</strong>
+                                        <p class="mb-0 small">Active connection between two computers. Data is currently being transmitted.</p>
                                     </div>
                                 </div>
                             </div>
@@ -667,25 +1135,25 @@
             </div>
         </div>
 
-        <!-- Crypto Mining Detection Card -->
+        <!-- Crypto Mining Detection -->
         <div class="row mt-4">
             <div class="col-12">
-                <div class="card scan-card shadow {% if scan_results.crypto_mining_detection.has_mining_activity %}mining-card-danger{% else %}mining-card{% endif %}">
-                    <div class="card-header {% if scan_results.crypto_mining_detection.has_mining_activity %}bg-danger{% else %}bg-success{% endif %} text-white">
-                        <h5><i class="fas fa-bitcoin"></i> Crypto Mining Detection Results</h5>
+                <div class="card {% if scan_results.crypto_mining_detection.has_mining_activity %}mining-card-danger{% else %}mining-card-safe{% endif %}">
+                    <div class="card-header {% if scan_results.crypto_mining_detection.has_mining_activity %}bg-gradient-danger{% else %}bg-gradient-success{% endif %} text-white">
+                        <h5><i class="bi bi-currency-bitcoin"></i> Crypto Mining Detection Results</h5>
                     </div>
                     <div class="card-body">
                         {% if scan_results.crypto_mining_detection.has_mining_activity %}
                             <div class="alert alert-danger">
-                                <h4><i class="fas fa-exclamation-triangle"></i> ⚠️ MINING ACTIVITY DETECTED!</h4>
+                                <h4 style="font-family: 'Syne', sans-serif; font-weight: 700;"><i class="bi bi-exclamation-triangle-fill"></i> ⚠️ MINING ACTIVITY DETECTED!</h4>
                                 <p class="mt-3">Your system has indicators of crypto mining activity:</p>
                                 
                                 {% if scan_results.crypto_mining_detection.suspicious_ports %}
                                     <div class="alert alert-warning mt-3">
-                                        <h6><i class="fas fa-door-open"></i> Suspicious Ports Detected:</h6>
+                                        <h6 style="font-weight: 700;"><i class="bi bi-door-open"></i> Suspicious Ports Detected:</h6>
                                         <div class="table-responsive">
                                             <table class="table table-striped table-hover">
-                                                <thead class="table-dark">
+                                                <thead>
                                                     <tr>
                                                         <th>Port</th>
                                                         <th>State</th>
@@ -708,10 +1176,10 @@
                                 
                                 {% if scan_results.crypto_mining_detection.mining_pool_connections %}
                                     <div class="alert alert-danger mt-3">
-                                        <h6><i class="fas fa-link"></i> Mining Pool Connections:</h6>
+                                        <h6 style="font-weight: 700;"><i class="bi bi-link-45deg"></i> Mining Pool Connections:</h6>
                                         <div class="table-responsive">
                                             <table class="table table-striped table-hover">
-                                                <thead class="table-dark">
+                                                <thead>
                                                     <tr>
                                                         <th>Pool</th>
                                                         <th>Address</th>
@@ -731,7 +1199,7 @@
                                 {% endif %}
 
                                 <div class="alert alert-info mt-3">
-                                    <i class="fas fa-info-circle"></i>
+                                    <i class="bi bi-info-circle-fill"></i>
                                     <strong>Recommendations:</strong>
                                     <ul class="mt-2 mb-0">
                                         <li>Check for unauthorized mining software</li>
@@ -743,170 +1211,88 @@
                                 </div>
                             </div>
 
-                            <!-- Prevention Guide Button - Visible Only When Mining Detected -->
+                            <!-- Prevention Guide Button -->
                             <div class="prevention-section text-center">
-                                <div class="row">
-                                    <div class="col-12">
-                                        <div class="icon mb-3">
-                                            <i class="fas fa-shield-alt"></i>
-                                        </div>
-                                        <h3>⚠️ Crypto Mining Detected!</h3>
-                                        <p class="lead mb-4">
-                                            Your system shows signs of crypto mining activity. 
-                                            Take immediate action to protect your system.
-                                        </p>
-                                        <a href="{% url 'prevent_guide' %}" class="btn btn-danger btn-lg prevention-btn">
-                                            <i class="fas fa-book"></i> How to Prevent Crypto Mining
-                                            <i class="fas fa-arrow-right ms-2"></i>
-                                        </a>
-                                        <p class="mt-3 text-muted">
-                                            <small>
-                                                <i class="fas fa-info-circle"></i> 
-                                                Click the button above to learn how to protect your system from crypto mining threats.
-                                            </small>
-                                        </p>
-                                    </div>
-                                </div>
+                                <div class="icon mb-3"><i class="bi bi-shield-fill-check"></i></div>
+                                <h3>⚠️ Crypto Mining Detected!</h3>
+                                <p class="lead mb-4" style="font-size: 1.05rem; color: #991b1b;">
+                                    Your system shows signs of crypto mining activity. Take immediate action.
+                                </p>
+                                <a href="{% url 'prevent_guide' %}" class="btn-prevention">
+                                    <i class="bi bi-book"></i> How to Prevent Crypto Mining
+                                    <i class="bi bi-arrow-right ms-2"></i>
+                                </a>
                             </div>
 
                         {% else %}
                             <div class="alert alert-success">
-                                <h4><i class="fas fa-check-circle"></i> ✅ NO MINING ACTIVITY DETECTED</h4>
-                                <p class="mt-3">Since your scan shows <strong>NO</strong> connections to:</p>
+                                <h4 style="font-family: 'Syne', sans-serif; font-weight: 700;"><i class="bi bi-check-circle-fill"></i> ✅ NO MINING ACTIVITY DETECTED</h4>
+                                <p class="mt-3">Your scan shows <strong>NO</strong> connections to known mining pools or suspicious mining ports:</p>
                                 
-                                <ul class="mining-status-list">
+                                <ul class="mining-status-list" style="list-style: none; padding: 0;">
                                     <li>
                                         <div class="mining-check-item">
                                             <span class="mining-name"><code>pool.minexmr.com</code></span>
-                                            <span class="mining-ports">commonly uses port: <strong>3333</strong></span>
-                                            <span class="safe-badge mining-status">✅ NOT DETECTED</span>
+                                            <span class="mining-ports">port: <strong>3333</strong></span>
+                                            <span class="safe-badge">✅ NOT DETECTED</span>
                                         </div>
                                     </li>
                                     <li>
                                         <div class="mining-check-item">
                                             <span class="mining-name"><code>cryptonight</code></span>
-                                            <span class="mining-ports">commonly uses port: <strong>4444</strong></span>
-                                            <span class="safe-badge mining-status">✅ NOT DETECTED</span>
+                                            <span class="mining-ports">port: <strong>4444</strong></span>
+                                            <span class="safe-badge">✅ NOT DETECTED</span>
                                         </div>
                                     </li>
                                     <li>
                                         <div class="mining-check-item">
                                             <span class="mining-name"><code>stratum+tcp</code></span>
-                                            <span class="mining-ports">commonly uses ports: <strong>3333, 4444, 5555, 7777</strong></span>
-                                            <span class="safe-badge mining-status">✅ NOT DETECTED</span>
+                                            <span class="mining-ports">ports: <strong>3333, 4444, 5555, 7777</strong></span>
+                                            <span class="safe-badge">✅ NOT DETECTED</span>
                                         </div>
                                     </li>
                                     <li>
                                         <div class="mining-check-item">
-                                            <span class="mining-name">Any mining pools</span>
-                                            <span class="mining-ports">commonly uses ports: <strong>3333, 4444, 5555, 6666, 7777, 8888, 9999</strong></span>
-                                            <span class="safe-badge mining-status">✅ NOT DETECTED</span>
-                                        </div>
-                                    </li>
-                                    <li>
-                                        <div class="mining-check-item">
-                                            <span class="mining-name">Mining ports</span>
-                                            <span class="mining-ports"><strong>3333, 4444, 5555, 6666, 7777, 8888, 9999</strong></span>
-                                            <span class="safe-badge mining-status">✅ NOT DETECTED</span>
+                                            <span class="mining-name">Mining pools</span>
+                                            <span class="mining-ports">ports: <strong>3333, 4444, 5555, 6666, 7777, 8888, 9999</strong></span>
+                                            <span class="safe-badge">✅ NOT DETECTED</span>
                                         </div>
                                     </li>
                                 </ul>
 
                                 <div class="alert alert-info mt-3">
-                                    <i class="fas fa-info-circle"></i>
+                                    <i class="bi bi-info-circle-fill"></i>
                                     <strong>Your system appears to be SAFE from crypto mining activity.</strong>
                                     <p class="mt-2 mb-0">No connections to known mining pools or suspicious mining ports were detected.</p>
                                 </div>
                             </div>
                         {% endif %}
 
-                        <!-- Suspicious Ports Check -->
-                        {% if scan_results.crypto_mining_detection.suspicious_ports %}
-                        <div class="alert alert-warning mt-3">
-                            <h6><i class="fas fa-door-open"></i> Suspicious Ports Detected</h6>
-                            <p>Connections found on ports commonly used by mining software:</p>
-                            <div class="table-responsive">
-                                <table class="table table-striped table-hover">
-                                    <thead class="table-dark">
-                                        <tr>
-                                            <th>Port</th>
-                                            <th>Foreign Address</th>
-                                            <th>Local Address</th>
-                                            <th>State</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for port in scan_results.crypto_mining_detection.suspicious_ports %}
-                                        <tr>
-                                            <td><span class="badge bg-warning text-dark">{{ port.port }}</span></td>
-                                            <td><code>{{ port.address }}</code></td>
-                                            <td><code>{{ port.local }}</code></td>
-                                            <td><span class="badge bg-info">{{ port.state }}</span></td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                            <small class="text-muted">
-                                <i class="fas fa-info-circle"></i> Common mining ports: 3333, 4444, 5555, 6666, 7777, 8888, 9999
-                            </small>
-                        </div>
-                        {% endif %}
-
                         <!-- Mining Ports Reference Table -->
                         <div class="mt-3">
-                            <h6><i class="fas fa-table"></i> Common Mining Pool & Port Reference:</h6>
+                            <h6 style="font-weight: 700; font-family: 'Syne', sans-serif; color: #1e1b4b;"><i class="bi bi-table"></i> Common Mining Pool & Port Reference:</h6>
                             <div class="table-responsive">
                                 <table class="table table-sm table-bordered table-striped">
-                                    <thead class="table-dark">
+                                    <thead>
                                         <tr>
                                             <th>Mining Pool / Indicator</th>
                                             <th>Common Ports Used</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <td><code>pool.minexmr.com</code></td>
-                                            <td>3333, 4444, 5555, 7777, 8888, 9999</td>
-                                        </tr>
-                                        <tr>
-                                            <td><code>cryptonight</code></td>
-                                            <td>4444, 7777, 8888</td>
-                                        </tr>
-                                        <tr>
-                                            <td><code>stratum+tcp</code></td>
-                                            <td>3333, 4444, 5555, 7777, 8888</td>
-                                        </tr>
-                                        <tr>
-                                            <td><code>supportxmr.com</code></td>
-                                            <td>3333, 4444, 5555, 7777, 8888, 9999</td>
-                                        </tr>
-                                        <tr>
-                                            <td><code>hashvault.pro</code></td>
-                                            <td>3333, 4444, 5555, 7777, 8888, 9999</td>
-                                        </tr>
-                                        <tr>
-                                            <td><code>ethermine.org</code></td>
-                                            <td>4444, 5555, 7777, 8888, 9999</td>
-                                        </tr>
-                                        <tr>
-                                            <td><code>antpool.com</code></td>
-                                            <td>3333, 4444, 5555, 7777, 8888, 9999</td>
-                                        </tr>
-                                        <tr>
-                                            <td><code>f2pool.com</code></td>
-                                            <td>3333, 4444, 5555, 7777, 8888</td>
-                                        </tr>
-                                        <tr>
-                                            <td><code>nicehash.com</code></td>
-                                            <td>3333, 4444, 5555, 7777, 8888</td>
-                                        </tr>
+                                        <tr><td><code>pool.minexmr.com</code></td><td>3333, 4444, 5555, 7777, 8888, 9999</td></tr>
+                                        <tr><td><code>cryptonight</code></td><td>4444, 7777, 8888</td></tr>
+                                        <tr><td><code>stratum+tcp</code></td><td>3333, 4444, 5555, 7777, 8888</td></tr>
+                                        <tr><td><code>supportxmr.com</code></td><td>3333, 4444, 5555, 7777, 8888, 9999</td></tr>
+                                        <tr><td><code>hashvault.pro</code></td><td>3333, 4444, 5555, 7777, 8888, 9999</td></tr>
+                                        <tr><td><code>ethermine.org</code></td><td>4444, 5555, 7777, 8888, 9999</td></tr>
+                                        <tr><td><code>antpool.com</code></td><td>3333, 4444, 5555, 7777, 8888, 9999</td></tr>
+                                        <tr><td><code>f2pool.com</code></td><td>3333, 4444, 5555, 7777, 8888</td></tr>
+                                        <tr><td><code>nicehash.com</code></td><td>3333, 4444, 5555, 7777, 8888</td></tr>
                                     </tbody>
                                 </table>
                             </div>
-                            <small class="text-muted">
-                                <i class="fas fa-info-circle"></i> These are commonly used ports for mining connections.
-                            </small>
+                            <small class="text-muted" style="font-weight: 500;"><i class="bi bi-info-circle"></i> These are commonly used ports for mining connections.</small>
                         </div>
                     </div>
                 </div>
@@ -916,9 +1302,9 @@
         <!-- Network Devices -->
         <div class="row mt-4">
             <div class="col-12">
-                <div class="card scan-card shadow">
-                    <div class="card-header bg-success text-white">
-                        <h5><i class="fas fa-server"></i> Network Devices Found</h5>
+                <div class="card">
+                    <div class="card-header bg-gradient-success text-white">
+                        <h5><i class="bi bi-server"></i> Network Devices Found</h5>
                     </div>
                     <div class="card-body">
                         {% if scan_results.network_devices %}
@@ -936,7 +1322,7 @@
                                         <tr>
                                             <td>{{ device.ip }}</td>
                                             <td>{{ device.hostname }}</td>
-                                            <td><span class="badge bg-success">Active</span></td>
+                                            <td><span class="badge" style="background: #059669;">Active</span></td>
                                         </tr>
                                         {% endfor %}
                                     </tbody>
@@ -953,24 +1339,24 @@
         <!-- DNS Information -->
         <div class="row mt-4">
             <div class="col-12">
-                <div class="card scan-card shadow">
-                    <div class="card-header bg-secondary text-white">
-                        <h5><i class="fas fa-dns"></i> DNS Information</h5>
+                <div class="card">
+                    <div class="card-header bg-gradient-secondary text-white">
+                        <h5><i class="bi bi-globe2"></i> DNS Information</h5>
                     </div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-4">
-                                <h6>Hostname</h6>
-                                <p><strong>{{ scan_results.dns_info.hostname }}</strong></p>
+                                <h6 style="font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted);">Hostname</h6>
+                                <p style="font-weight: 600; color: #1e1b4b; font-size: 1.05rem;">{{ scan_results.dns_info.hostname }}</p>
                             </div>
                             <div class="col-md-4">
-                                <h6>IP Address</h6>
-                                <p><strong>{{ scan_results.dns_info.ip_address }}</strong></p>
+                                <h6 style="font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted);">IP Address</h6>
+                                <p style="font-weight: 600; color: #1e1b4b; font-size: 1.05rem;">{{ scan_results.dns_info.ip_address }}</p>
                             </div>
                             <div class="col-md-4">
-                                <h6>DNS Servers</h6>
+                                <h6 style="font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted);">DNS Servers</h6>
                                 {% for server in scan_results.dns_info.dns_servers %}
-                                    <p><span class="badge bg-info">{{ server }}</span></p>
+                                    <p><span class="badge" style="background: #312e81; padding: 6px 14px;">{{ server }}</span></p>
                                 {% endfor %}
                             </div>
                         </div>
@@ -980,10 +1366,10 @@
         </div>
 
         <!-- Export Button -->
-        <div class="row mt-4 mb-5">
+        <div class="row mt-4 mb-4">
             <div class="col-12 text-center">
-                <button class="btn btn-secondary" onclick="window.print()">
-                    <i class="fas fa-print"></i> Print Report
+                <button class="btn-print" onclick="window.print()">
+                    <i class="bi bi-printer"></i> Print Report
                 </button>
             </div>
         </div>
@@ -993,7 +1379,7 @@
 </div>
 
 <!-- Footer -->
-<footer class="bg-dark text-white text-center py-3 mt-5">
+<footer class="text-center">
     <div class="container">
         <p class="mb-0">🛡 CryptoDefender - Deep Network Scan &copy; 2026</p>
     </div>
@@ -1008,10 +1394,9 @@
         var spinner = document.getElementById('loadingSpinner');
         var results = document.getElementById('scanResults');
         
-        // Handle form submission
         document.getElementById('scanForm').addEventListener('submit', function() {
             scanBtn.disabled = true;
-            scanBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Scanning...';
+            scanBtn.innerHTML = '<i class="bi bi-arrow-repeat spinner-border spinner-border-sm me-2"></i> Scanning...';
             spinner.style.display = 'block';
             return true;
         });
@@ -1019,19 +1404,18 @@
         {% if scan_results %}
             results.style.display = 'block';
             scanBtn.disabled = false;
-            scanBtn.innerHTML = '<i class="fas fa-play"></i> Start Network Scan';
+            scanBtn.innerHTML = '<i class="bi bi-play-fill"></i> Start Network Scan';
             spinner.style.display = 'none';
         {% endif %}
         
         {% if error_message %}
             scanBtn.disabled = false;
-            scanBtn.innerHTML = '<i class="fas fa-play"></i> Start Network Scan';
+            scanBtn.innerHTML = '<i class="bi bi-play-fill"></i> Start Network Scan';
             spinner.style.display = 'none';
         {% endif %}
 
-        // Block Prevention link click if disabled
-        var preventLink = document.querySelector('#preventNavItem .nav-link');
-        if (preventLink && preventLink.classList.contains('disabled-link')) {
+        var preventLink = document.querySelector('#preventNavItem .disabled-link');
+        if (preventLink) {
             preventLink.addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
@@ -1041,13 +1425,12 @@
         }
     });
     
-    // Reset button if scan takes too long (safety net)
     setTimeout(function() {
         var scanBtn = document.getElementById('scanBtn');
         var spinner = document.getElementById('loadingSpinner');
         if (scanBtn.disabled) {
             scanBtn.disabled = false;
-            scanBtn.innerHTML = '<i class="fas fa-play"></i> Start Network Scan';
+            scanBtn.innerHTML = '<i class="bi bi-play-fill"></i> Start Network Scan';
             spinner.style.display = 'none';
         }
     }, 60000);
