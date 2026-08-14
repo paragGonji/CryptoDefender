@@ -1,785 +1,2751 @@
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
     <title>CryptoDefender — Dashboard</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
-    <style>
-        *, *::before, *::after { box-sizing: border-box; }
+    <link rel="preconnect"
+          href="https://fonts.googleapis.com">
 
-        :root {
-            --ink:    #0d0d0d;
-            --card:   #ffffff;
-            --accent: #ff4d1c;
-            --accent2:#ffb347;
-            --muted:  #6b6b6b;
-            --bg:     #f0ede8;
-            --safe:   #16a34a;
-            --danger: #e03e3e;
-        }
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
 
-        body {
-            font-family: 'DM Sans', sans-serif;
-            background: var(--bg);
-            min-height: 100vh;
-            color: var(--ink);
-            position: relative;
-            overflow-x: hidden;
-            margin: 0;
-        }
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+          rel="stylesheet">
 
-        body::before, body::after {
-            content: '';
-            position: fixed;
-            border-radius: 50%;
-            filter: blur(90px);
-            opacity: .5;
-            pointer-events: none;
-            z-index: 0;
-        }
-        body::before {
-            width: 620px; height: 620px;
-            background: radial-gradient(circle, #ff4d1c 0%, #ffb347 60%, transparent 100%);
-            top: -220px; right: -220px;
-            animation: drift 9s ease-in-out infinite alternate;
-        }
-        body::after {
-            width: 460px; height: 460px;
-            background: radial-gradient(circle, #a78bfa 0%, #60a5fa 60%, transparent 100%);
-            bottom: -160px; left: -140px;
-            animation: drift 11s ease-in-out infinite alternate-reverse;
-        }
-        @keyframes drift {
-            from { transform: translate(0, 0) scale(1); }
-            to   { transform: translate(30px, 20px) scale(1.06); }
-        }
 
-        /* ── navbar: premium, elegant, good looking ── */
-        nav.topbar {
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 14px 36px;
-            background: linear-gradient(135deg, #0b0b1a 0%, #1a1a3e 40%, #2d1b4e 100%);
-            border-bottom: 3px solid transparent;
-            border-image: linear-gradient(90deg, #ff4d1c, #ffb347, #c084fc, #60a5fa) 1;
-            box-shadow: 0 8px 40px rgba(255, 77, 28, 0.12), inset 0 1px 0 rgba(255,255,255,0.05);
-            flex-wrap: wrap;
-            gap: 12px;
-            min-height: 80px;
-            backdrop-filter: blur(10px);
-        }
+<style>
 
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            text-decoration: none;
-            padding: 4px 14px 4px 6px;
-            border-radius: 12px;
-            transition: all .3s ease;
-        }
-        .brand:hover { 
-            background: rgba(255,255,255,.06);
-            transform: scale(1.02);
-        }
-        .brand-icon {
-            width: 42px; height: 42px;
-            background: linear-gradient(135deg, #ff4d1c, #ffb347, #c084fc);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            box-shadow: 0 4px 20px rgba(255,77,28,.4);
-            animation: glowPulse 3s ease-in-out infinite;
-            position: relative;
-        }
-        .brand-icon::after {
-            content: '';
-            position: absolute;
-            inset: -3px;
-            border-radius: 15px;
-            background: linear-gradient(135deg, #ff4d1c, #ffb347, #c084fc);
-            opacity: 0.3;
-            filter: blur(10px);
-            z-index: -1;
-            animation: glowPulse 3s ease-in-out infinite;
-        }
-        @keyframes glowPulse {
-            0%, 100% { box-shadow: 0 4px 20px rgba(255,77,28,.4); }
-            50% { box-shadow: 0 4px 35px rgba(255,77,28,.7), 0 0 60px rgba(192,132,252,0.2); }
-        }
-        .brand-icon i { color: #fff; font-size: 1.3rem; }
+/* =========================================================
+   GLOBAL
+========================================================= */
 
-        .brand-name {
-            font-family: 'Syne', sans-serif;
-            font-weight: 800;
-            font-size: 1.6rem;
-            color: #fff;
-            letter-spacing: -0.5px;
-            white-space: nowrap;
-            text-shadow: 0 0 40px rgba(255,77,28,0.15);
-        }
-        .brand-name span { 
-            background: linear-gradient(90deg, #ff4d1c, #ffb347, #c084fc);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
 
-        .nav-left {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            list-style: none;
-            margin: 0;
-            padding: 4px;
-            flex-wrap: wrap;
-            background: rgba(255,255,255,.04);
-            border: 1px solid rgba(255,255,255,.06);
-            border-radius: 16px;
-            backdrop-filter: blur(8px);
-        }
-        .nav-left a {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: rgba(255,255,255,.8);
-            text-decoration: none;
-            font-size: 0.95rem;
-            font-weight: 600;
-            padding: 8px 22px;
-            border-radius: 12px;
-            white-space: nowrap;
-            transition: all .3s ease;
-            letter-spacing: 0.2px;
-            position: relative;
-        }
-        .nav-left a::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: 12px;
-            background: linear-gradient(135deg, rgba(255,77,28,0.15), rgba(192,132,252,0.1));
-            opacity: 0;
-            transition: opacity .3s ease;
-        }
-        .nav-left a:hover::before {
-            opacity: 1;
-        }
-        .nav-left a:hover {
-            color: #fff;
-            transform: translateY(-2px);
-        }
-        .nav-left a i { 
-            font-size: 1.1rem; 
-            color: #ffb347; 
-            transition: all .3s ease;
-            position: relative;
-            z-index: 1;
-        }
-        .nav-left a:hover i { 
-            transform: scale(1.15) rotate(-5deg);
-            color: #ff6b3d;
-        }
-        .nav-left a span {
-            position: relative;
-            z-index: 1;
-        }
 
-        /* locked / blocked nav item */
-        .blocked-tooltip {
-            position: relative;
-            display: inline-block;
-        }
-        .disabled-link {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: rgba(255,255,255,.25) !important;
-            font-size: 0.95rem;
-            font-weight: 600;
-            padding: 8px 22px;
-            border-radius: 12px;
-            cursor: not-allowed;
-            white-space: nowrap;
-            letter-spacing: 0.2px;
-            opacity: 0.5;
-            position: relative;
-        }
-        .disabled-link i { 
-            font-size: 1.1rem; 
-            color: rgba(255, 77, 28, 0.25);
-        }
-        .blocked-tooltip .tooltip-text {
-            visibility: hidden;
-            width: 240px;
-            background: linear-gradient(135deg, #1a1a3e, #2d1b4e);
-            color: #fff;
-            text-align: center;
-            border-radius: 14px;
-            padding: 12px 16px;
-            position: absolute;
-            z-index: 5;
-            bottom: 135%;
-            left: 50%;
-            margin-left: -120px;
-            font-size: 0.8rem;
-            font-family: 'DM Sans', sans-serif;
-            font-weight: 500;
-            opacity: 0;
-            transition: all .35s cubic-bezier(.22,.68,0,1.2);
-            box-shadow: 0 12px 40px rgba(0,0,0,.5);
-            border: 1px solid rgba(255,77,28,0.15);
-            backdrop-filter: blur(12px);
-            line-height: 1.4;
-        }
-        .blocked-tooltip .tooltip-text::after {
-            content: '';
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            margin-left: -8px;
-            border-width: 8px;
-            border-style: solid;
-            border-color: #1a1a3e transparent transparent transparent;
-        }
-        .blocked-tooltip:hover .tooltip-text {
-            visibility: visible;
-            opacity: 1;
-            transform: translateY(-8px);
-        }
+:root {
 
-        /* right side / profile */
-        .nav-right {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            list-style: none;
-            margin: 0;
-            padding: 0;
-        }
-        .profile-link {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: #fff !important;
-            text-decoration: none;
-            font-size: 0.95rem;
-            font-weight: 600;
-            padding: 6px 22px 6px 6px;
-            border-radius: 999px;
-            background: rgba(255,255,255,.05);
-            border: 1px solid rgba(255,255,255,.06);
-            transition: all .3s ease;
-            letter-spacing: 0.2px;
-        }
-        .profile-link:hover {
-            background: rgba(255, 77, 28, 0.12);
-            border-color: rgba(255, 77, 28, 0.25);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 30px rgba(255,77,28,0.12);
-        }
-        .profile-avatar {
-            width: 34px; height: 34px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #ff4d1c, #ffb347, #c084fc);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Syne', sans-serif;
-            font-weight: 800;
-            font-size: 0.9rem;
-            color: #fff;
-            flex-shrink: 0;
-            box-shadow: 0 2px 16px rgba(255,77,28,.35);
-        }
+    --ink: #0d0d0d;
 
-        /* Logout button - premium style */
-        .logout-btn {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: linear-gradient(135deg, #ff4d1c, #e03e3e);
-            color: #fff;
-            text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 700;
-            padding: 9px 24px;
-            border-radius: 999px;
-            border: none;
-            cursor: pointer;
-            transition: all .3s ease;
-            letter-spacing: 0.4px;
-            box-shadow: 0 4px 20px rgba(224, 62, 62, 0.3);
-            white-space: nowrap;
-            position: relative;
-            overflow: hidden;
-        }
-        .logout-btn::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, #ff6b3d, #e03e3e, #c084fc);
-            opacity: 0;
-            transition: opacity .3s ease;
-        }
-        .logout-btn:hover::before {
-            opacity: 1;
-        }
-        .logout-btn:hover {
-            transform: translateY(-3px) scale(1.03);
-            box-shadow: 0 8px 35px rgba(224, 62, 62, 0.45);
-        }
-        .logout-btn i, .logout-btn span {
-            position: relative;
-            z-index: 1;
-        }
-        .logout-btn i {
-            font-size: 1.1rem;
-        }
+    --card: #ffffff;
 
-        /* ── content ── */
-        .wrap {
-            position: relative;
-            z-index: 1;
-            max-width: 640px;
-            margin: 0 auto;
-            padding: 32px 20px 70px;
-            text-align: center;
-        }
+    --accent: #ff4d1c;
 
-        .welcome {
-            animation: rise .6s cubic-bezier(.22,.68,0,1.2) both;
-        }
-        .welcome .eyebrow {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 14px;
-            border-radius: 999px;
-            background: rgba(255,77,28,.1);
-            border: 1px solid rgba(255,77,28,.2);
-            color: var(--accent);
-            font-size: .7rem;
-            font-weight: 600;
-            letter-spacing: .04em;
-            text-transform: uppercase;
-            margin-bottom: 12px;
-        }
-        .welcome h1 {
-            font-family: 'Syne', sans-serif;
-            font-weight: 700;
-            font-size: 2rem;
-            letter-spacing: -.5px;
-            line-height: 1.2;
-            word-break: break-word;
-        }
-        .welcome h1 span {
-            background: linear-gradient(90deg, var(--accent), var(--accent2));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .welcome p {
-            color: var(--muted);
-            font-size: .9rem;
-            margin-top: 4px;
-        }
+    --accent2: #ffb347;
 
-        @keyframes rise {
-            from { opacity: 0; transform: translateY(16px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
+    --muted: #6b6b6b;
 
-        /* blocked alert */
-        .alert-blocked {
-            margin-top: 18px;
-            background: #fff4ec;
-            border: 1px solid #ffd7b0;
-            color: #b3540e;
-            border-radius: 10px;
-            padding: 12px 16px;
-            font-size: .82rem;
-            text-align: left;
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            gap: 10px;
-            animation: rise .5s ease both;
-        }
-        .alert-blocked strong { display: block; margin-bottom: 2px; }
-        .alert-blocked .btn-close {
-            background: none;
-            border: none;
-            font-size: .9rem;
-            color: #b3540e;
-            cursor: pointer;
-            line-height: 1;
-        }
+    --bg: #f0ede8;
 
-        hr.divider {
-            border: none;
-            height: 1px;
-            background: #e2ded6;
-            margin: 28px 0 22px;
-        }
+    --safe: #16a34a;
 
-        .section-title {
-            font-family: 'Syne', sans-serif;
-            font-weight: 700;
-            font-size: 1.2rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            margin-bottom: 20px;
-        }
-        .section-title i { color: var(--accent); }
+    --warning: #d97706;
 
-        .btn-detect {
-            appearance: none;
-            border: none;
-            cursor: pointer;
-            background: var(--ink);
-            color: #fff;
-            font-family: 'Syne', sans-serif;
-            font-size: .9rem;
-            font-weight: 700;
-            letter-spacing: .01em;
-            padding: 12px 30px;
-            border-radius: 10px;
-            position: relative;
-            overflow: hidden;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 6px 20px rgba(0,0,0,.12);
-            transition: transform .18s, box-shadow .18s;
-        }
-        .btn-detect::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(90deg, var(--accent), var(--accent2));
-            opacity: 0;
-            transition: opacity .25s;
-        }
-        .btn-detect:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 28px rgba(255,77,28,.25);
-        }
-        .btn-detect:hover::before { opacity: 1; }
-        .btn-detect span, .btn-detect i { position: relative; z-index: 1; }
+    --danger: #dc2626;
 
-        /* ── result card ── */
-        .result-card {
-            background: var(--card);
-            border-radius: 16px;
-            padding: 24px;
-            margin-top: 24px;
-            box-shadow: 0 16px 40px rgba(0,0,0,.07), 0 0 0 1px rgba(0,0,0,.02);
-            text-align: left;
-            animation: rise .5s cubic-bezier(.22,.68,0,1.2) both;
-        }
+    --blue: #2563eb;
 
-        .metric-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 16px;
-        }
-        .metric {
-            background: #f7f7f5;
-            border-radius: 10px;
-            padding: 12px 6px;
-            text-align: center;
-            min-width: 0;
-        }
-        .metric .label {
-            font-size: .55rem;
-            text-transform: uppercase;
-            letter-spacing: .05em;
-            color: var(--muted);
-            margin-bottom: 5px;
-            white-space: nowrap;
-        }
-        .metric .value {
-            font-family: 'Syne', sans-serif;
-            font-weight: 800;
-            font-size: 1.1rem;
-            line-height: 1.2;
-            white-space: nowrap;
-        }
-        .metric .bar-track {
-            width: 100%;
-            height: 3px;
-            border-radius: 2px;
-            background: #e6e4df;
-            margin-top: 6px;
-            overflow: hidden;
-        }
-        .metric .bar-fill {
-            height: 100%;
-            border-radius: 2px;
-            background: linear-gradient(90deg, var(--accent), var(--accent2));
-        }
+}
 
-        .net-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            padding-top: 14px;
-            border-top: 1px solid #ececea;
-        }
-        .net-metric {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: #f7f7f5;
-            border-radius: 10px;
-            padding: 8px 12px;
-            min-width: 0;
-        }
-        .net-metric .icon-box {
-            width: 24px; height: 24px;
-            border-radius: 6px;
-            background: rgba(255,77,28,.07);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-        .net-metric .icon-box i { color: var(--accent); font-size: .7rem; }
-        .net-metric .text { min-width: 0; }
-        .net-metric .label {
-            font-size: .55rem;
-            text-transform: uppercase;
-            letter-spacing: .05em;
-            color: var(--muted);
-        }
-        .net-metric .value {
-            font-family: 'Syne', sans-serif;
-            font-weight: 700;
-            font-size: .8rem;
-            white-space: nowrap;
-        }
 
-        .verdict {
-            margin-top: 16px;
-            padding: 12px 16px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-family: 'Syne', sans-serif;
-            font-weight: 700;
-            font-size: .85rem;
-            word-break: break-word;
-        }
-        .verdict.is-safe {
-            background: rgba(22,163,74,.06);
-            border: 1px solid rgba(22,163,74,.18);
-            color: var(--safe);
-        }
-        .verdict.is-danger {
-            background: rgba(224,62,62,.06);
-            border: 1px solid rgba(224,62,62,.18);
-            color: var(--danger);
-        }
-        .verdict .icon-circle {
-            width: 26px; height: 26px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-        .verdict.is-safe .icon-circle { background: var(--safe); }
-        .verdict.is-danger .icon-circle { background: var(--danger); }
-        .verdict .icon-circle i { color: #fff; font-size: .7rem; }
+body {
 
-        .btn-clear {
-            appearance: none;
-            border: none;
-            cursor: pointer;
-            background: transparent;
-            border: 1.5px solid #f0c9c2;
-            color: var(--danger);
-            font-family: 'DM Sans', sans-serif;
-            font-weight: 600;
-            font-size: .7rem;
-            padding: 5px 14px;
-            border-radius: 7px;
-            margin-top: 12px;
-            transition: background .2s;
-        }
-        .btn-clear:hover { background: rgba(224,62,62,.05); }
+    margin: 0;
 
-        @media (max-width: 480px) {
-            .metric-group { grid-template-columns: 1fr; }
-            .net-group { grid-template-columns: 1fr; }
-            .welcome h1 { font-size: 1.5rem; }
-        }
-    </style>
+    min-height: 100vh;
+
+    font-family: 'DM Sans', sans-serif;
+
+    color: var(--ink);
+
+    background: var(--bg);
+
+    overflow-x: hidden;
+
+}
+
+
+body::before,
+body::after {
+
+    content: '';
+
+    position: fixed;
+
+    border-radius: 50%;
+
+    filter: blur(90px);
+
+    opacity: .45;
+
+    pointer-events: none;
+
+    z-index: 0;
+
+}
+
+
+body::before {
+
+    width: 620px;
+
+    height: 620px;
+
+    background:
+        radial-gradient(
+            circle,
+            #ff4d1c 0%,
+            #ffb347 60%,
+            transparent 100%
+        );
+
+    top: -220px;
+
+    right: -220px;
+
+}
+
+
+body::after {
+
+    width: 460px;
+
+    height: 460px;
+
+    background:
+        radial-gradient(
+            circle,
+            #a78bfa 0%,
+            #60a5fa 60%,
+            transparent 100%
+        );
+
+    bottom: -160px;
+
+    left: -140px;
+
+}
+
+
+/* =========================================================
+   NAVBAR
+========================================================= */
+
+.topbar {
+
+    position: sticky;
+
+    top: 0;
+
+    z-index: 100;
+
+    min-height: 80px;
+
+    padding: 14px 36px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 15px;
+
+    flex-wrap: wrap;
+
+    background:
+        linear-gradient(
+            135deg,
+            #0b0b1a,
+            #1a1a3e 40%,
+            #2d1b4e
+        );
+
+    border-bottom: 3px solid transparent;
+
+    border-image:
+        linear-gradient(
+            90deg,
+            #ff4d1c,
+            #ffb347,
+            #c084fc,
+            #60a5fa
+        ) 1;
+
+    box-shadow:
+        0 8px 40px rgba(0,0,0,.18);
+
+}
+
+
+.brand {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    text-decoration: none;
+
+}
+
+
+.brand-icon {
+
+    width: 42px;
+
+    height: 42px;
+
+    border-radius: 12px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background:
+        linear-gradient(
+            135deg,
+            #ff4d1c,
+            #ffb347,
+            #c084fc
+        );
+
+    box-shadow:
+        0 5px 25px rgba(255,77,28,.4);
+
+}
+
+
+.brand-icon i {
+
+    color: white;
+
+    font-size: 1.3rem;
+
+}
+
+
+.brand-name {
+
+    font-family: 'Syne', sans-serif;
+
+    font-size: 1.55rem;
+
+    font-weight: 800;
+
+    color: white;
+
+}
+
+
+.brand-name span {
+
+    background:
+        linear-gradient(
+            90deg,
+            #ff4d1c,
+            #ffb347,
+            #c084fc
+        );
+
+    -webkit-background-clip: text;
+
+    -webkit-text-fill-color: transparent;
+
+}
+
+
+.nav-left {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 5px;
+
+    list-style: none;
+
+    margin: 0;
+
+    padding: 4px;
+
+    border-radius: 15px;
+
+    background: rgba(255,255,255,.05);
+
+}
+
+
+.nav-left a {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 9px 18px;
+
+    border-radius: 10px;
+
+    color: rgba(255,255,255,.82);
+
+    text-decoration: none;
+
+    font-size: .9rem;
+
+    font-weight: 600;
+
+    transition: .25s;
+
+}
+
+
+.nav-left a:hover {
+
+    color: white;
+
+    background: rgba(255,77,28,.14);
+
+}
+
+
+.nav-left a i {
+
+    color: #ffb347;
+
+}
+
+
+.disabled-link {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 9px 18px;
+
+    color: rgba(255,255,255,.3);
+
+    cursor: not-allowed;
+
+}
+
+
+.blocked-tooltip {
+
+    position: relative;
+
+}
+
+
+.tooltip-text {
+
+    visibility: hidden;
+
+    opacity: 0;
+
+    position: absolute;
+
+    width: 230px;
+
+    bottom: 130%;
+
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    padding: 10px;
+
+    border-radius: 10px;
+
+    background: #1a1a3e;
+
+    color: white;
+
+    text-align: center;
+
+    font-size: .75rem;
+
+    transition: .25s;
+
+}
+
+
+.blocked-tooltip:hover .tooltip-text {
+
+    visibility: visible;
+
+    opacity: 1;
+
+}
+
+
+.nav-right {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    list-style: none;
+
+    margin: 0;
+
+    padding: 0;
+
+}
+
+
+.profile-link {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 9px;
+
+    padding: 5px 17px 5px 5px;
+
+    border-radius: 50px;
+
+    color: white;
+
+    text-decoration: none;
+
+    background: rgba(255,255,255,.05);
+
+    font-weight: 600;
+
+}
+
+
+.profile-avatar {
+
+    width: 34px;
+
+    height: 34px;
+
+    border-radius: 50%;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background:
+        linear-gradient(
+            135deg,
+            #ff4d1c,
+            #ffb347,
+            #c084fc
+        );
+
+    color: white;
+
+    font-weight: 800;
+
+}
+
+
+.logout-btn {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    padding: 10px 20px;
+
+    border-radius: 50px;
+
+    color: white;
+
+    text-decoration: none;
+
+    font-weight: 700;
+
+    background:
+        linear-gradient(
+            135deg,
+            #ff4d1c,
+            #dc2626
+        );
+
+}
+
+
+/* =========================================================
+   MAIN
+========================================================= */
+
+.wrap {
+
+    position: relative;
+
+    z-index: 1;
+
+    max-width: 900px;
+
+    margin: auto;
+
+    padding: 35px 20px 70px;
+
+}
+
+
+.welcome {
+
+    text-align: center;
+
+}
+
+
+.welcome h1 {
+
+    font-family: 'Syne', sans-serif;
+
+    font-size: 2.1rem;
+
+    margin: 0;
+
+}
+
+
+.welcome h1 span {
+
+    background:
+        linear-gradient(
+            90deg,
+            #ff4d1c,
+            #ffb347
+        );
+
+    -webkit-background-clip: text;
+
+    -webkit-text-fill-color: transparent;
+
+}
+
+
+.welcome p {
+
+    color: var(--muted);
+
+    margin-top: 8px;
+
+}
+
+
+.alert-blocked {
+
+    margin-top: 20px;
+
+    padding: 13px 16px;
+
+    border-radius: 10px;
+
+    background: #fff4ec;
+
+    border: 1px solid #ffd7b0;
+
+    color: #a44b0c;
+
+}
+
+
+.divider {
+
+    border: none;
+
+    height: 1px;
+
+    background: #dedad2;
+
+    margin: 30px 0;
+
+}
+
+
+.section-title {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 8px;
+
+    margin-bottom: 20px;
+
+    font-family: 'Syne', sans-serif;
+
+    font-weight: 800;
+
+    font-size: 1.25rem;
+
+}
+
+
+.section-title i {
+
+    color: var(--accent);
+
+}
+
+
+/* =========================================================
+   DETECT BUTTON
+========================================================= */
+
+.btn-detect {
+
+    display: flex;
+
+    margin: auto;
+
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 13px 28px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    color: white;
+
+    background: #0d0d0d;
+
+    font-family: 'Syne', sans-serif;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: .25s;
+
+}
+
+
+.btn-detect:hover {
+
+    transform: translateY(-2px);
+
+    background:
+        linear-gradient(
+            90deg,
+            #ff4d1c,
+            #ffb347
+        );
+
+}
+
+
+/* =========================================================
+   RESULT CARD
+========================================================= */
+
+.result-card {
+
+    margin-top: 25px;
+
+    padding: 25px;
+
+    border-radius: 18px;
+
+    background: white;
+
+    box-shadow:
+        0 18px 50px rgba(0,0,0,.08);
+
+}
+
+
+.current-title {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    margin-bottom: 15px;
+
+    font-family: 'Syne', sans-serif;
+
+    font-weight: 800;
+
+}
+
+
+.current-title i {
+
+    color: var(--accent);
+
+}
+
+
+/* =========================================================
+   CURRENT METRICS
+========================================================= */
+
+.metric-group {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 12px;
+
+}
+
+
+.metric {
+
+    padding: 15px;
+
+    border-radius: 12px;
+
+    background: #f7f7f5;
+
+}
+
+
+.metric .label {
+
+    color: var(--muted);
+
+    font-size: .7rem;
+
+    text-transform: uppercase;
+
+    letter-spacing: .05em;
+
+}
+
+
+.metric .value {
+
+    margin-top: 5px;
+
+    font-family: 'Syne', sans-serif;
+
+    font-size: 1.25rem;
+
+    font-weight: 800;
+
+}
+
+
+.bar-track {
+
+    height: 5px;
+
+    margin-top: 9px;
+
+    border-radius: 5px;
+
+    background: #e4e2dd;
+
+    overflow: hidden;
+
+}
+
+
+.bar-fill {
+
+    height: 100%;
+
+    border-radius: 5px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #ff4d1c,
+            #ffb347
+        );
+
+}
+
+
+/* =========================================================
+   NETWORK
+========================================================= */
+
+.net-group {
+
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 12px;
+
+    margin-top: 12px;
+
+}
+
+
+.net-metric {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 12px;
+
+    border-radius: 12px;
+
+    background: #f7f7f5;
+
+}
+
+
+.icon-box {
+
+    width: 32px;
+
+    height: 32px;
+
+    border-radius: 8px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background: rgba(255,77,28,.08);
+
+}
+
+
+.icon-box i {
+
+    color: var(--accent);
+
+}
+
+
+.net-metric .label {
+
+    font-size: .65rem;
+
+    color: var(--muted);
+
+    text-transform: uppercase;
+
+}
+
+
+.net-metric .value {
+
+    font-weight: 700;
+
+}
+
+
+/* =========================================================
+   PROCESS / SAMPLES
+========================================================= */
+
+.info-grid {
+
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 12px;
+
+    margin-top: 12px;
+
+}
+
+
+.info-box {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 14px;
+
+    border-radius: 12px;
+
+    background: #f7f7f5;
+
+}
+
+
+.info-icon {
+
+    width: 35px;
+
+    height: 35px;
+
+    border-radius: 9px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background: rgba(37,99,235,.08);
+
+}
+
+
+.info-icon i {
+
+    color: var(--blue);
+
+}
+
+
+.info-box span {
+
+    display: block;
+
+    font-size: .7rem;
+
+    color: var(--muted);
+
+}
+
+
+.info-box strong {
+
+    display: block;
+
+    margin-top: 3px;
+
+    font-family: 'Syne', sans-serif;
+
+    font-size: 1rem;
+
+}
+
+
+/* =========================================================
+   AI INFO
+========================================================= */
+
+.ai-info {
+
+    display: flex;
+
+    gap: 13px;
+
+    margin-top: 18px;
+
+    padding: 17px;
+
+    border-radius: 13px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #f7f3ff,
+            #fff7f1
+        );
+
+    border: 1px solid #eee3ff;
+
+}
+
+
+.ai-icon {
+
+    width: 42px;
+
+    height: 42px;
+
+    flex-shrink: 0;
+
+    border-radius: 11px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background:
+        linear-gradient(
+            135deg,
+            #ff4d1c,
+            #c084fc
+        );
+
+}
+
+
+.ai-icon i {
+
+    color: white;
+
+    font-size: 1.2rem;
+
+}
+
+
+.ai-info h3 {
+
+    margin: 0 0 5px;
+
+    font-family: 'Syne', sans-serif;
+
+    font-size: .95rem;
+
+}
+
+
+.ai-info p {
+
+    margin: 0;
+
+    color: var(--muted);
+
+    font-size: .78rem;
+
+    line-height: 1.5;
+
+}
+
+
+/* =========================================================
+   PREDICTION
+========================================================= */
+
+.prediction-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 12px;
+
+    margin-top: 18px;
+
+}
+
+
+.prediction-box {
+
+    padding: 15px;
+
+    border-radius: 12px;
+
+    background: #111827;
+
+    color: white;
+
+}
+
+
+.prediction-box span {
+
+    display: block;
+
+    color: #aeb4c0;
+
+    font-size: .65rem;
+
+    text-transform: uppercase;
+
+}
+
+
+.prediction-box strong {
+
+    display: block;
+
+    margin-top: 6px;
+
+    font-family: 'Syne', sans-serif;
+
+    font-size: 1rem;
+
+}
+
+
+/* =========================================================
+   VERDICT
+========================================================= */
+
+.verdict {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    margin-top: 15px;
+
+    padding: 14px;
+
+    border-radius: 11px;
+
+    font-weight: 700;
+
+}
+
+
+.verdict.is-safe {
+
+    color: var(--safe);
+
+    background: rgba(22,163,74,.07);
+
+    border: 1px solid rgba(22,163,74,.2);
+
+}
+
+
+.verdict.is-warning {
+
+    color: var(--warning);
+
+    background: rgba(217,119,6,.08);
+
+    border: 1px solid rgba(217,119,6,.2);
+
+}
+
+
+.verdict.is-danger {
+
+    color: var(--danger);
+
+    background: rgba(220,38,38,.08);
+
+    border: 1px solid rgba(220,38,38,.2);
+
+}
+
+
+.icon-circle {
+
+    width: 28px;
+
+    height: 28px;
+
+    flex-shrink: 0;
+
+    border-radius: 50%;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    color: white;
+
+}
+
+
+.is-safe .icon-circle {
+
+    background: var(--safe);
+
+}
+
+
+.is-warning .icon-circle {
+
+    background: var(--warning);
+
+}
+
+
+.is-danger .icon-circle {
+
+    background: var(--danger);
+
+}
+
+
+/* =========================================================
+   THREAT EXPLANATION
+========================================================= */
+
+.threat-explanation {
+
+    margin-top: 18px;
+
+    padding: 18px;
+
+    border-radius: 13px;
+
+    background: #fafafa;
+
+    border: 1px solid #e5e5e5;
+
+}
+
+
+.threat-explanation h3 {
+
+    margin: 0 0 8px;
+
+    font-family: 'Syne', sans-serif;
+
+    font-size: .95rem;
+
+}
+
+
+.threat-explanation p {
+
+    margin: 0;
+
+    color: #555;
+
+    font-size: .78rem;
+
+    line-height: 1.55;
+
+}
+
+
+.threshold-title {
+
+    margin-top: 15px !important;
+
+    margin-bottom: 8px !important;
+
+}
+
+
+.threshold-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, 1fr);
+
+    gap: 8px;
+
+}
+
+
+.threshold {
+
+    padding: 9px 11px;
+
+    border-radius: 8px;
+
+    background: #fff;
+
+    border: 1px solid #ececec;
+
+    font-size: .72rem;
+
+}
+
+
+.threshold strong {
+
+    color: var(--danger);
+
+}
+
+
+/* =========================================================
+   TOP 5 SECTION
+========================================================= */
+
+.top-section {
+
+    margin-top: 25px;
+
+}
+
+
+.top-title {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    margin-bottom: 15px;
+
+    font-family: 'Syne', sans-serif;
+
+    font-size: 1.05rem;
+
+    font-weight: 800;
+
+}
+
+
+.top-title i {
+
+    color: var(--accent);
+
+}
+
+
+.top-card {
+
+    margin-bottom: 14px;
+
+    padding: 16px;
+
+    border-radius: 13px;
+
+    background: #f8f8f6;
+
+    border: 1px solid #ebe9e4;
+
+}
+
+
+.top-card h4 {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    margin: 0 0 11px;
+
+    font-family: 'Syne', sans-serif;
+
+    font-size: .88rem;
+
+}
+
+
+.top-card h4 i {
+
+    color: var(--accent);
+
+}
+
+
+.top-row {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    min-height: 35px;
+
+    padding: 7px 10px;
+
+    margin-bottom: 5px;
+
+    border-radius: 7px;
+
+    background: white;
+
+    border: 1px solid #eeeeeb;
+
+    font-size: .75rem;
+
+}
+
+
+.top-row span {
+
+    color: #666;
+
+}
+
+
+.top-row strong {
+
+    font-family: 'Syne', sans-serif;
+
+    color: #111;
+
+}
+
+
+/* =========================================================
+   CLEAR
+========================================================= */
+
+.btn-clear {
+
+    display: block;
+
+    margin: 20px auto 0;
+
+    padding: 8px 18px;
+
+    border-radius: 8px;
+
+    background: transparent;
+
+    border: 1px solid #e5b9b1;
+
+    color: var(--danger);
+
+    cursor: pointer;
+
+    font-weight: 600;
+
+}
+
+
+.btn-clear:hover {
+
+    background: rgba(220,38,38,.06);
+
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media(max-width: 750px) {
+
+    .topbar {
+
+        padding: 12px 15px;
+
+    }
+
+    .nav-left {
+
+        order: 3;
+
+        width: 100%;
+
+        justify-content: center;
+
+    }
+
+    .metric-group {
+
+        grid-template-columns: 1fr;
+
+    }
+
+    .prediction-grid {
+
+        grid-template-columns: 1fr;
+
+    }
+
+}
+
+
+@media(max-width: 500px) {
+
+    .net-group,
+    .info-grid,
+    .threshold-grid {
+
+        grid-template-columns: 1fr;
+
+    }
+
+    .welcome h1 {
+
+        font-size: 1.6rem;
+
+    }
+
+    .result-card {
+
+        padding: 16px;
+
+    }
+
+}
+
+</style>
+
 </head>
+
+
 <body>
 
-<!-- 🔷 Premium Good-Looking Navbar -->
+
+<!-- =========================================================
+     NAVBAR
+========================================================= -->
+
 <nav class="topbar">
-    <a class="brand" href="{% url 'home_loggedin' %}">
-        <div class="brand-icon"><i class="bi bi-shield-fill-check"></i></div>
-        <div class="brand-name">Crypto<span>Defender</span></div>
+
+    <a class="brand"
+       href="{% url 'home_loggedin' %}">
+
+        <div class="brand-icon">
+
+            <i class="bi bi-shield-fill-check"></i>
+
+        </div>
+
+        <div class="brand-name">
+
+            Crypto<span>Defender</span>
+
+        </div>
+
     </a>
 
+
     <ul class="nav-left">
+
         <li>
+
             <a href="{% url 'deep_research' %}">
-                <i class="bi bi-search"></i> <span>Deep Research</span>
+
+                <i class="bi bi-search"></i>
+
+                <span>
+                    Deep Research
+                </span>
+
             </a>
+
         </li>
+
+
         <li>
+
             <a href="{% url 'deep_network_scan' %}">
-                <i class="bi bi-hdd-network"></i> <span>Deep Network Scan</span>
+
+                <i class="bi bi-hdd-network"></i>
+
+                <span>
+                    Deep Network Scan
+                </span>
+
             </a>
+
         </li>
+
+
         <li class="blocked-tooltip">
+
             <span class="disabled-link">
-                <i class="bi bi-shield-lock"></i> <span>Prevention 🔒</span>
+
+                <i class="bi bi-shield-lock"></i>
+
+                <span>
+                    Prevention 🔒
+                </span>
+
             </span>
-            <span class="tooltip-text">⚠️ Access to Prevention is blocked</span>
+
+
+            <span class="tooltip-text">
+
+                ⚠️ Access to Prevention is blocked
+
+            </span>
+
         </li>
+
     </ul>
+
 
     <ul class="nav-right">
+
         <li>
-            <a class="profile-link" href="{% url 'profile' %}">
-                <span class="profile-avatar">{{ request.user.username|slice:":1"|upper }}</span>
+
+            <a class="profile-link"
+               href="{% url 'profile' %}">
+
+                <span class="profile-avatar">
+
+                    {{ request.user.username|slice:":1"|upper }}
+
+                </span>
+
                 {{ request.user.username }}
+
             </a>
+
         </li>
+
+
         <li>
-            <a class="logout-btn" href="{% url 'logout' %}">
-                <i class="bi bi-box-arrow-right"></i> <span>Logout</span>
+
+            <a class="logout-btn"
+               href="{% url 'logout' %}">
+
+                <i class="bi bi-box-arrow-right"></i>
+
+                <span>
+                    Logout
+                </span>
+
             </a>
+
         </li>
+
     </ul>
+
 </nav>
 
-<!-- 🔷 Content -->
+
+
+<!-- =========================================================
+     MAIN
+========================================================= -->
+
 <div class="wrap">
 
+
     <div class="welcome">
-        <h1>Welcome, <span>{{ request.user.username }}</span></h1>
-        <p>You now have access to deep detection tools.</p>
+
+        <h1>
+
+            Welcome,
+
+            <span>
+                {{ request.user.username }}
+            </span>
+
+        </h1>
+
+
+        <p>
+
+            AI-powered cryptojacking detection using
+            PyTorch LSTM.
+
+        </p>
+
     </div>
 
+
+
     {% if request.GET.blocked == 'true' %}
+
     <div class="alert-blocked">
-        <div>
-            <strong>⚠️ Access Denied</strong>
-            The Prevention page is currently blocked.
-        </div>
-        <button type="button" class="btn-close" onclick="this.parentElement.style.display='none'">✕</button>
+
+        <strong>
+            ⚠️ Access Denied
+        </strong>
+
+        The Prevention page is currently blocked.
+
     </div>
+
     {% endif %}
+
+
 
     <hr class="divider">
 
-    <div class="section-title"><i class="bi bi-cpu"></i> Crypto Mining Detection</div>
+
+
+    <div class="section-title">
+
+        <i class="bi bi-cpu"></i>
+
+        Crypto Mining Detection
+
+    </div>
+
 
     <form method="POST">
+
         {% csrf_token %}
-        <button type="submit" class="btn-detect">
+
+        <button type="submit"
+                class="btn-detect">
+
             <i class="bi bi-play-fill"></i>
-            <span>Run Detection</span>
+
+            Run LSTM Detection
+
         </button>
+
     </form>
 
+
+
     {% if cpu %}
-    <div id="resultCard" class="result-card">
+
+
+    <div id="resultCard"
+         class="result-card">
+
+
+        <!-- =================================================
+             CURRENT SYSTEM METRICS
+        ================================================== -->
+
+        <div class="current-title">
+
+            <i class="bi bi-activity"></i>
+
+            Current System Metrics
+
+        </div>
+
 
         <div class="metric-group">
+
+
             <div class="metric">
-                <div class="label">CPU</div>
-                <div class="value">{{ cpu }}%</div>
-                <div class="bar-track"><div class="bar-fill" style="width: {{ cpu }}%;"></div></div>
+
+                <div class="label">
+                    CPU Usage
+                </div>
+
+                <div class="value">
+                    {{ cpu|floatformat:2 }}%
+                </div>
+
+                <div class="bar-track">
+
+                    <div class="bar-fill"
+                         style="width: {{ cpu }}%;">
+                    </div>
+
+                </div>
+
             </div>
+
+
+
             <div class="metric">
-                <div class="label">RAM</div>
-                <div class="value">{{ ram }}%</div>
-                <div class="bar-track"><div class="bar-fill" style="width: {{ ram }}%;"></div></div>
+
+                <div class="label">
+                    RAM Usage
+                </div>
+
+                <div class="value">
+                    {{ ram|floatformat:2 }}%
+                </div>
+
+                <div class="bar-track">
+
+                    <div class="bar-fill"
+                         style="width: {{ ram }}%;">
+                    </div>
+
+                </div>
+
             </div>
+
+
+
             <div class="metric">
-                <div class="label">Disk</div>
-                <div class="value">{{ disk }}%</div>
-                <div class="bar-track"><div class="bar-fill" style="width: {{ disk }}%;"></div></div>
+
+                <div class="label">
+                    Disk Usage
+                </div>
+
+                <div class="value">
+                    {{ disk|floatformat:2 }}%
+                </div>
+
+                <div class="bar-track">
+
+                    <div class="bar-fill"
+                         style="width: {{ disk }}%;">
+                    </div>
+
+                </div>
+
             </div>
+
+
         </div>
+
+
+
+        <!-- =================================================
+             NETWORK
+        ================================================== -->
 
         <div class="net-group">
+
+
             <div class="net-metric">
-                <div class="icon-box"><i class="bi bi-arrow-up"></i></div>
-                <div class="text">
-                    <div class="label">Upload</div>
-                    <div class="value">{{ upload }} KB/s</div>
+
+                <div class="icon-box">
+
+                    <i class="bi bi-arrow-up"></i>
+
                 </div>
+
+                <div>
+
+                    <div class="label">
+                        Upload
+                    </div>
+
+                    <div class="value">
+                        {{ upload|floatformat:2 }} KB/s
+                    </div>
+
+                </div>
+
             </div>
+
+
+
             <div class="net-metric">
-                <div class="icon-box"><i class="bi bi-arrow-down"></i></div>
-                <div class="text">
-                    <div class="label">Download</div>
-                    <div class="value">{{ download }} KB/s</div>
+
+                <div class="icon-box">
+
+                    <i class="bi bi-arrow-down"></i>
+
                 </div>
+
+                <div>
+
+                    <div class="label">
+                        Download
+                    </div>
+
+                    <div class="value">
+                        {{ download|floatformat:2 }} KB/s
+                    </div>
+
+                </div>
+
             </div>
+
+
         </div>
 
-        {% if "Detected" in result %}
+
+
+        <!-- =================================================
+             PROCESS / SAMPLES
+        ================================================== -->
+
+        <div class="info-grid">
+
+
+            <div class="info-box">
+
+                <div class="info-icon">
+
+                    <i class="bi bi-cpu"></i>
+
+                </div>
+
+                <div>
+
+                    <span>
+                        Running Processes
+                    </span>
+
+                    <strong>
+                        {{ process_count }}
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="info-box">
+
+                <div class="info-icon">
+
+                    <i class="bi bi-database"></i>
+
+                </div>
+
+                <div>
+
+                    <span>
+                        Samples Analyzed
+                    </span>
+
+                    <strong>
+                        {{ samples }}/20
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- =================================================
+             AI INFORMATION
+        ================================================== -->
+
+        <div class="ai-info">
+
+            <div class="ai-icon">
+
+                <i class="bi bi-robot"></i>
+
+            </div>
+
+            <div>
+
+                <h3>
+                    PyTorch LSTM Detection
+                </h3>
+
+                <p>
+
+                    The LSTM model analyzes 20 collected
+                    system-behavior samples using CPU,
+                    memory, disk, network activity and
+                    process information to identify abnormal
+                    patterns associated with unauthorized
+                    cryptocurrency mining.
+
+                </p>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =================================================
+             PREDICTION
+        ================================================== -->
+
+        <div class="prediction-grid">
+
+
+            <div class="prediction-box">
+
+                <span>
+                    Prediction
+                </span>
+
+                <strong>
+                    {{ prediction_label }}
+                </strong>
+
+            </div>
+
+
+
+            <div class="prediction-box">
+
+                <span>
+                    Threat Score
+                </span>
+
+                <strong>
+                    {{ threat_score }}%
+                </strong>
+
+            </div>
+
+
+
+            <div class="prediction-box">
+
+                <span>
+                    Model Test Accuracy
+                </span>
+
+                <strong>
+                    {{ model_accuracy }}%
+                </strong>
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- =================================================
+             VERDICT
+        ================================================== -->
+
+        {% if prediction_label == "High Risk" %}
+
         <div class="verdict is-danger">
-            <div class="icon-circle"><i class="bi bi-exclamation-triangle-fill"></i></div>
-            <span>{{ result }}</span>
+
+            <div class="icon-circle">
+
+                <i class="bi bi-exclamation-triangle-fill"></i>
+
+            </div>
+
+            <span>
+
+                🚨 High Risk: Possible Cryptojacking
+
+            </span>
+
         </div>
+
+
+        {% elif prediction_label == "Suspicious" %}
+
+        <div class="verdict is-warning">
+
+            <div class="icon-circle">
+
+                <i class="bi bi-exclamation-circle-fill"></i>
+
+            </div>
+
+            <span>
+
+                ⚠️ Suspicious Mining Activity
+
+            </span>
+
+        </div>
+
+
         {% else %}
+
         <div class="verdict is-safe">
-            <div class="icon-circle"><i class="bi bi-check-lg"></i></div>
-            <span>{{ result }}</span>
+
+            <div class="icon-circle">
+
+                <i class="bi bi-check-lg"></i>
+
+            </div>
+
+            <span>
+
+                ✅ System Safe
+
+            </span>
+
         </div>
+
         {% endif %}
 
-        <button onclick="clearData()" class="btn-clear">Clear Results</button>
+
+
+        <!-- =================================================
+             THREAT EXPLANATION
+        ================================================== -->
+
+        <div class="threat-explanation">
+
+            <h3>
+
+                <i class="bi bi-info-circle"></i>
+
+                Threat Score Explanation
+
+            </h3>
+
+
+            <p>
+
+                The Threat Score is the probability produced
+                by the LSTM model and converted into a
+                percentage.
+
+            </p>
+
+
+            <p style="margin-top:8px;">
+
+                The current LSTM prediction is:
+
+            </p>
+
+
+            <div class="threshold"
+                 style="margin-top:10px;">
+
+                LSTM Probability =
+
+                <strong id="lstmProbability" style="color:#111;">
+
+                    0.0000
+
+                </strong>
+
+            </div>
+
+
+            <div class="threshold"
+                 style="margin-top:8px;">
+
+                LSTM Probability × 100 =
+
+                <strong style="color:#111;">
+
+                    {{ threat_score|floatformat:2 }}%
+
+                </strong>
+
+            </div>
+
+
+            <div class="threshold"
+                 style="margin-top:8px;">
+
+                Threat Score =
+
+                <strong style="color:#111;">
+
+                    {{ threat_score|floatformat:2 }}%
+
+                </strong>
+
+            </div>
+
+
+            <div class="threshold"
+                 style="margin-top:8px;">
+
+                {{ threat_score|floatformat:2 }}% &lt; 40%
+
+                <strong style="color:#16a34a;">
+
+                    → Normal
+
+                </strong>
+
+            </div>
+
+
+            <div class="threshold"
+                 style="margin-top:8px;">
+
+                Prediction =
+
+                <strong style="color:#16a34a;">
+
+                    {{ prediction_label }}
+
+                </strong>
+
+            </div>
+
+
+            <p style="margin-top:12px;">
+
+                Therefore, a low Threat Score means the
+                model found that the collected system
+                behavior is less similar to cryptojacking
+                behavior.
+
+            </p>
+
+
+            <h3 class="threshold-title">
+
+                <i class="bi bi-speedometer2"></i>
+
+                Minimum Mining Detection Thresholds
+
+            </h3>
+
+
+            <div class="threshold-grid">
+
+
+                <div class="threshold">
+
+                    CPU Usage:
+
+                    <strong>
+                        &gt; 80%
+                    </strong>
+
+                </div>
+
+
+                <div class="threshold">
+
+                    RAM Usage:
+
+                    <strong>
+                        &gt; 95%
+                    </strong>
+
+                </div>
+
+
+                <div class="threshold">
+
+                    Disk Usage:
+
+                    <strong>
+                        &gt; 95%
+                    </strong>
+
+                </div>
+
+
+                <div class="threshold">
+
+                    Upload:
+
+                    <strong>
+                        &gt; 350 KB/s
+                    </strong>
+
+                </div>
+
+
+                <div class="threshold">
+
+                    Download:
+
+                    <strong>
+                        &gt; 350 KB/s
+                    </strong>
+
+                </div>
+
+
+                <div class="threshold">
+
+                    Processes:
+
+                    <strong>
+                        &gt; 350
+                    </strong>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =================================================
+             TOP 5 SYSTEM BEHAVIOR READINGS
+        ================================================== -->
+
+        <div class="top-section">
+
+
+            <div class="top-title">
+
+                <i class="bi bi-bar-chart-fill"></i>
+
+                Top 5 System Behavior Readings
+
+            </div>
+
+
+
+            <!-- =================================================
+                 CPU
+            ================================================== -->
+
+            <div class="top-card">
+
+                <h4>
+
+                    <i class="bi bi-cpu"></i>
+
+                    Top 5 CPU Usage
+
+                </h4>
+
+
+                {% if top_cpu %}
+
+                    {% for item in top_cpu %}
+
+                    <div class="top-row">
+
+                        <span>
+                            Sample {{ forloop.counter }}
+                        </span>
+
+                        <strong>
+
+                            {% if item.cpu_total != None %}
+
+                                {{ item.cpu_total|floatformat:2 }}%
+
+                            {% else %}
+
+                                {{ item.0|floatformat:2 }}%
+
+                            {% endif %}
+
+                        </strong>
+
+                    </div>
+
+                    {% endfor %}
+
+                {% else %}
+
+                    <div class="top-row">
+
+                        <span>No data available</span>
+
+                        <strong>—</strong>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+
+            <!-- =================================================
+                 RAM
+            ================================================== -->
+
+            <div class="top-card">
+
+                <h4>
+
+                    <i class="bi bi-memory"></i>
+
+                    Top 5 RAM Usage
+
+                </h4>
+
+
+                {% if top_ram %}
+
+                    {% for item in top_ram %}
+
+                    <div class="top-row">
+
+                        <span>
+                            Sample {{ forloop.counter }}
+                        </span>
+
+                        <strong>
+
+                            {% if item.mem_percent != None %}
+
+                                {{ item.mem_percent|floatformat:2 }}%
+
+                            {% else %}
+
+                                {{ item.1|floatformat:2 }}%
+
+                            {% endif %}
+
+                        </strong>
+
+                    </div>
+
+                    {% endfor %}
+
+                {% else %}
+
+                    <div class="top-row">
+
+                        <span>No data available</span>
+
+                        <strong>—</strong>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- =================================================
+                 DISK
+            ================================================== -->
+
+            <div class="top-card">
+
+                <h4>
+
+                    <i class="bi bi-device-hdd"></i>
+
+                    Top 5 Disk Usage
+
+                </h4>
+
+
+                {% if top_disk %}
+
+                    {% for item in top_disk %}
+
+                    <div class="top-row">
+
+                        <span>
+                            Sample {{ forloop.counter }}
+                        </span>
+
+                        <strong>
+
+                            {% if item.value != None %}
+
+                                {{ item.value|floatformat:2 }}%
+
+                            {% elif item.disk_percent != None %}
+
+                                {{ item.disk_percent|floatformat:2 }}%
+
+                            {% elif item.disk != None %}
+
+                                {{ item.disk|floatformat:2 }}%
+
+                            {% else %}
+
+                                —
+
+                            {% endif %}
+
+                        </strong>
+
+                    </div>
+
+                    {% endfor %}
+
+                {% else %}
+
+                    <div class="top-row">
+
+                        <span>
+                            Disk data not available
+                        </span>
+
+                        <strong>
+                            —
+                        </strong>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- =================================================
+                 UPLOAD
+            ================================================== -->
+
+            <div class="top-card">
+
+                <h4>
+
+                    <i class="bi bi-upload"></i>
+
+                    Top 5 Upload Speed
+
+                </h4>
+
+
+                {% if top_upload %}
+
+                    {% for item in top_upload %}
+
+                    <div class="top-row">
+
+                        <span>
+                            Sample {{ forloop.counter }}
+                        </span>
+
+                        <strong>
+
+                            {% if item.network_lo_tx != None %}
+
+                                {{ item.network_lo_tx|floatformat:2 }} KB/s
+
+                            {% else %}
+
+                                {{ item.3|floatformat:2 }} KB/s
+
+                            {% endif %}
+
+                        </strong>
+
+                    </div>
+
+                    {% endfor %}
+
+                {% else %}
+
+                    <div class="top-row">
+
+                        <span>No data available</span>
+
+                        <strong>—</strong>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+
+            <!-- =================================================
+                 DOWNLOAD
+            ================================================== -->
+
+            <div class="top-card">
+
+                <h4>
+
+                    <i class="bi bi-download"></i>
+
+                    Top 5 Download Speed
+
+                </h4>
+
+
+                {% if top_download %}
+
+                    {% for item in top_download %}
+
+                    <div class="top-row">
+
+                        <span>
+                            Sample {{ forloop.counter }}
+                        </span>
+
+                        <strong>
+
+                            {% if item.network_lo_rx != None %}
+
+                                {{ item.network_lo_rx|floatformat:2 }} KB/s
+
+                            {% else %}
+
+                                {{ item.4|floatformat:2 }} KB/s
+
+                            {% endif %}
+
+                        </strong>
+
+                    </div>
+
+                    {% endfor %}
+
+                {% else %}
+
+                    <div class="top-row">
+
+                        <span>No data available</span>
+
+                        <strong>—</strong>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+
+            <!-- =================================================
+                 PROCESS COUNT
+            ================================================== -->
+
+            <div class="top-card">
+
+                <h4>
+
+                    <i class="bi bi-list-task"></i>
+
+                    Top 5 Process Counts
+
+                </h4>
+
+
+                {% if top_process %}
+
+                    {% for item in top_process %}
+
+                    <div class="top-row">
+
+                        <span>
+                            Sample {{ forloop.counter }}
+                        </span>
+
+                        <strong>
+
+                            {% if item.processcount_total != None %}
+
+                                {{ item.processcount_total|floatformat:0 }}
+
+                            {% else %}
+
+                                {{ item.5|floatformat:0 }}
+
+                            {% endif %}
+
+                        </strong>
+
+                    </div>
+
+                    {% endfor %}
+
+                {% else %}
+
+                    <div class="top-row">
+
+                        <span>No data available</span>
+
+                        <strong>—</strong>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- =================================================
+             CLEAR
+        ================================================== -->
+
+        <button type="button"
+                onclick="clearData()"
+                class="btn-clear">
+
+            Clear Results
+
+        </button>
+
+
     </div>
+
     {% endif %}
+
 
 </div>
 
-<!-- 🧠 JS: hide results + block Prevention access -->
+
+
 <script>
-    function clearData() {
-        document.getElementById("resultCard").style.display = "none";
+
+/* =========================================================
+   CLEAR RESULTS
+========================================================= */
+
+function clearData() {
+
+    const card =
+        document.getElementById("resultCard");
+
+    if (card) {
+
+        card.style.display = "none";
+
     }
 
-    document.addEventListener('DOMContentLoaded', function() {
-        if (window.location.href.includes('prevent_guide') || window.location.href.includes('prevention')) {
-            window.location.href = window.location.pathname + '?blocked=true';
-        }
+}
 
-        var blockedLinks = document.querySelectorAll('.disabled-link');
-        blockedLinks.forEach(function(link) {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                alert('⚠️ Access to Prevention is blocked!');
-                return false;
-            });
-        });
-    });
+
+/* =========================================================
+   PREVENTION BLOCK
+========================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const blockedLinks =
+            document.querySelectorAll(
+                ".disabled-link"
+            );
+
+
+        blockedLinks.forEach(
+            function (link) {
+
+                link.addEventListener(
+                    "click",
+                    function (event) {
+
+                        event.preventDefault();
+
+                        event.stopPropagation();
+
+                        alert(
+                            "⚠️ Access to Prevention is blocked!"
+                        );
+
+                        return false;
+
+                    }
+                );
+
+            }
+        );
+
+    }
+);
+
+
+
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const threatScore =
+        parseFloat("{{ threat_score|default:'0' }}");
+
+    const probability =
+        threatScore / 100;
+
+    const probabilityElement =
+        document.getElementById("lstmProbability");
+
+    if (probabilityElement) {
+
+        probabilityElement.textContent =
+            probability.toFixed(4);
+
+    }
+
+});
+
 </script>
 
+
 </body>
+
 </html>
+```

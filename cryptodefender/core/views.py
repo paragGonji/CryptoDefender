@@ -15,6 +15,11 @@ import json
 from django.views.decorators.csrf import csrf_exempt
 from .models import ScanResult
 
+from collections import deque
+
+from .ml.prediction import predict_mining
+
+metric_history = deque(maxlen=20)
 
 def home(request):
     return render(request, 'core/home.html')
@@ -168,41 +173,460 @@ def detect_mining():
     return status, cpu, ram, disk
 
 
+
+
+
+
+
+
+
+
+# 🏠 Home (Logged In)
 # 🏠 Home (Logged In)
 @login_required
 def home_loggedin(request):
-    context = {}
+
+    context = {
+        "model_accuracy": 96.94
+    }
 
     if request.method == "POST":
 
-        cpu = psutil.cpu_percent(interval=1)
-        ram = psutil.virtual_memory().percent
-        disk = psutil.disk_usage('C:\\').percent  # Windows
+        print("\n" + "=" * 60)
+        print("🚀 LSTM CRYPTOJACKING DETECTION STARTED")
+        print("=" * 60)
 
-        # Network usage
-        net1 = psutil.net_io_counters()
-        time.sleep(1)
-        net2 = psutil.net_io_counters()
+        samples = []
 
-        upload_speed = (net2.bytes_sent - net1.bytes_sent) / 1024
-        download_speed = (net2.bytes_recv - net1.bytes_recv) / 1024
+        # ==================================================
+        # INITIAL NETWORK COUNTERS
+        # ==================================================
 
-        # Detection logic (same as your function)
-        if cpu > 30 and ram > 90 and disk > 70 and download_speed > 500:
-            result = "⚠️ Mining / Suspicious Activity Detected"
-        else:
-            result = "✅ System Safe"
+        print("🌐 Initializing network counters...")
 
-        context = {
-            'cpu': cpu,
-            'ram': ram,
-            'disk': disk,
-            'upload': round(upload_speed, 2),
-            'download': round(download_speed, 2),
-            'result': result
-        }
+        net_before = psutil.net_io_counters()
 
-    return render(request, 'core/home_loggedin.html', context)
+        last_sent = net_before.bytes_sent
+        last_recv = net_before.bytes_recv
+
+        # ==================================================
+        # COLLECT 20 SAMPLES
+        # ==================================================
+
+        print("📊 Collecting data...")
+        print("Required samples: 20")
+
+        for i in range(20):
+
+            sample_number = i + 1
+
+            print(
+                f"📥 Collecting data... "
+                f"Sample {sample_number}/20"
+            )
+
+            # ==================================================
+            # CPU
+            # ==================================================
+
+            cpu_total = psutil.cpu_percent(
+                interval=0.2
+            )
+
+            cpu_times = psutil.cpu_times_percent(
+                interval=0.1
+            )
+
+            cpu_user = getattr(
+                cpu_times,
+                "user",
+                0
+            )
+
+            cpu_system = getattr(
+                cpu_times,
+                "system",
+                0
+            )
+
+            cpu_idle = getattr(
+                cpu_times,
+                "idle",
+                0
+            )
+
+            cpu_iowait = getattr(
+                cpu_times,
+                "iowait",
+                0
+            )
+
+            # ==================================================
+            # MEMORY
+            # ==================================================
+
+            memory = psutil.virtual_memory()
+
+            mem_percent = memory.percent
+            mem_used = memory.used
+            mem_available = memory.available
+
+            # ==================================================
+            # PROCESS INFORMATION
+            # ==================================================
+
+            processcount_running = 0
+            processcount_sleeping = 0
+            processcount_thread = 0
+            processcount_total = 0
+
+            for process in psutil.process_iter(
+                ["status", "num_threads"]
+            ):
+
+                try:
+
+                    processcount_total += 1
+
+                    status = process.info.get(
+                        "status"
+                    )
+
+                    if status == psutil.STATUS_RUNNING:
+
+                        processcount_running += 1
+
+                    elif status == psutil.STATUS_SLEEPING:
+
+                        processcount_sleeping += 1
+
+                    processcount_thread += (
+                        process.info.get(
+                            "num_threads"
+                        ) or 0
+                    )
+
+                except (
+                    psutil.NoSuchProcess,
+                    psutil.AccessDenied,
+                    psutil.ZombieProcess
+                ):
+
+                    pass
+
+            # ==================================================
+            # NETWORK
+            # ==================================================
+
+            net_now = psutil.net_io_counters()
+
+            upload_bytes = (
+                net_now.bytes_sent -
+                last_sent
+            )
+
+            download_bytes = (
+                net_now.bytes_recv -
+                last_recv
+            )
+
+            last_sent = net_now.bytes_sent
+            last_recv = net_now.bytes_recv
+
+            network_lo_tx = (
+                max(upload_bytes, 0) / 1024
+            )
+
+            network_lo_rx = (
+                max(download_bytes, 0) / 1024
+            )
+
+            # ==================================================
+            # CREATE SAMPLE
+            # ==================================================
+
+            sample = {
+
+                "cpu_total": cpu_total,
+
+                "cpu_user": cpu_user,
+
+                "cpu_system": cpu_system,
+
+                "cpu_idle": cpu_idle,
+
+                "cpu_iowait": cpu_iowait,
+
+                "mem_percent": mem_percent,
+
+                "mem_used": mem_used,
+
+                "mem_available": mem_available,
+
+                "processcount_running":
+                    processcount_running,
+
+                "processcount_sleeping":
+                    processcount_sleeping,
+
+                "processcount_thread":
+                    processcount_thread,
+
+                "processcount_total":
+                    processcount_total,
+
+                "network_lo_rx":
+                    network_lo_rx,
+
+                "network_lo_tx":
+                    network_lo_tx
+            }
+
+            samples.append(sample)
+
+            print(
+                f"   ✓ Sample {sample_number}/20 collected | "
+                f"CPU: {cpu_total:.2f}% | "
+                f"RAM: {mem_percent:.2f}% | "
+                f"Processes: {processcount_total}"
+            )
+
+            # ==================================================
+            # WAIT BEFORE NEXT SAMPLE
+            # ==================================================
+
+            if i < 19:
+
+                time.sleep(0.25)
+
+        # ==================================================
+        # DATA COLLECTION COMPLETE
+        # ==================================================
+
+        print("\n" + "-" * 60)
+
+        print(
+            f"✅ Data collection complete: "
+            f"{len(samples)}/20 samples"
+        )
+
+        print("-" * 60)
+
+        # ==================================================
+        # FINAL PREDICTION
+        # ==================================================
+
+        print("🤖 Running PyTorch LSTM prediction...")
+
+        prediction = predict_mining(
+            samples
+        )
+
+        print(
+            f"✅ LSTM prediction complete"
+        )
+
+        print(
+            f"Prediction: "
+            f"{prediction['prediction_label']}"
+        )
+
+        print(
+            f"Threat Score: "
+            f"{prediction['threat_score']:.2f}%"
+        )
+
+        print(
+            f"Raw Probability: "
+            f"{prediction.get('raw_score', 0):.4f}"
+        )
+
+        print(
+            f"Model Accuracy: "
+            f"{prediction['accuracy']:.2f}%"
+        )
+
+        # ==================================================
+        # CURRENT METRICS
+        # ==================================================
+
+        latest = samples[-1]
+
+        cpu = round(
+            latest["cpu_total"],
+            2
+        )
+
+        ram = round(
+            latest["mem_percent"],
+            2
+        )
+
+        disk = psutil.disk_usage(
+            "/"
+        ).percent
+
+        upload = round(
+            latest["network_lo_tx"],
+            2
+        )
+
+        download = round(
+            latest["network_lo_rx"],
+            2
+        )
+
+        process_count = int(
+            latest["processcount_total"]
+        )
+
+        # ==================================================
+        # TOP 5 DATA
+        # ==================================================
+
+        top_cpu = sorted(
+            samples,
+            key=lambda x: x["cpu_total"],
+            reverse=True
+        )[:5]
+
+        top_ram = sorted(
+            samples,
+            key=lambda x: x["mem_percent"],
+            reverse=True
+        )[:5]
+
+        # ==================================================
+        # DISK
+        # ==================================================
+
+        disk_samples = []
+
+        for sample in samples:
+
+            disk_value = psutil.disk_usage(
+                "/"
+            ).percent
+
+            disk_samples.append({
+
+                "value": disk_value
+
+            })
+
+        top_disk = sorted(
+            disk_samples,
+            key=lambda x: x["value"],
+            reverse=True
+        )[:5]
+
+        # ==================================================
+        # NETWORK
+        # ==================================================
+
+        top_upload = sorted(
+            samples,
+            key=lambda x: x["network_lo_tx"],
+            reverse=True
+        )[:5]
+
+        top_download = sorted(
+            samples,
+            key=lambda x: x["network_lo_rx"],
+            reverse=True
+        )[:5]
+
+        # ==================================================
+        # PROCESS
+        # ==================================================
+
+        top_process = sorted(
+            samples,
+            key=lambda x: x["processcount_total"],
+            reverse=True
+        )[:5]
+
+        # ==================================================
+        # CONTEXT
+        # ==================================================
+
+        context.update({
+
+            "cpu": cpu,
+
+            "ram": ram,
+
+            "disk": disk,
+
+            "upload": upload,
+
+            "download": download,
+
+            "process_count":
+                process_count,
+
+            "samples": 20,
+
+            "prediction_label":
+                prediction["prediction_label"],
+
+            "threat_score":
+                prediction["threat_score"],
+
+            "model_accuracy":
+                prediction["accuracy"],
+
+            "top_cpu":
+                top_cpu,
+
+            "top_ram":
+                top_ram,
+
+            "top_disk":
+                top_disk,
+
+            "top_upload":
+                top_upload,
+
+            "top_download":
+                top_download,
+
+            "top_process":
+                top_process,
+
+            "analysis_complete": True,
+
+        })
+
+        # ==================================================
+        # FINISHED
+        # ==================================================
+
+        print("=" * 60)
+
+        print("🏁 DETECTION FINISHED")
+
+        print(
+            f"Final Result: "
+            f"{prediction['prediction_label']}"
+        )
+
+        print(
+            f"Final Threat Score: "
+            f"{prediction['threat_score']:.2f}%"
+        )
+
+        print("=" * 60 + "\n")
+
+    return render(
+        request,
+        "core/home_loggedin.html",
+        context
+    )
+
+
+
+
 
 
 def logout_view(request):
