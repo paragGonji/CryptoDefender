@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'prevent_guide',
     'payment',
     'deep_network_scan', 
+    "logs_monitering",
 ]
 
 MIDDLEWARE = [

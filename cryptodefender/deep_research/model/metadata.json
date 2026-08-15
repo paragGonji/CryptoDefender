@@ -1,0 +1,20 @@
+{
+    "features": [
+        "cpu",
+        "memory",
+        "threads",
+        "process_age",
+        "known_miner",
+        "suspicious_path",
+        "unknown_exe"
+    ],
+    "version": "2.0-real-dataset",
+    "accuracy": 0.9455488331892826,
+    "accuracy_percent": 94.55488331892826,
+    "best_accuracy": 0.9455488331892826,
+    "training_samples": 23137,
+    "testing_samples": 5785,
+    "normal_samples": 14461,
+    "mining_samples": 14461,
+    "epochs": 100
+}

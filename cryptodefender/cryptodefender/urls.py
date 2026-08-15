@@ -26,7 +26,7 @@ from accounts import views as acc_views
 
 from deep_network_scan import views as dns_views 
 
-
+from logs_monitering import views as lm_views
 
 
 
@@ -44,9 +44,10 @@ urlpatterns = [
     path('profile/', views.profile_view, name='profile'),
 
 
-
+        #API
     path('api/scan-result/', views.receive_scan, name='receive_scan'),
 
+    path('api/scan/', dr_views.scan_result, name='scan_result'),
 
     path('home_loggedin/', views.home_loggedin, name='home_loggedin'),
     path('logout/', views.logout_view, name='logout'),
@@ -55,6 +56,7 @@ urlpatterns = [
 
     path('deep-research/', dr_views.deep_research, name='deep_research'),
 
+    
     path('protection/', pr_views.protection, name='protection'),
 
     path('payment/', pay_views.payment, name='payment'),
@@ -73,6 +75,14 @@ urlpatterns = [
 
     path('prevent-guide/', pg_views.prevent_guide, name='prevent_guide'),
     path('api/cleanup-mining/', pg_views.cleanup_mining, name='cleanup_mining'),
+
+
+
+
+    path('logs-monitoring/', lm_views.logs_monitoring, name='logs_monitoring'),
+
+
+
 ]
 
 

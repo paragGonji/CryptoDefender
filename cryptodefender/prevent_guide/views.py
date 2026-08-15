@@ -9,6 +9,7 @@ import platform
 import os
 import time
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
 
 
 @login_required(login_url='login')
@@ -208,3 +209,5 @@ def cleanup_mining(request):
         print(f"Error in cleanup: {e}")
     
     return JsonResponse(results)
+
+
