@@ -3,6 +3,7 @@ services:
     name: cryptodefender
     runtime: python
     plan: free
+    rootDir: cryptodefender
     buildCommand: bash build.sh
     startCommand: gunicorn cryptodefender.wsgi:application
     healthCheckPath: /
