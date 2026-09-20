@@ -173,7 +173,11 @@ USE_TZ = True
 
 
 # Deliver OTP messages through the configured SMTP provider.
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = (
+    'django.core.mail.backends.smtp.EmailBackend'
+    if os.getenv('EMAIL_HOST_USER') and os.getenv('EMAIL_HOST_PASSWORD')
+    else 'django.core.mail.backends.console.EmailBackend'
+)
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_FROM = 'veshpa36@gmail.com'
 DEFAULT_FROM_EMAIL = EMAIL_FROM

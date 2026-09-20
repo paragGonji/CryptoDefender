@@ -16,7 +16,3 @@ services:
         value: "3.12.8"
       - key: DATABASE_URL
         sync: false
-      - key: EMAIL_HOST_USER
-        sync: false
-      - key: EMAIL_HOST_PASSWORD
-        sync: false
