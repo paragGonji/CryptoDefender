@@ -1,11 +1,11 @@
 from django.shortcuts import render
 from django.http import JsonResponse
+from django.utils import timezone
 import psutil
 import socket
 import subprocess
 import platform
 import re
-from datetime import datetime
 import os
 import json
 
@@ -46,7 +46,7 @@ def perform_network_scan():
     results['dns_info'] = get_dns_info()
     results['security_issues'] = check_security_issues()
     results['crypto_mining_detection'] = detect_crypto_mining()
-    results['timestamp'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    results['timestamp'] = timezone.localtime(timezone.now()).strftime("%Y-%m-%d %H:%M:%S")
     
     return results
 

@@ -233,6 +233,25 @@
             content: '●';
             font-size: .5rem;
         }
+        .form-errors {
+            list-style: none;
+            margin: -14px 0 18px;
+            padding: 10px 12px;
+            background: #fff1ef;
+            border: 1px solid #ffc8bd;
+            border-radius: 10px;
+        }
+        .form-errors li {
+            font-size: .78rem;
+            color: #c93724;
+        }
+        .password-hint {
+            display: block;
+            margin-top: 7px;
+            color: var(--muted);
+            font-size: .72rem;
+            line-height: 1.4;
+        }
 
         .btn-submit {
             width: 100%;
@@ -351,19 +370,28 @@
         <form method="post" novalidate>
             {% csrf_token %}
 
+            {% if errors %}
+                <ul class="form-errors">
+                    {% for error in errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
             <div class="field">
                 <label for="id_username">Username</label>
-                <input type="text" id="id_username" name="username" placeholder="Choose a username" required>
+                <input type="text" id="id_username" name="username" placeholder="Choose a username" value="{{ form_data.username|default:'' }}" required>
             </div>
 
             <div class="field">
                 <label for="id_email">Email</label>
-                <input type="email" id="id_email" name="email" placeholder="you@example.com" required>
+                <input type="email" id="id_email" name="email" placeholder="you@example.com" value="{{ form_data.email|default:'' }}" required>
             </div>
 
             <div class="field">
                 <label for="id_password">Password</label>
-                <input type="password" id="id_password" name="password" placeholder="Create a strong password" required>
+                <input type="password" id="id_password" name="password" placeholder="Create a strong password" minlength="8" required>
+                <small class="password-hint">Use 8+ characters with uppercase, lowercase, number, and one of ! @ # $ % &amp; *.</small>
             </div>
 
             <button type="submit" class="btn-submit">

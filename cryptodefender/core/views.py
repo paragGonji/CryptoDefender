@@ -1,4 +1,5 @@
 from urllib import request
+import re
 
 from django.shortcuts import render, redirect
 import psutil
@@ -8,6 +9,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.core.mail import send_mail
 from django.contrib.auth.decorators import login_required
+from django.conf import settings as django_settings
 
 
 from django.http import JsonResponse
@@ -69,9 +71,40 @@ otp_storage = {}
 # 🔹 SIGNUP (send OTP)
 def signup_view(request):
     if request.method == "POST":
-        username = request.POST['username']
-        email = request.POST['email']
-        password = request.POST['password']
+        username = request.POST.get('username', '').strip()
+        email = request.POST.get('email', '').strip()
+        password = request.POST.get('password', '')
+
+        errors = []
+        if not username:
+            errors.append('Username is required.')
+        elif User.objects.filter(username__iexact=username).exists():
+            errors.append('This username is already taken.')
+        if not email:
+            errors.append('Email is required.')
+        elif User.objects.filter(email__iexact=email).exists():
+            errors.append('This email is already taken.')
+
+        password_is_strong = (
+            len(password) >= 8
+            and re.search(r'[A-Z]', password)
+            and re.search(r'[a-z]', password)
+            and re.search(r'[0-9]', password)
+            and re.search(r'[!@#$%&*]', password)
+        )
+        if not password_is_strong:
+            errors.append(
+                'Password must be at least 8 characters and include uppercase, '
+                'lowercase, number, and one of ! @ # $ % & *.'
+            )
+        if username and password.lower() == username.lower():
+            errors.append('Password cannot be your username.')
+
+        if errors:
+            return render(request, 'core/signup.html', {
+                'errors': errors,
+                'form_data': {'username': username, 'email': email},
+            })
 
         # store data temporarily
         signup_data[email] = {
@@ -88,9 +121,21 @@ def signup_view(request):
 
         # send email
         send_mail(
-            'Your Signup OTP',
-            f'Your OTP is {otp}',
-            'your_email@gmail.com',
+            'Complete your CryptoDefender registration',
+            (
+                f'Welcome to CryptoDefender, {username}!\n\n'
+                'Thank you for registering with CryptoDefender, your security '
+                'dashboard for detecting, protecting, and preventing crypto '
+                'threats on your system.\n\n'
+                f'Your email verification code is: {otp}\n\n'
+                'Enter this code on the verification page to complete your '
+                'registration and activate your account.\n\n'
+                'If you did not request this registration, you can safely '
+                'ignore this email. Do not share this verification code with anyone.\n\n'
+                'Stay protected,\n'
+                'The CryptoDefender Team'
+            ),
+            django_settings.DEFAULT_FROM_EMAIL,
             [email],
             fail_silently=False,
         )
@@ -109,6 +154,19 @@ def verify_signup_otp(request):
 
         if otp_storage.get(email) == entered_otp:
             data = signup_data.get(email)
+
+            if not data:
+                return render(request, 'core/verify_otp.html', {
+                    'error': 'Your signup session has expired. Please sign up again.'
+                })
+
+            if User.objects.filter(username__iexact=data['username']).exists():
+                signup_data.pop(email, None)
+                otp_storage.pop(email, None)
+                return render(request, 'core/signup.html', {
+                    'errors': ['This username was taken while you were verifying. Please choose another.'],
+                    'form_data': {'username': data['username'], 'email': email},
+                })
 
             # create user AFTER verification
             User.objects.create_user(

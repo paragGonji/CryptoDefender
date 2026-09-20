@@ -8,6 +8,8 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
+    {% csrf_token %}
+
     <title>CryptoDefender — Deep Research</title>
 
     <link rel="preconnect"
@@ -1044,6 +1046,33 @@ nav.topbar {
     color: #555;
 }
 
+.gaming-safe {
+    margin-top: 20px;
+    padding: 16px;
+    border-radius: 12px;
+    background: #eef6ff;
+    border: 2px solid #2563eb;
+    color: #173b78;
+}
+
+.gaming-process-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 0;
+    border-top: 1px solid rgba(37, 99, 235, .18);
+}
+
+.isolate-btn {
+    border: 0;
+    border-radius: 8px;
+    padding: 7px 12px;
+    background: #173b78;
+    color: white;
+    font-weight: 700;
+}
+
 
 /* =========================================================
    CODE
@@ -1113,6 +1142,195 @@ code {
     }
 }
 
+/* Match the animated navbar used by the network scan page. */
+nav.topbar {
+    z-index: 10;
+    box-shadow: 0 8px 40px rgba(255, 77, 28, .12), inset 0 1px 0 rgba(255, 255, 255, .05);
+    backdrop-filter: blur(10px);
+}
+
+.brand {
+    padding: 4px 14px 4px 6px;
+    border-radius: 12px;
+    transition: all .3s ease;
+}
+
+.brand:hover {
+    background: rgba(255, 255, 255, .06);
+    transform: scale(1.02);
+}
+
+.brand-icon {
+    position: relative;
+    box-shadow: 0 4px 20px rgba(255, 77, 28, .4);
+    animation: glowPulse 3s ease-in-out infinite;
+}
+
+.brand-icon::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 15px;
+    background: linear-gradient(135deg, #ff4d1c, #ffb347, #c084fc);
+    opacity: .3;
+    filter: blur(10px);
+    z-index: -1;
+    animation: glowPulse 3s ease-in-out infinite;
+}
+
+@keyframes glowPulse {
+    0%, 100% { box-shadow: 0 4px 20px rgba(255, 77, 28, .4); }
+    50% { box-shadow: 0 4px 35px rgba(255, 77, 28, .7), 0 0 60px rgba(192, 132, 252, .2); }
+}
+
+.brand-name {
+    letter-spacing: -.5px;
+    white-space: nowrap;
+    text-shadow: 0 0 40px rgba(255, 77, 28, .15);
+}
+
+.nav-left {
+    flex-wrap: wrap;
+    border: 1px solid rgba(255, 255, 255, .06);
+    backdrop-filter: blur(8px);
+}
+
+.nav-left a,
+.nav-left .disabled-link {
+    position: relative;
+    padding: 8px 22px;
+    border-radius: 12px;
+    font-size: .95rem;
+    letter-spacing: .2px;
+    transition: all .3s ease;
+}
+
+.nav-left a::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(255, 77, 28, .15), rgba(192, 132, 252, .1));
+    opacity: 0;
+    transition: opacity .3s ease;
+}
+
+.nav-left a:hover::before,
+.nav-left a.active::before {
+    opacity: 1;
+}
+
+.nav-left a:hover {
+    transform: translateY(-2px);
+}
+
+.nav-left a i,
+.nav-left a span {
+    position: relative;
+    z-index: 1;
+}
+
+.nav-left a i {
+    font-size: 1.1rem;
+    transition: all .3s ease;
+}
+
+.nav-left a:hover i {
+    transform: scale(1.15) rotate(-5deg);
+    color: #ff6b3d;
+}
+
+.blocked-tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.blocked-tooltip .tooltip-text {
+    width: 240px;
+    bottom: 135%;
+    left: 50%;
+    margin-left: -120px;
+    padding: 12px 16px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #1a1a3e, #2d1b4e);
+    font-size: .8rem;
+    line-height: 1.4;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, .5);
+    border: 1px solid rgba(255, 77, 28, .15);
+    backdrop-filter: blur(12px);
+    transition: all .35s cubic-bezier(.22, .68, 0, 1.2);
+}
+
+.blocked-tooltip .tooltip-text::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -8px;
+    border-width: 8px;
+    border-style: solid;
+    border-color: #1a1a3e transparent transparent transparent;
+}
+
+.blocked-tooltip:hover .tooltip-text {
+    transform: translateY(-8px);
+}
+
+.nav-right {
+    gap: 14px;
+}
+
+.profile-link {
+    padding: 6px 22px 6px 6px;
+    border: 1px solid rgba(255, 255, 255, .06);
+    transition: all .3s ease;
+}
+
+.profile-link:hover {
+    background: rgba(255, 77, 28, .12);
+    border-color: rgba(255, 77, 28, .25);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 30px rgba(255, 77, 28, .12);
+}
+
+.profile-avatar {
+    font-family: 'Syne', sans-serif;
+    font-size: .9rem;
+    box-shadow: 0 2px 16px rgba(255, 77, 28, .35);
+}
+
+.logout-btn {
+    position: relative;
+    overflow: hidden;
+    padding: 9px 24px;
+    font-size: .9rem;
+    letter-spacing: .4px;
+    box-shadow: 0 4px 20px rgba(224, 62, 62, .3);
+    transition: all .3s ease;
+}
+
+.logout-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #ff6b3d, #e03e3e, #c084fc);
+    opacity: 0;
+    transition: opacity .3s ease;
+}
+
+.logout-btn:hover::before { opacity: 1; }
+
+.logout-btn:hover {
+    transform: translateY(-3px) scale(1.03);
+    box-shadow: 0 8px 35px rgba(224, 62, 62, .45);
+}
+
+.logout-btn i,
+.logout-btn span {
+    position: relative;
+    z-index: 1;
+}
+
 </style>
 
 </head>
@@ -1169,6 +1387,23 @@ code {
         </li>
 
 
+        
+
+
+        <!-- LOGS -->
+
+        <li>
+
+            <a href="{% url 'logs_monitoring' %}">
+
+                <i class="bi bi-journal-text"></i>
+
+                <span>Logs</span>
+
+            </a>
+
+        </li>
+
         <!-- NETWORK SCAN -->
 
         <li>
@@ -1182,7 +1417,6 @@ code {
             </a>
 
         </li>
-
 
         <!-- PREVENTION -->
 
@@ -1560,7 +1794,6 @@ code {
 
 
                 </div>
-
 
                 <!-- =================================================
                      SCORE EXPLANATION
@@ -2407,7 +2640,6 @@ code {
 
                 </p>
 
-
                 <!-- =================================================
                      THREE REAL BACKEND VALUES
                      ================================================= -->
@@ -2790,6 +3022,28 @@ code {
                 {% endif %}
 
 
+                {% if result.gaming_detected %}
+                    <div class="gaming-safe">
+                        <strong><i class="bi bi-controller"></i> System Safe — gaming activity detected</strong>
+                        <p class="mb-2">NVIDIA applications, games, and launchers are treated as normal activity. Nothing is stopped automatically.</p>
+                        {% for process in result.gaming_processes %}
+                            <div class="gaming-process-row">
+                                <span><code>{{ process.name }}</code> (PID {{ process.pid }})</span>
+                                {% if process.resource_limited %}
+                                    <button type="button" class="isolate-btn" disabled>
+                                        <i class="bi bi-check-circle"></i> Isolate Process
+                                    </button>
+                                {% else %}
+                                    <button type="button" class="isolate-btn" onclick="isolateProcess({{ process.pid }}, this)">
+                                        <i class="bi bi-speedometer2"></i> Isolated Process
+                                    </button>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+
                 <!-- =================================================
                      PREVENTION LOCK
                      ================================================= -->
@@ -2891,6 +3145,43 @@ function selectOS(os) {
 
     }
 
+}
+
+
+async function isolateProcess(pid, button) {
+
+    if (!window.confirm("Limit CPU resources for this selected process? The process will keep running.")) {
+        return;
+    }
+
+    button.disabled = true;
+    button.textContent = "Isolating...";
+
+    const csrfToken = document.querySelector("[name=csrfmiddlewaretoken]").value;
+
+    try {
+        const response = await fetch("{% url 'isolate_process' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrfToken
+            },
+            body: JSON.stringify({ pid: pid })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || "Isolation failed.");
+        }
+
+        button.textContent = "Resources limited";
+        button.closest(".gaming-process-row").style.opacity = ".55";
+    } catch (error) {
+        button.disabled = false;
+        button.innerHTML = '<i class="bi bi-speedometer2"></i> Limit resources';
+        window.alert(error.message);
+    }
 }
 
 

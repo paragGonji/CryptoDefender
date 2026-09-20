@@ -1,5 +1,6 @@
 import json
 import os
+import platform
 from datetime import timedelta
 
 import joblib
@@ -9,6 +10,8 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required
 
 from .models import ScanResult
 
@@ -52,6 +55,9 @@ latest_result = {
     "miners": [],
     "suspicious": [],
     "top5": [],
+    "gaming_processes": [],
+    "gaming_detected": False,
+    "resource_limited_pids": [],
 
     "risk_score": 0,
     "model_score": 0,
@@ -106,6 +112,33 @@ MINER_NAMES = [
 ]
 
 
+GAMING_PROCESS_NAMES = {
+    "steam.exe",
+    "steamwebhelper.exe",
+    "epicgameslauncher.exe",
+    "epicwebhelper.exe",
+    "eadesktop.exe",
+    "eaapp.exe",
+    "ubisoftconnect.exe",
+    "upc.exe",
+    "battle.net.exe",
+    "riotclientservices.exe",
+    "riotclientux.exe",
+    "goggalaxy.exe",
+    "nvidia app.exe",
+    "nvidiashare.exe",
+    "geforce experience.exe",
+}
+
+
+GAMING_PATH_MARKERS = (
+    "\\steamlibrary\\",
+    "\\steamapps\\common\\",
+    "\\epic games\\",
+    "\\nvidia corporation\\",
+)
+
+
 IGNORE_LIST = {
     "windowsterminal.exe",
     "chrome.exe",
@@ -114,7 +147,8 @@ IGNORE_LIST = {
     "system",
     "system idle process",
     "wmiprvse.exe",
-    "svchost.exe"
+    "svchost.exe",
+    "nvcontainer.exe"
 }
 
 
@@ -317,6 +351,17 @@ def get_model_accuracy():
                 pass
 
     return 0.0
+
+
+def is_gaming_process(process):
+
+    name = (process.get("name") or "").lower()
+    exe = (process.get("exe") or "").lower()
+
+    return (
+        name in GAMING_PROCESS_NAMES
+        or any(marker in exe for marker in GAMING_PATH_MARKERS)
+    )
 
 
 # ============================================================
@@ -578,6 +623,8 @@ def analyze_processes(processes):
 
     clean_processes = []
 
+    gaming_processes = []
+
     rule_score = 0
 
     # ========================================================
@@ -595,6 +642,16 @@ def analyze_processes(processes):
             continue
 
         if name in IGNORE_LIST:
+            continue
+
+        if is_gaming_process(p):
+
+            gaming_processes.append({
+                "pid": p.get("pid"),
+                "name": name,
+                "category": "NVIDIA / game / launcher"
+            })
+
             continue
 
         # ====================================================
@@ -951,17 +1008,23 @@ def analyze_processes(processes):
     else:
 
         status = (
-            "✅ System Safe"
+            "✅ System Safe — Gaming Activity Detected"
         )
 
         result_type = (
             "safe"
         )
 
-        message = (
-            "No cryptocurrency mining process "
-            "was detected."
-        )
+        if gaming_processes:
+            message = (
+                "System Safe. NVIDIA, game, or launcher activity "
+                "was detected; no mining process was found."
+            )
+        else:
+            message = (
+                "No cryptocurrency mining process "
+                "was detected."
+            )
 
     # ========================================================
     # MODEL ACCURACY
@@ -1043,6 +1106,15 @@ def analyze_processes(processes):
 
         "top5":
             top5_display,
+
+        "gaming_processes":
+            gaming_processes,
+
+        "gaming_detected":
+            bool(gaming_processes),
+
+        "resource_limited_pids":
+            [],
 
         # ----------------------------------------------------
         # MAIN FRONTEND VALUES
@@ -1382,6 +1454,16 @@ def scan_result(request):
                     "top5"
                 ],
 
+            "gaming_processes":
+                latest_result[
+                    "gaming_processes"
+                ],
+
+            "gaming_detected":
+                latest_result[
+                    "gaming_detected"
+                ],
+
             "message":
                 latest_result[
                     "message"
@@ -1554,3 +1636,103 @@ def scan_status(request):
     return JsonResponse(
         result
     )
+
+
+@login_required
+@require_POST
+def isolate_process(request):
+
+    try:
+        data = json.loads(request.body.decode("utf-8"))
+        pid = int(data.get("pid"))
+    except (TypeError, ValueError, json.JSONDecodeError):
+        return JsonResponse({"error": "A valid process ID is required."}, status=400)
+
+    try:
+        import psutil
+
+        process = psutil.Process(pid)
+        process_name = (process.name() or "").lower()
+
+        try:
+            process_exe = (process.exe() or "").lower()
+        except psutil.AccessDenied:
+            process_exe = ""
+
+        if not is_gaming_process({"name": process_name, "exe": process_exe}):
+            return JsonResponse(
+                {"error": "Only a detected game, launcher, or NVIDIA process can be isolated."},
+                status=403
+            )
+
+        if platform.system() == "Windows":
+            process.nice(psutil.BELOW_NORMAL_PRIORITY_CLASS)
+        else:
+            process.nice(10)
+
+        available_cpus = process.cpu_affinity()
+
+        if len(available_cpus) > 1:
+            limited_cpus = available_cpus[:max(1, len(available_cpus) // 2)]
+            process.cpu_affinity(limited_cpus)
+        else:
+            limited_cpus = available_cpus
+
+        limited_pids = set(
+            latest_result.get(
+                "resource_limited_pids",
+                []
+            )
+        )
+
+        limited_pids.add(pid)
+
+        latest_result["resource_limited_pids"] = list(limited_pids)
+
+        for gaming_process in latest_result.get("gaming_processes", []):
+            if gaming_process.get("pid") == pid:
+                gaming_process["resource_limited"] = True
+
+        latest_scan = (
+            ScanResult.objects
+            .order_by("-created_at")
+            .first()
+        )
+
+        if latest_scan:
+            try:
+                saved_result = json.loads(latest_scan.result)
+                saved_result["resource_limited_pids"] = list(limited_pids)
+
+                for gaming_process in saved_result.get("gaming_processes", []):
+                    if gaming_process.get("pid") == pid:
+                        gaming_process["resource_limited"] = True
+
+                latest_scan.result = json.dumps(saved_result)
+                latest_scan.save(update_fields=["result"])
+            except (TypeError, ValueError, json.JSONDecodeError):
+                pass
+
+        return JsonResponse({
+            "success": True,
+            "pid": pid,
+            "name": process_name,
+            "message": "Resource limits applied; the process was not stopped.",
+            "priority": "below_normal" if platform.system() == "Windows" else "nice_10",
+            "cpu_cores": limited_cpus
+        })
+
+    except psutil.NoSuchProcess:
+        return JsonResponse({"error": "The process is no longer running."}, status=404)
+    except psutil.AccessDenied:
+        return JsonResponse(
+            {
+                "error": (
+                    "Windows denied access to change this process. "
+                    "Run Django as Administrator or choose a non-elevated process."
+                )
+            },
+            status=403
+        )
+    except Exception as error:
+        return JsonResponse({"error": str(error)}, status=500)

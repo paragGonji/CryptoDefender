@@ -48,6 +48,7 @@ urlpatterns = [
     path('api/scan-result/', views.receive_scan, name='receive_scan'),
 
     path('api/scan/', dr_views.scan_result, name='scan_result'),
+    path('api/isolate-process/', dr_views.isolate_process, name='isolate_process'),
 
     path('home_loggedin/', views.home_loggedin, name='home_loggedin'),
     path('logout/', views.logout_view, name='logout'),

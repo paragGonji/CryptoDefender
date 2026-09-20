@@ -1,1 +1,1468 @@
-h1
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoDefender — Logs & Monitoring</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1e40af;
+            --primary-light: #3b82f6;
+            --primary-dark: #1e3a8a;
+            --secondary: #f59e0b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --bg: #f8fafc;
+            --bg-light: #ffffff;
+            --text: #1f2937;
+            --text-light: #6b7280;
+            --border: #e5e7eb;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: "Inter", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 280px;
+            height: 100vh;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            box-shadow: var(--shadow-lg);
+            overflow-y: auto;
+            z-index: 1000;
+            transition: width 0.3s ease;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 24px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .sidebar-brand-name {
+            font-family: "Outfit", sans-serif;
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: white;
+        }
+
+        .sidebar-brand-name span {
+            color: var(--secondary);
+        }
+
+        .sidebar-nav {
+            padding: 20px 0;
+            list-style: none;
+        }
+
+        .sidebar-nav-item {
+            margin: 0;
+        }
+
+        .sidebar-nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 20px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar-nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left-color: var(--secondary);
+        }
+
+        .sidebar-nav-link.active {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border-left-color: var(--secondary);
+        }
+
+        .sidebar-nav-link i {
+            font-size: 1.1rem;
+            width: 20px;
+        }
+
+        .sidebar-user {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .sidebar-user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .sidebar-user-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .sidebar-user-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: white;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .sidebar-user-logout {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .sidebar-user-logout:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .topbar {
+            background: var(--bg-light);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 32px;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .topbar-title {
+            font-family: "Outfit", sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .content {
+            flex: 1;
+            padding: 32px;
+            overflow-y: auto;
+        }
+
+        /* HERO SECTION */
+        .hero {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            border-radius: 16px;
+            padding: 40px 32px;
+            color: white;
+            margin-bottom: 32px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            padding: 8px 14px;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .hero h1 {
+            font-family: "Outfit", sans-serif;
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 12px;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            font-size: 1.05rem;
+            opacity: 0.95;
+            max-width: 700px;
+            line-height: 1.6;
+            margin-bottom: 28px;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--bg-light);
+            color: var(--primary);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* PANELS */
+        .panel {
+            background: var(--bg-light);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 24px;
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 24px;
+            border-bottom: 1px solid var(--border);
+            background: #fafbfc;
+        }
+
+        .panel-title {
+            font-family: "Outfit", sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .panel-title i {
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-safe {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .status-danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .panel-body {
+            padding: 24px;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 18px;
+            margin-bottom: 28px;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, #f8fafc 0%, #f0f4f8 100%);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 18px;
+            min-height: 140px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .summary-card-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-light);
+            margin-bottom: 10px;
+        }
+
+        .summary-card-value {
+            font-family: "Outfit", sans-serif;
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1.4;
+            word-break: break-word;
+            flex: 1;
+        }
+
+        .data-section {
+            margin-top: 28px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+            font-family: "Outfit", sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .section-header i {
+            color: var(--secondary);
+            margin-right: 10px;
+            font-size: 1.15rem;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        th {
+            background: #f3f4f6;
+            padding: 14px;
+            text-align: left;
+            font-weight: 700;
+            color: var(--text);
+            border-bottom: 2px solid var(--border);
+        }
+
+        td {
+            padding: 14px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        .ip-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            color: var(--primary-dark);
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: 1px solid #93c5fd;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-light);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            opacity: 0.3;
+        }
+
+        .empty-state p {
+            font-size: 1rem;
+        }
+
+        .detection-detail-box {
+            background: linear-gradient(135deg, #fff7ed 0%, #fff 100%);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            border-radius: 14px;
+            padding: 22px;
+            margin-top: 22px;
+        }
+
+        .detection-detail-header {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 16px;
+        }
+
+        .detection-flow {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .flow-step {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--primary);
+            color: white;
+            border-radius: 999px;
+            padding: 8px 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .flow-step.alert {
+            background: var(--danger);
+        }
+
+        .flow-arrow {
+            color: var(--text-light);
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .reason-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: grid;
+            gap: 10px;
+        }
+
+        .reason-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 12px 14px;
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(30, 64, 175, 0.08);
+            border-radius: 10px;
+            color: var(--text);
+            line-height: 1.45;
+        }
+
+        .reason-list li::before {
+            content: "•";
+            color: var(--secondary);
+            font-size: 1.6rem;
+            line-height: 1;
+            margin-top: 2px;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 0;
+                overflow: hidden;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .hero {
+                padding: 24px;
+            }
+
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .topbar {
+                padding: 12px 20px;
+            }
+        }
+
+        /* Deep Research visual language */
+        body {
+            display: block;
+            font-family: 'DM Sans', sans-serif;
+            background: #f0ede8;
+            color: #0d0d0d;
+            overflow-x: hidden;
+        }
+
+        body::before,
+        body::after {
+            content: '';
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(90px);
+            opacity: .5;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        body::before {
+            width: 620px;
+            height: 620px;
+            background: radial-gradient(circle, #ff4d1c 0%, #ffb347 60%, transparent 100%);
+            top: -220px;
+            right: -220px;
+        }
+
+        body::after {
+            width: 460px;
+            height: 460px;
+            background: radial-gradient(circle, #a78bfa 0%, #60a5fa 60%, transparent 100%);
+            bottom: -160px;
+            left: -140px;
+        }
+
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            min-height: 80px;
+            padding: 14px 36px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            flex-wrap: wrap;
+            background: linear-gradient(135deg, #0b0b1a, #1a1a3e 40%, #2d1b4e);
+            border-bottom: 3px solid transparent;
+            border-image: linear-gradient(90deg, #ff4d1c, #ffb347, #c084fc, #60a5fa) 1;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, .18);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .brand-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #ff4d1c, #ffb347, #c084fc);
+            box-shadow: 0 5px 25px rgba(255, 77, 28, .4);
+        }
+
+        .brand-icon i { color: #fff; font-size: 1.3rem; }
+
+        .brand-name {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.55rem;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .brand-name span {
+            background: linear-gradient(90deg, #ff4d1c, #ffb347, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-left,
+        .nav-right {
+            display: flex;
+            align-items: center;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-left {
+            gap: 5px;
+            padding: 4px;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, .05);
+        }
+
+        .nav-left a {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 18px;
+            border-radius: 10px;
+            color: rgba(255, 255, 255, .82);
+            text-decoration: none;
+            font-size: .9rem;
+            font-weight: 600;
+            transition: .25s;
+        }
+
+        .nav-left a:hover,
+        .nav-left a.active { color: #fff; background: rgba(255, 77, 28, .14); }
+        .nav-left a i { color: #ffb347; }
+
+        .nav-right { gap: 10px; }
+
+        .profile-link {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 5px 17px 5px 5px;
+            border-radius: 50px;
+            color: #fff;
+            text-decoration: none;
+            background: rgba(255, 255, 255, .05);
+            font-weight: 600;
+        }
+
+        .profile-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #ff4d1c, #ffb347, #c084fc);
+            color: #fff;
+            font-weight: 800;
+        }
+
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 10px 20px;
+            border-radius: 50px;
+            color: #fff;
+            text-decoration: none;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ff4d1c, #dc2626);
+        }
+
+        .disabled-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 18px;
+            color: rgba(255, 255, 255, .3);
+            cursor: not-allowed;
+        }
+
+        .blocked-tooltip { position: relative; }
+
+        .tooltip-text {
+            visibility: hidden;
+            opacity: 0;
+            position: absolute;
+            width: 230px;
+            bottom: 130%;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px;
+            border-radius: 10px;
+            background: #1a1a3e;
+            color: #fff;
+            text-align: center;
+            font-size: .75rem;
+            transition: .25s;
+        }
+
+        .blocked-tooltip:hover .tooltip-text { visibility: visible; opacity: 1; }
+
+        .sidebar {
+            position: sticky;
+            top: 0;
+            width: 100%;
+            height: auto;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            padding: 14px 36px;
+            background: linear-gradient(135deg, #0b0b1a 0%, #1a1a3e 40%, #2d1b4e 100%);
+            border-bottom: 3px solid #ff4d1c;
+            box-shadow: 0 8px 40px rgba(255, 77, 28, .12);
+            overflow: visible;
+        }
+
+        .sidebar-brand {
+            padding: 0;
+            border: 0;
+            flex-shrink: 0;
+        }
+
+        .sidebar-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #ff4d1c, #ffb347, #c084fc);
+        }
+
+        .sidebar-brand-name {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.6rem;
+        }
+
+        .sidebar-brand-name span {
+            background: linear-gradient(90deg, #ff4d1c, #ffb347, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .sidebar-nav {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin: 0 auto;
+            padding: 4px;
+            list-style: none;
+            background: rgba(255, 255, 255, .04);
+            border-radius: 16px;
+            overflow-x: auto;
+        }
+
+        .sidebar-nav-link {
+            padding: 9px 16px;
+            border: 0;
+            border-radius: 12px;
+            white-space: nowrap;
+            color: rgba(255, 255, 255, .8);
+            font-weight: 600;
+        }
+
+        .sidebar-nav-link:hover,
+        .sidebar-nav-link.active {
+            background: rgba(255, 77, 28, .16);
+            border: 0;
+        }
+
+        .sidebar-nav-link i {
+            color: #ffb347;
+        }
+
+        .sidebar-user {
+            position: static;
+            flex-shrink: 0;
+            margin: 0;
+            padding: 0;
+            background: transparent;
+            border: 0;
+        }
+
+        .sidebar-user-avatar {
+            background: linear-gradient(135deg, #ff4d1c, #ffb347, #c084fc);
+        }
+
+        .sidebar-user-logout {
+            background: linear-gradient(135deg, #ff4d1c, #e03e3e);
+        }
+
+        .main-content {
+            margin-left: 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .topbar {
+            display: flex;
+        }
+
+        .content {
+            max-width: 1040px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 40px 24px 70px;
+        }
+
+        .hero {
+            background: #fff;
+            color: #0d0d0d;
+            border-radius: 20px;
+            padding: 36px 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .08);
+        }
+
+        .hero-badge {
+            background: rgba(255, 77, 28, .1);
+            color: #c92a2a;
+            border: 1px solid rgba(255, 77, 28, .2);
+        }
+
+        .hero h1,
+        .panel-title,
+        .section-header,
+        .summary-card-value {
+            font-family: 'Syne', sans-serif;
+        }
+
+        .hero h1 {
+            color: #0d0d0d;
+        }
+
+        .hero p {
+            color: #6b6b6b;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ff4d1c, #e03e3e);
+            color: #fff;
+        }
+
+        .panel {
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .08);
+        }
+
+        .panel-header {
+            padding: 24px 28px;
+            background: #fff;
+        }
+
+        .panel-body {
+            padding: 28px;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, #fff 0%, #f7f4f0 100%);
+            border-radius: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .topbar { padding: 12px 15px; }
+            .nav-left { order: 3; width: 100%; justify-content: center; overflow-x: auto; }
+
+            .sidebar {
+                position: sticky;
+                width: 100%;
+                padding: 12px;
+                flex-wrap: wrap;
+            }
+
+            .sidebar-nav {
+                order: 3;
+                width: 100%;
+                justify-content: flex-start;
+            }
+
+            .sidebar-user-info {
+                display: none;
+            }
+
+            .content {
+                padding: 24px 16px 50px;
+            }
+
+            .hero {
+                padding: 28px 24px;
+            }
+
+            .panel-body,
+            .panel-header {
+                padding: 20px;
+            }
+        }
+
+        /* Match the animated navbar used by the network scan page. */
+        nav.topbar {
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 40px rgba(255, 77, 28, .12), inset 0 1px 0 rgba(255, 255, 255, .05);
+        }
+
+        .brand {
+            padding: 4px 14px 4px 6px;
+            border-radius: 12px;
+            transition: all .3s ease;
+        }
+
+        .brand:hover {
+            background: rgba(255, 255, 255, .06);
+            transform: scale(1.02);
+        }
+
+        .brand-icon {
+            position: relative;
+            box-shadow: 0 4px 20px rgba(255, 77, 28, .4);
+            animation: glowPulse 3s ease-in-out infinite;
+        }
+
+        .brand-icon::after {
+            content: '';
+            position: absolute;
+            inset: -3px;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #ff4d1c, #ffb347, #c084fc);
+            opacity: .3;
+            filter: blur(10px);
+            z-index: -1;
+            animation: glowPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes glowPulse {
+            0%, 100% { box-shadow: 0 4px 20px rgba(255, 77, 28, .4); }
+            50% { box-shadow: 0 4px 35px rgba(255, 77, 28, .7), 0 0 60px rgba(192, 132, 252, .2); }
+        }
+
+        .nav-left {
+            gap: 4px;
+            flex-wrap: wrap;
+            border: 1px solid rgba(255, 255, 255, .06);
+            backdrop-filter: blur(8px);
+        }
+
+        .nav-left a {
+            position: relative;
+            padding: 8px 22px;
+            border-radius: 12px;
+            font-size: .95rem;
+            letter-spacing: .2px;
+            transition: all .3s ease;
+        }
+
+        .nav-left a::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(255, 77, 28, .15), rgba(192, 132, 252, .1));
+            opacity: 0;
+            transition: opacity .3s ease;
+        }
+
+        .nav-left a:hover::before,
+        .nav-left a.active::before {
+            opacity: 1;
+        }
+
+        .nav-left a:hover {
+            transform: translateY(-2px);
+        }
+
+        .nav-left a i,
+        .nav-left a span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .nav-left a i {
+            font-size: 1.1rem;
+            transition: all .3s ease;
+        }
+
+        .nav-left a:hover i {
+            transform: scale(1.15) rotate(-5deg);
+            color: #ff6b3d;
+        }
+
+        .disabled-link {
+            padding: 8px 22px;
+            font-size: .95rem;
+            letter-spacing: .2px;
+            opacity: .5;
+        }
+
+        .blocked-tooltip .tooltip-text {
+            width: 240px;
+            bottom: 135%;
+            left: 50%;
+            margin-left: -120px;
+            padding: 12px 16px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #1a1a3e, #2d1b4e);
+            font-size: .8rem;
+            line-height: 1.4;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, .5);
+            border: 1px solid rgba(255, 77, 28, .15);
+            backdrop-filter: blur(12px);
+            transition: all .35s cubic-bezier(.22, .68, 0, 1.2);
+        }
+
+        .blocked-tooltip .tooltip-text::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -8px;
+            border-width: 8px;
+            border-style: solid;
+            border-color: #1a1a3e transparent transparent transparent;
+        }
+
+        .blocked-tooltip:hover .tooltip-text {
+            transform: translateY(-8px);
+        }
+
+        .nav-right {
+            gap: 14px;
+        }
+
+        .profile-link {
+            padding: 6px 22px 6px 6px;
+            border: 1px solid rgba(255, 255, 255, .06);
+            transition: all .3s ease;
+        }
+
+        .profile-link:hover {
+            background: rgba(255, 77, 28, .12);
+            border-color: rgba(255, 77, 28, .25);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 30px rgba(255, 77, 28, .12);
+        }
+
+        .profile-avatar {
+            font-family: 'Syne', sans-serif;
+            font-size: .9rem;
+            box-shadow: 0 2px 16px rgba(255, 77, 28, .35);
+        }
+
+        .logout-btn {
+            position: relative;
+            overflow: hidden;
+            padding: 9px 24px;
+            font-size: .9rem;
+            letter-spacing: .4px;
+            box-shadow: 0 4px 20px rgba(224, 62, 62, .3);
+            transition: all .3s ease;
+        }
+
+        .logout-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, #ff6b3d, #e03e3e, #c084fc);
+            opacity: 0;
+            transition: opacity .3s ease;
+        }
+
+        .logout-btn:hover::before { opacity: 1; }
+
+        .logout-btn:hover {
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 8px 35px rgba(224, 62, 62, .45);
+        }
+
+        .logout-btn i,
+        .logout-btn span {
+            position: relative;
+            z-index: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- DASHBOARD NAVBAR -->
+    <nav class="topbar">
+        <a class="brand" href="{% url 'home_loggedin' %}">
+            <div class="brand-icon">
+                <i class="bi bi-shield-fill-check"></i>
+            </div>
+            <div class="brand-name">Crypto<span>Defender</span></div>
+        </a>
+
+        <ul class="nav-left">
+            <li><a href="{% url 'deep_research' %}">
+                <i class="bi bi-search"></i><span>Deep Research</span>
+            </a></li>
+
+            <li><a class="active" href="{% url 'logs_monitoring' %}">
+                <i class="bi bi-journal-text"></i><span>Logs</span>
+            </a></li>
+            <li><a href="{% url 'deep_network_scan' %}">
+                <i class="bi bi-hdd-network"></i><span>Deep Network Scan</span>
+            </a></li>
+            <li class="blocked-tooltip">
+                <span class="disabled-link">
+                    <i class="bi bi-shield-lock"></i><span>Prevention 🔒</span>
+                </span>
+                <span class="tooltip-text">⚠️ Access to Prevention is blocked</span>
+            </li>
+        </ul>
+
+        <ul class="nav-right">
+            <li><a class="profile-link" href="{% url 'profile' %}">
+                <span class="profile-avatar">{{ request.user.username|slice:":1"|upper }}</span>
+                {{ request.user.username }}
+            </a></li>
+            <li><a class="logout-btn" href="{% url 'logout' %}">
+                <i class="bi bi-box-arrow-right"></i><span>Logout</span>
+            </a></li>
+        </ul>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+
+
+        <div class="content">
+            <!-- HERO SECTION -->
+            <div class="hero">
+                <div class="hero-badge">
+                    <i class="bi bi-activity"></i>
+                    Security Intelligence
+                </div>
+                <h1>System Logs & Network Monitoring</h1>
+                <p>Collect comprehensive system telemetry including hostname, domain, IPs, and network traffic to detect cryptomining activity and suspicious behavior.</p>
+                <div class="hero-actions">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-play-fill"></i>
+                            Start Collection
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- PANELS -->
+            {% if logs_data %}
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <i class="bi bi-shield-check"></i>
+                        System Inspection Report
+                    </div>
+                    {% if mining_detected %}
+                        <span class="status-badge status-danger">
+                            <i class="bi bi-exclamation-circle-fill"></i>
+                            Mining Detected
+                        </span>
+                    {% else %}
+                        <span class="status-badge status-safe">
+                            <i class="bi bi-check-circle-fill"></i>
+                            No Mining Detected
+                        </span>
+                    {% endif %}
+                </div>
+
+                <div class="panel-body">
+                    <div class="summary-grid">
+                        <div class="summary-card">
+                            <div class="summary-card-label">Hostname</div>
+                            <div class="summary-card-value">{{ logs_data.hostname }}</div>
+                        </div>
+
+                        <div class="summary-card">
+                            <div class="summary-card-label">Domain (FQDN)</div>
+                            <div class="summary-card-value">{{ logs_data.domain }}</div>
+                        </div>
+
+                        <div class="summary-card">
+                            <div class="summary-card-label">IP Addresses</div>
+                            <div class="summary-card-value">
+                                {% if logs_data.ips %}
+                                    <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                                        {% for ip in logs_data.ips %}
+                                            <span class="ip-badge">{{ ip }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <div style="opacity: 0.6;">No IPs detected</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="summary-card">
+                            <div class="summary-card-label">Network Activity</div>
+                            <div class="summary-card-value">
+                                <div style="font-size: 0.9rem; line-height: 1.8;">
+                                    ↑ {{ logs_data.network.bytes_sent|filesizeformat }}<br>
+                                    ↓ {{ logs_data.network.bytes_recv|filesizeformat }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if logs_data.mining_detected and logs_data.detection_reasons %}
+                    <div class="detection-detail-box">
+                        <div class="detection-detail-header">
+                            <i class="bi bi-info-circle"></i> What was detected at that time
+                        </div>
+
+                        <div class="detection-flow" aria-label="Detection flow diagram">
+                            <span class="flow-step">Process Scan</span>
+                            <span class="flow-arrow">→</span>
+                            <span class="flow-step">Network Scan</span>
+                            <span class="flow-arrow">→</span>
+                            <span class="flow-step">Event Log Review</span>
+                            <span class="flow-arrow">→</span>
+                            <span class="flow-step alert">Mining Detected</span>
+                        </div>
+
+                        <ul class="reason-list">
+                            {% for reason in logs_data.detection_reasons %}
+                            <li>{{ reason }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+
+                    <!-- SUSPICIOUS CONNECTIONS -->
+                    <div class="data-section">
+                        <div class="section-header">
+                            <i class="bi bi-diagram-3"></i>
+                            Suspicious Mining Connections
+                        </div>
+                        {% if logs_data.suspicious_connections %}
+                            <div class="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Status</th>
+                                            <th>Local Address</th>
+                                            <th>Remote Address</th>
+                                            <th>Process ID</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for conn in logs_data.suspicious_connections %}
+                                        <tr>
+                                            <td>
+                                                <span style="font-weight: 600; color: var(--danger);">
+                                                    {{ conn.status }}
+                                                </span>
+                                            </td>
+                                            <td>{{ conn.local_ip }}:{{ conn.local_port }}</td>
+                                            <td>{{ conn.remote_ip|default:'-' }}:{{ conn.remote_port|default:'-' }}</td>
+                                            <td><code style="background: #f3f4f6; padding: 4px 8px; border-radius: 4px;">{{ conn.pid|default:'-' }}</code></td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="empty-state">
+                                <i class="bi bi-check-circle"></i>
+                                <p>No suspicious mining connections detected.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- MINER PROCESSES -->
+                    <div class="data-section">
+                        <div class="section-header">
+                            <i class="bi bi-cpu"></i>
+                            Known Miner Processes
+                        </div>
+                        {% if logs_data.processes %}
+                            <div class="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Process ID</th>
+                                            <th>Process Name</th>
+                                            <th>Command Line</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for proc in logs_data.processes %}
+                                        <tr>
+                                            <td><code style="background: #f3f4f6; padding: 4px 8px; border-radius: 4px;">{{ proc.pid }}</code></td>
+                                            <td><strong>{{ proc.name }}</strong></td>
+                                            <td style="font-family: monospace; font-size: 0.85rem;">{{ proc.cmdline }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="empty-state">
+                                <i class="bi bi-check-circle"></i>
+                                <p>No known miner processes detected on this system.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if recent_logs %}
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <i class="bi bi-journal-text"></i>
+                        System Scan History Log
+                    </div>
+                    {% if analytics and analytics.total_logs_collected %}
+                        <span class="status-badge status-safe">
+                            <i class="bi bi-clock-history"></i>
+                            {{ analytics.total_logs_collected }} scans
+                        </span>
+                    {% else %}
+                        <span class="status-badge status-safe">
+                            <i class="bi bi-inbox"></i>
+                            No scans yet
+                        </span>
+                    {% endif %}
+                </div>
+
+                <div class="panel-body">
+                    <div class="summary-grid" style="margin-bottom: 18px;">
+                        <div class="summary-card">
+                            <div class="summary-card-label">Total System Scans</div>
+                            <div class="summary-card-value">{{ analytics.total_logs_collected|default:0 }}</div>
+                        </div>
+
+                        <div class="summary-card">
+                            <div class="summary-card-label">Mining Detected</div>
+                            <div class="summary-card-value">{{ analytics.total_mining_detections|default:0 }}</div>
+                        </div>
+
+                        <div class="summary-card">
+                            <div class="summary-card-label">Last Scan</div>
+                            <div class="summary-card-value">
+                                {% if analytics and analytics.last_detection or analytics.last_safe_scan %}
+                                    {% if analytics.last_detection and analytics.last_safe_scan %}
+                                        {{ analytics.last_detection|date:"M d, Y H:i" }}
+                                    {% elif analytics.last_detection %}
+                                        {{ analytics.last_detection|date:"M d, Y H:i" }}
+                                    {% else %}
+                                        {{ analytics.last_safe_scan|date:"M d, Y H:i" }}
+                                    {% endif %}
+                                {% else %}
+                                    No scans yet
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="summary-card">
+                            <div class="summary-card-label">Suspicious Connections</div>
+                            <div class="summary-card-value">{{ analytics.total_suspicious_connections|default:0 }}</div>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Scanned At</th>
+                                    <th>Hostname</th>
+                                    <th>Status</th>
+                                    <th>IP Address</th>
+                                    <th>Suspicious Connections</th>
+                                    <th>Summary</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for log in recent_logs %}
+                                <tr>
+                                    <td>{{ log.created_at|date:"M d, Y H:i" }}</td>
+                                    <td>{{ log.hostname }}</td>
+                                    <td>
+                                        {% if log.mining_detected %}
+                                            <span class="status-badge status-danger">Mining Detected</span>
+                                        {% else %}
+                                            <span class="status-badge status-safe">Safe</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ log.ip_addresses|join:", " }}</td>
+                                    <td>{{ log.suspicious_connections.count }}</td>
+                                    <td>{{ log.detection_summary }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="panel">
+                <div class="panel-body">
+                    <div class="empty-state" style="padding: 80px 20px;">
+                        <i class="bi bi-inbox"></i>
+                        <p style="font-size: 1.1rem; margin-top: 16px;">No system scan logs found yet. Click "Start Collection" to begin.</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+
+</html>

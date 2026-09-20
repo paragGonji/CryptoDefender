@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: cryptodefender
+    runtime: python
+    plan: free
+    buildCommand: bash build.sh
+    startCommand: gunicorn cryptodefender.wsgi:application
+    healthCheckPath: /
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: PYTHON_VERSION
+        value: "3.12.8"
+      - key: DATABASE_URL
+        sync: false
+      - key: EMAIL_HOST_USER
+        sync: false
+      - key: EMAIL_HOST_PASSWORD
+        sync: false

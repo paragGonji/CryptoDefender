@@ -131,6 +131,8 @@ def collect_processes():
 
                 "name": name,
 
+                "exe": exe,
+
                 "cpu": float(cpu),
 
                 "memory": float(memory),
